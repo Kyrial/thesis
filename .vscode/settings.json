@@ -1,0 +1,7 @@
+{
+    "python.linting.pylintArgs": [
+        "--init-hook",
+        "import sys; sys.path.append('../code/functions')"
+    ]
+
+}
