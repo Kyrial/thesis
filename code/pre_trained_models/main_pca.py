@@ -31,7 +31,7 @@ import sparsenesslib.high_level as hl
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = ['SMALLTEST'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = ['BIGTEST'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
 list_weights = ['imagenet'] #['vggface','imagenet','vggplace']
