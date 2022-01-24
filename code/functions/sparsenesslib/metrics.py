@@ -39,6 +39,7 @@ import scipy.optimize as opt
 from scipy.ndimage import gaussian_filter1d
 from matplotlib.collections import LineCollection
 from sklearn import decomposition
+from sklearn.decomposition import IncrementalPCA
 from sklearn import preprocessing
 
 #####################################################################################
@@ -291,52 +292,53 @@ def inflexion_points(df_metrics,dict_labels):
 #####################################################################################
 def acp_layers(dict_metrics, pc):
     
-    print("-1")
-    df_metrics = pandas.DataFrame.from_dict(dict_metrics)       
-    tic = time.perf_counter()   
-    print("0")
+    '''
+    A PCA with activations of each layer as features
+    '''
+    
+    #conversion d'un dictionnaire avec chaque image en clé et un vecteur de toutes leurs activations en valeur, en pandas dataframe
+    df_metrics = pandas.DataFrame.from_dict(dict_metrics)     
+      
+    tic = time.perf_counter()    
 
     for index, row in df_metrics.iterrows():         
         
-        print('a')
-        n_comp = 1 #nombre de composantes à calculer, fixé de manière à ce que leur somme soit au moins supérieure à 35   
+        print('a') #flags pour monitorer visuellement le temps d'exécution de chaque étape (en fonction des jeux de données c'est pas au même endroit que ça plante)
+        n_comp = 10 #nombre de composantes à calculer, fixé de manière à ce que leur somme soit au moins supérieure à 35  (a passer en paramètres)
         print('b')
-        df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T   #avec MART ça plante là (RAM sans doute)
-        print('c')
-        X = df.values        
-        print('d')
-        names = df.index # ou data.index pour avoir les intitulés        
-        print('e')
-        features = df.columns  
-        print('f')      
+        df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T  
+        X = df.values 
+        print('d')    
         # Centrage et Réduction
         std_scale = preprocessing.StandardScaler().fit(X)
-        print('g')        
+        print('e')        
         X_scaled = std_scale.transform(X)
-        print('h')
+        print('f')        
+        # Calcul des composantes principales        
+        pca = decomposition.PCA(n_components= n_comp)  
+        print("g")     
+        pca.fit_transform(X)          
+        print("h")
         
-        # Calcul des composantes principales
-        pca = decomposition.PCA(n_components= n_comp)       
-        pca.fit(X_scaled)        
+        #représentations graphiques (pas utile)
         # Eboulis des valeurs propres
         #display_scree_plot(pca)
-
         # Cercle des corrélations
-        pcs = pca.components_        
+        #pcs = pca.components_        
         #display_circles(pcs, n_comp, pca, [(0,1),(2,3),(4,5)], labels = np.array(features))
-
         # Projection des individus
-        X_projected = pca.transform(X_scaled)    
+        #X_projected = pca.transform(X)    
         #display_factorial_planes(X_projected, n_comp, pca, [(0,1),(2,3),(4,5)], labels = np.array(names))
-
         #plt.show()
+        
+        #composantes et somme cumulée       
         #print(pca.explained_variance_ratio_)
         #print(np.cumsum(pca.explained_variance_ratio_))
         sum_comp = np.cumsum(pca.explained_variance_ratio_)
-        #print(next(x[0] for x in enumerate(sum_comp) if x[1] > 0.8))
-
+        #print(next(x[0] for x in enumerate(sum_comp) if x[1] > 0.8))    
         pc = np.cumsum(pca.explained_variance_ratio_)
 
+        #timer pour l'ACP de chaque couche
         print('############################################################################')
         toc = time.perf_counter()
         print(f"time: {toc - tic:0.4f} seconds")

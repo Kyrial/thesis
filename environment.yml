@@ -318,5 +318,9 @@ dependencies:
   - zlib=1.2.11=h516909a_1010
   - zstd=1.4.9=ha95c52a_0
   - pip:
+    - mako==1.1.6
+    - pycuda==2021.1
+    - pytools==2021.2.9
+    - scikit-cuda==0.5.3
     - split-folders==0.4.3
 prefix: /home/renoult/anaconda3/envs/cefe

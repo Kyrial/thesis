@@ -80,40 +80,40 @@ def parse_activations_by_layer(model,path, dict_output, layer, computation, form
     une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
     elle retourne l'array des activations à la couche choisie    
     '''
-    print("1")
+    
     imgs = [f for f in os.listdir(path)] 
-    print("2")   
+      
     i = 1
-    print("3")
+    
 
     for each in imgs:
-        print("4")
+        
 
         if i%freqmod == 0:
-            print("5")
+            
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
         i += 1
-        print("6")
+        
         img_path = path + "/" + each
-        print("7")
+        
         img = load_img(img_path, target_size=(224, 224))
-        print("8")
+        
         image = img_to_array(img)
-        print("9")
+        
         img = image.reshape(
             (1, image.shape[0], image.shape[1], image.shape[2]))  
-        print("10")
+        
         image = preprocess_input(img)
-        print("11")
+        
         # récupération des activations
         activations = keract.get_activations(model, image)
-        print("12")
+        
         activations_dict = {}
-        print("13")
+        
         acst.compute_flatten(activations, activations_dict, layer, formula,k)  
-        print("14")
+        
         dict_output[each] = activations_dict
-        print("15")
+        
 #####################################################################################
 def write_file(log_path, bdd, weight, metric, df_metrics, df_reglog, df_scope, df_inflexions, layers, k):    
     '''
@@ -426,20 +426,20 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
 
     for layer in layers:   
 
-        print('A)')
+        
         print('##### current layer is: ', layer)
         #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
         #elle retourne l'array des activations à la couche choisie
         dict_activations = {}
-        print('B')
+        
         
         parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
-        print('C')
+        
         pc = []
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
         #  et retourne la liste remplie
         metrics.acp_layers(dict_activations, pc)
-        print('D')
+        
         #A CODER 
 
         #dict_compute_pc[layer] = pc
