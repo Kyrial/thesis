@@ -310,12 +310,12 @@ def acp_layers(dict_metrics, pc):
         X = df.values 
         print('d')    
         # Centrage et Réduction
-        std_scale = preprocessing.StandardScaler().fit(X)
+        #std_scale = preprocessing.StandardScaler().fit(X)
         print('e')        
-        X_scaled = std_scale.transform(X)
+        #X_scaled = std_scale.transform(X)
         print('f')        
         # Calcul des composantes principales        
-        pca = decomposition.PCA(n_components= n_comp)  
+        pca = decomposition.PCA(n_components= n_comp, svd_solver = "arpack", copy = False)  
         print("g")     
         pca.fit_transform(X)          
         print("h")
