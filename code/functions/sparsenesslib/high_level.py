@@ -113,6 +113,59 @@ def parse_activations_by_layer(model,path, dict_output, layer, computation, form
         acst.compute_flatten(activations, activations_dict, layer, formula,k)  
         
         dict_output[each] = activations_dict
+#####################################################################################
+def parse_activations_by_filter(model,path, list_output, layer, computation, formula, freqmod,k):
+    
+    '''
+    Une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images, par filtre
+    Elle retourne dans list_output une liste (de taile n = nombre de filtres) de dictionnaires(de taille n= nombre d'images)
+    d'array des activations par filtre a la couche choisie
+    '''
+    
+    imgs = [f for f in os.listdir(path)] 
+      
+    i = 1
+    
+
+    #pour avoir le nombre d'activations, test sur une image quelconque
+    img_path = path + "/" + imgs[1]
+    img = load_img(img_path, target_size=(224, 224))
+    image = img_to_array(img)
+    img = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))  
+    image = preprocess_input(img)
+    activations = keract.get_activations(model, image)
+    print(layer)
+    #print(activations.items())
+    [print(k, '->', v.shape, '- Numpy array') for (k, v) in activations.items()]
+
+
+    for each in imgs:
+        
+
+        if i%freqmod == 0:
+            
+            print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
+        i += 1
+        
+        img_path = path + "/" + each
+        
+        img = load_img(img_path, target_size=(224, 224))
+        
+        image = img_to_array(img)
+        
+        img = image.reshape(
+            (1, image.shape[0], image.shape[1], image.shape[2]))  
+        
+        image = preprocess_input(img)
+        
+        # récupération des activations
+        activations = keract.get_activations(model, image)
+        
+        activations_dict = {}
+        
+        acst.compute_flatten(activations, activations_dict, layer, formula,k)  
+        
+        dict_output[each] = activations_dict
         
 #####################################################################################
 def write_file(log_path, bdd, weight, metric, df_metrics, df_reglog, df_scope, df_inflexions, layers, k):    
@@ -434,6 +487,131 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
         
         
         parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
+        
+        pc = []
+        #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
+        #  et retourne la liste remplie
+        metrics.acp_layers(dict_activations, pc)
+        
+        #A CODER 
+
+        #dict_compute_pc[layer] = pc
+        
+    
+    spm.parse_rates(labels_path, dict_labels)
+    
+    today = date.today()
+    today = str(today)
+
+
+#####################################################################################################""
+def extract_pc_acp_filter(bdd,weight,metric, model_name, computer, freqmod,k = 1):
+    '''
+    something like a main, but in a function (with all previous function)
+    ,also, load paths, models/weights parameters and write log file
+
+    *k:index of the loop, default is 1*
+
+    Version for compute pca (loop on layers before loop on pictures)
+    
+    '''
+
+    t0 = time.time()
+
+    if computer == 'sonia': #databases aren't in repo bc they need to be in DATA partition of the pc (more space)
+        if bdd == 'CFD':
+            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/CFD/labels_CFD.csv'
+            images_path ='/media/sonia/DATA/data_nico/data/redesigned/CFD/images'
+            log_path ='../../results/CFD/log_'
+        elif bdd == 'JEN':
+            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/JEN/labels_JEN.csv'
+            images_path ='/media/sonia/DATA/data_nico/data/redesigned/JEN/images'
+            log_path ='../../results/JEN/log_'
+        elif bdd == 'SCUT-FBP':
+            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/SCUT-FBP/labels_SCUT_FBP.csv'
+            images_path ='/media/sonia/DATA/data_nico/data/redesigned/SCUT-FBP/images'
+            log_path ='../../results/SCUT-FBP/log_'
+        elif bdd == 'MART':
+            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/MART/labels_MART.csv'
+            images_path ='/media/sonia/DATA/data_nico/data/redesigned/MART/images'
+            log_path ='../../results/MART/log_'
+        elif bdd == 'SMALLTEST':
+            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/small_test/labels_test.csv'
+            images_path ='/media/sonia/DATA/data_nico/data/redesigned/small_test/images'
+            log_path ='../../results/smalltest/log_'
+        elif bdd == 'BIGTEST':        
+            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/big_test/labels_bigtest.csv'
+            images_path ='/media/sonia/DATA/data_nico/data/redesigned/big_test/images'
+            log_path ='../../results/bigtest/log_'
+
+    else: #for others configurations,all paths are relative paths in git repository
+        if bdd == 'CFD':
+            labels_path ='../../data/redesigned/CFD/labels_CFD.csv'
+            images_path ='../../data/redesigned/CFD/images'
+            log_path ='../../results/CFD/log_'
+        elif bdd == 'JEN':
+            labels_path ='../../data/redesigned/JEN/labels_JEN.csv'
+            images_path ='../../data/redesigned/JEN/images'
+            log_path ='../../results/JEN/log_'
+        elif bdd == 'SCUT-FBP':
+            labels_path ='../../data/redesigned/SCUT-FBP/labels_SCUT_FBP.csv'
+            images_path ='../../data/redesigned/SCUT-FBP/images'
+            log_path ='../../results/SCUT-FBP/log_'
+        elif bdd == 'MART':
+            labels_path ='../../data/redesigned/MART/labels_MART.csv'
+            images_path ='../../data/redesigned/MART/images'
+            log_path ='../../results/MART/log_'
+        elif bdd == 'SMALLTEST':                       
+            labels_path ='../../data/redesigned/small_test/labels_test.csv'
+            images_path ='../../data/redesigned/small_test/images'
+            log_path ='../../results/smalltest/log_'            
+        elif bdd == 'BIGTEST':
+            labels_path ='../../data/redesigned/big_test/labels_bigtest.csv'
+            images_path ='../../data/redesigned/big_test/images'
+            log_path ='../../results/bigtest/log_'  
+
+    if model_name == 'VGG16':
+        if weight == 'imagenet':
+            model = VGG16(weights = 'imagenet')
+            layers = ['input_1','block1_conv1','block1_conv2','block1_pool','block2_conv1', 'block2_conv2','block2_pool',
+            'block3_conv1','block3_conv2','block3_conv3','block3_pool','block4_conv1','block4_conv2','block4_conv3',
+            'block4_pool', 'block5_conv1','block5_conv2','block5_conv3','block5_pool','flatten','fc1', 'fc2']
+            flatten_layers = ['fc1','fc2','flatten']
+        elif weight == 'vggface':
+            model = VGGFace(model = 'vgg16', weights = 'vggface')
+            layers = ['input_1','conv1_1','conv1_2','pool1','conv2_1','conv2_2','pool2','conv3_1','conv3_2','conv3_3',
+            'pool3','conv4_1','conv4_2','conv4_3','pool4','conv5_1','conv5_2','conv5_3','pool5','flatten',
+            'fc6/relu','fc7/relu']
+            flatten_layers = ['flatten','fc6','fc6/relu','fc7','fc7/relu','fc8','fc8/softmax']
+        elif weight == 'vggplaces':
+            model = places.VGG16_Places365(weights='places')
+            layers = ['input_1','block1_conv1','block1_conv2','block1_pool','block2_conv1', 'block2_conv2','block2_pool',
+            'block3_conv1','block3_conv2','block3_conv3','block3_pool','block4_conv1','block4_conv2','block4_conv3',
+            'block4_pool', 'block5_conv1','block5_conv2','block5_conv3','block5_pool','flatten','fc1', 'fc2']
+            flatten_layers = ['fc1','fc2','flatten']
+    elif model_name == 'resnet50':
+        if weight == 'imagenet': 
+            print('error, model not configured')
+        elif weight == 'vggfaces':
+            print('error, model not configured')  
+
+    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
+    dict_labels = {}
+
+    print(layers)
+
+    for layer in layers:   
+
+        
+        print('##### current layer is: ', layer)
+        #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images par filtre
+        #elle retourne une liste (n = nombre de filtres) de dict (n = nombre d'images) d'arrays des activations (n = nombre d'activations du filtre)
+        # à la couche choisie, de taille n avec n = nombre de filtres
+        
+        list_activations = {}
+        
+        
+        parse_activations_by_filter(model,images_path,list_activations, layer, 'flatten', metric, freqmod, k)
         
         pc = []
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,

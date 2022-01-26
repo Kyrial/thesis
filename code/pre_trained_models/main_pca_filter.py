@@ -47,6 +47,6 @@ for bdd in list_bdd:
     for weight in list_weights:
         for metric in list_metrics:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
-            hl.extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k)            
+            hl.extract_pc_acp_filter(bdd,weight,metric, model_name, computer, freqmod,k)            
             k += 1
 #####################################################################################
