@@ -36,6 +36,7 @@ import itertools
 import time
 import statsmodels.api as sm
 import scipy.optimize as opt
+import os
 from scipy.ndimage import gaussian_filter1d
 from matplotlib.collections import LineCollection
 from sklearn import decomposition
@@ -290,7 +291,7 @@ def inflexion_points(df_metrics,dict_labels):
     df2 = pandas.DataFrame.from_dict(dict_inflexions, orient='index', columns = ['reglog'] ) 
     return pandas.concat([df1, df2], axis = 1)  
 #####################################################################################
-def acp_layers(dict_metrics, pc):
+def acp_layers(dict_metrics, pc, bdd, layer):
     
     '''
     A PCA with activations of each layer as features
@@ -310,33 +311,22 @@ def acp_layers(dict_metrics, pc):
         X = df.values 
         print('d')    
         # Centrage et Réduction
-        #std_scale = preprocessing.StandardScaler().fit(X)
+        std_scale = preprocessing.StandardScaler().fit(X)
         print('e')        
-        #X_scaled = std_scale.transform(X)
+        X_scaled = std_scale.transform(X)
         print('f')        
         # Calcul des composantes principales        
-        pca = decomposition.PCA(n_components= n_comp, svd_solver = "arpack", copy = False)  
+        pca = decomposition.PCA(n_components= 0.8)  
         print("g")     
-        pca.fit_transform(X)          
-        print("h")
-        
-        #représentations graphiques (pas utile)
-        # Eboulis des valeurs propres
-        #display_scree_plot(pca)
-        # Cercle des corrélations
-        #pcs = pca.components_        
-        #display_circles(pcs, n_comp, pca, [(0,1),(2,3),(4,5)], labels = np.array(features))
-        # Projection des individus
-        #X_projected = pca.transform(X)    
-        #display_factorial_planes(X_projected, n_comp, pca, [(0,1),(2,3),(4,5)], labels = np.array(names))
-        #plt.show()
-        
-        #composantes et somme cumulée       
-        #print(pca.explained_variance_ratio_)
-        #print(np.cumsum(pca.explained_variance_ratio_))
-        sum_comp = np.cumsum(pca.explained_variance_ratio_)
-        #print(next(x[0] for x in enumerate(sum_comp) if x[1] > 0.8))    
-        pc = np.cumsum(pca.explained_variance_ratio_)
+        coordinates = pca.fit_transform(X_scaled)          
+        print("h") 
+        df = pandas.DataFrame(coordinates)
+        print("i")
+        bdd = bdd.lower()
+        os.makedirs("/home/renoult/Bureau/thesis/results"+"/"+bdd+"/"+"pca", exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+        df.to_csv("/home/renoult/Bureau/thesis/results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
+
 
         #timer pour l'ACP de chaque couche
         print('############################################################################')

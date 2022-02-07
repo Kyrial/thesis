@@ -490,12 +490,8 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
         
         pc = []
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
-        #  et retourne la liste remplie
-        metrics.acp_layers(dict_activations, pc)
-        
-        #A CODER 
-
-        #dict_compute_pc[layer] = pc
+        #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
+        metrics.acp_layers(dict_activations, pc, bdd, layer)       
         
     
     spm.parse_rates(labels_path, dict_labels)
