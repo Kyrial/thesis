@@ -54,7 +54,7 @@ def compute_filter(activations, activations_dict,layer,formula,k):
     entropies = []
     complexity = []
 
-    print('##### current layer is: ', layer)
+    #print('##### current layer is: ', layer)
 
     for map in maps:
         _, _, probabilities = etp.get_ordinal_probabilities(map,2,2)
