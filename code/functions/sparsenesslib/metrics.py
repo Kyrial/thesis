@@ -323,9 +323,9 @@ def acp_layers(dict_metrics, pc, bdd, layer):
         df = pandas.DataFrame(coordinates)
         print("i")
         bdd = bdd.lower()
-        os.makedirs("/home/renoult/Bureau/thesis/results"+"/"+bdd+"/"+"pca", exist_ok=True)
+        os.makedirs("./results"+"/"+bdd+"/"+"pca", exist_ok=True)
         #l'enregistrer dans results, en précisant la layer dans le nom
-        df.to_csv("/home/renoult/Bureau/thesis/results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
+        df.to_csv("./thesis/results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
 
 
         #timer pour l'ACP de chaque couche
@@ -334,3 +334,6 @@ def acp_layers(dict_metrics, pc, bdd, layer):
         print(f"time: {toc - tic:0.4f} seconds")
         print('############################################################################')
 
+#def Acp_densiteProba(dict_metrics, pc, bdd, layer):
+
+    

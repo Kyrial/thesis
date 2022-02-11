@@ -43,7 +43,7 @@ freqmod = 100 #frequency of prints, if 5: print for 1/5 images
 list_metrics = ['acp']
 k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
-for bdd in list_bdd:    
+for bdd in list_bdd:
     for weight in list_weights:
         for metric in list_metrics:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
