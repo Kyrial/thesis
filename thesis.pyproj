@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{ac8f23c5-93d1-42b0-b3a9-cb66c3329825}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>code\pre_trained_models\main_model.py</StartupFile>
+    <StartupFile>code\pre_trained_models\main_pca.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>code\pre_trained_models\</WorkingDirectory>
     <OutputPath>.</OutputPath>

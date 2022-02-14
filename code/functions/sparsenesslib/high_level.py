@@ -38,6 +38,7 @@ import pandas
 import matplotlib.pyplot as plt
 import numpy as np
 import json
+import re
 #import vggplaces.vgg16_places_365 as places
 #personnal librairies
 sys.path.insert(1,'../../code/functions')
@@ -368,12 +369,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
 
     *k:index of the loop, default is 1*
 
-    Version for compute pca (loop on layers before loop on pictures)
-    
+    Version for compute pca (loop on layers before loop on pictures)    
     '''
-
     t0 = time.time()
-
 
     labels_path, images_path, log_path = getPaths(bdd, computer)
     model, layers, flatten_layers =configModel(model_name, weight)
@@ -395,13 +393,57 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
         pc = []
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
         #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-        metrics.acp_layers(dict_activations, pc, bdd, layer)       
+        metrics.acp_layers(dict_activations, pc, bdd, layer)
         
     
     spm.parse_rates(labels_path, dict_labels)
     
     today = date.today()
     today = str(today)
+
+def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1):
+    '''
+    something like a main, but in a function (with all previous function)
+    ,also, load paths, models/weights parameters and write log file
+
+    *k:index of the loop, default is 1*
+
+    Version for compute pca (loop on layers before loop on pictures) 
+    '''
+
+    t0 = time.time()
+    labels_path, images_path, log_path = getPaths(bdd, computer)
+    model, layers, flatten_layers =configModel(model_name, weight)
+
+    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
+    dict_labels = {}
+
+    lastBlock = ""
+    for layer in layers:   
+        block =""
+        x = re.search("block\d*",layer)
+        if( x==None ):
+            block = layer
+        else:
+            block = x.group()
+        if lastBlock != block:
+            lastBlock = block
+            print('##### current block is: ', block)
+            #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
+            #elle retourne l'array des activations à la couche choisie
+            dict_activations = {}
+        
+            parse_activations_by_layer(model,images_path,dict_activations, block, 'flatten', metric, freqmod, k)
+
+            pc = []
+            #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
+            #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
+            metrics.acp_layers(dict_activations, pc, bdd, block)             
+    spm.parse_rates(labels_path, dict_labels)   
+    today = date.today()
+    today = str(today)
+
+
 
 
 #####################################################################################################""
