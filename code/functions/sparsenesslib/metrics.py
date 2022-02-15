@@ -292,7 +292,7 @@ def inflexion_points(df_metrics,dict_labels):
     df2 = pandas.DataFrame.from_dict(dict_inflexions, orient='index', columns = ['reglog'] ) 
     return pandas.concat([df1, df2], axis = 1)  
 #####################################################################################
-def acp_layers(dict_metrics, pc, bdd, layer):
+def acp_layers(dict_metrics, pc, bdd, layer, block = False):
     
     '''
     A PCA with activations of each layer as features
@@ -324,10 +324,14 @@ def acp_layers(dict_metrics, pc, bdd, layer):
         df = pandas.DataFrame(coordinates)
         print("i")
         bdd = bdd.lower()
-        os.makedirs("../../results"+"/"+bdd+"/"+"pcaBlock", exist_ok=True)
-        #l'enregistrer dans results, en précisant la layer dans le nom
-        df.to_csv("../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+layer+".csv")
-
+        if block:
+            os.makedirs("../../results"+"/"+bdd+"/"+"pcaBlock", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+            df.to_csv("../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+layer+".csv")
+        else:
+            os.makedirs("../../results"+"/"+bdd+"/"+"pca", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+            df.to_csv("../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
 
         #timer pour l'ACP de chaque couche
         print('############################################################################')
