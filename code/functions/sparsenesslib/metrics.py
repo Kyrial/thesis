@@ -42,7 +42,8 @@ from matplotlib.collections import LineCollection
 from sklearn import decomposition
 from sklearn.decomposition import IncrementalPCA
 from sklearn import preprocessing
-
+from sklearn.mixture import GaussianMixture
+import csv
 #####################################################################################
 # PROCEDURES/FUNCTIONS:
 #####################################################################################
@@ -342,3 +343,30 @@ def Acp_densiteProba(dict_metrics, pc, bdd, layer):
     df_metrics = pandas.DataFrame.from_dict(dict_metrics)     
       
     tic = time.perf_counter()    
+
+
+
+def readCsv(path):
+    """
+    lit un fichier .csv, convertit toutes les valeurs en float et retourne un numpyArray
+    """
+    try:
+        with open(path, newline='') as csvfile:
+            rows = list(csv.reader(csvfile,delimiter=','))
+            for row in rows[1:]:
+                for i in range(len(row)):
+                    row[i] = float(row[i])
+            rows.pop(0)
+            return np.array(rows)
+    except OSError:
+        print("cannot open", path)
+        return None
+    else:
+        print("an error has occurred ")
+        return None
+
+def getMultigaussian(x):
+    gm = GaussianMixture(n_components = len(x[0])).fit(x)
+    #print(gm.means);
+    print(gm)
+

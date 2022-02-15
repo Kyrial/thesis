@@ -5,7 +5,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{ac8f23c5-93d1-42b0-b3a9-cb66c3329825}</ProjectGuid>
     <ProjectHome />
-    <StartupFile>code\pre_trained_models\main_pca.py</StartupFile>
+    <StartupFile>code\pre_trained_models\main_multiGauss.py</StartupFile>
     <SearchPath />
     <WorkingDirectory>code\pre_trained_models\</WorkingDirectory>
     <OutputPath>.</OutputPath>
@@ -40,6 +40,9 @@
     <Compile Include="code\pre_trained_models\main_model.py" />
     <Compile Include="code\pre_trained_models\main_pca.py" />
     <Compile Include="code\pre_trained_models\main_pca_filter.py" />
+    <Compile Include="code\pre_trained_models\main_multiGauss.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="code\pre_trained_models\vggplaces\places_utils.py" />
     <Compile Include="code\pre_trained_models\vggplaces\vgg16_hybrid_places_1365.py" />
     <Compile Include="code\pre_trained_models\vggplaces\vgg16_places_365.py" />
