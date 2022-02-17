@@ -32,12 +32,14 @@
 import numpy as np
 import pandas
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import itertools
 import time
 import statsmodels.api as sm
 import scipy.optimize as opt
 import os
 from scipy.ndimage import gaussian_filter1d
+from scipy import linalg
 from matplotlib.collections import LineCollection
 from sklearn import decomposition
 from sklearn.decomposition import IncrementalPCA
@@ -360,6 +362,7 @@ def readCsv(path):
             for row in rows[1:]:
                 for i in range(len(row)):
                     row[i] = float(row[i])
+                row.pop(0)
             rows.pop(0)
             return np.array(rows)
     except OSError:
@@ -369,8 +372,45 @@ def readCsv(path):
         print("an error has occurred ")
         return None
 
-def getMultigaussian(x):
-    gm = GaussianMixture(n_components = len(x[0])).fit(x)
+def getMultigaussian(X):
+    # Centrage et Réduction
+    std_scale = preprocessing.StandardScaler().fit(X)     
+    X_scale = std_scale.transform(X)
+    gm = GaussianMixture(n_components =4).fit(X_scale)
     #print(gm.means);
     print(gm)
+    plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
+  #  plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
 
+    
+
+def plot_results(X, Y_, means, covariances, index, title):
+    color_iter = itertools.cycle(["navy", "c", "cornflowerblue", "gold", "darkorange"])
+    splot = plt.subplot(2, 1, 1 + index)
+    for i, (mean, covar, color) in enumerate(zip(means, covariances, color_iter)):
+        v, w = linalg.eigh(covar)
+        v = 2.0 * np.sqrt(2.0) * np.sqrt(v)
+        u = w[0] / linalg.norm(w[0])
+        # as the DP will not use every component it has access to
+        # unless it needs it, we shouldn't plot the redundant
+        # components.
+        if not np.any(Y_ == i):
+            continue
+        plt.scatter(X[Y_ == i, 0], X[Y_ == i, 1], 0.8, color=color)
+
+        # Plot an ellipse to show the Gaussian component
+        angle = np.arctan(u[1] / u[0])
+        angle = 180.0 * angle / np.pi  # convert to degrees
+        ell = mpl.patches.Ellipse(mean, v[0], v[1], 180.0 + angle, color=color)
+        ell.set_clip_box(splot.bbox)
+        ell.set_alpha(0.5)
+        splot.add_artist(ell)
+
+    plt.xlim(-500.0, 500.0)
+    plt.ylim(-500.0, 500.0)
+    plt.xticks(())
+    plt.yticks(())
+    plt.title(title)
+    plt.show()
+    print('test')
+   
