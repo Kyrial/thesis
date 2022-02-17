@@ -50,21 +50,13 @@ import sparsenesslib.activations_structures as acst
 # PROCEDURES/FUNCTIONS:
 #####################################################################################
 
-def getPaths(bdd, computer):
+def getPaths(bdd, pathData):
         #path d'enregistrement des résultats
-    if computer == 'sonia': #databases aren't in repo bc they need to be in DATA partition of the pc (more space)
-        if bdd == 'CFD':
-            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/CFD/labels_CFD.csv'
-            log_path ='../../results/CFD/log_'
-        elif bdd == 'JEN':
-            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/JEN/labels_JEN.csv'
-            log_path ='../../results/JEN/log_'
-        elif bdd == 'SCUT-FBP':
-            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/SCUT-FBP/labels_SCUT_FBP.csv'
-            log_path ='../../results/SCUT-FBP/log_'
-        elif bdd == 'MART':
-            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/MART/labels_MART.csv'
-            log_path ='../../results/MART/log_'
+
+    if pathData == 'sonia': #databases aren't in repo bc they need to be in DATA partition of the pc (more space)
+        if bdd in ['CFD','JEN','SCUT-FBP','MART']:
+            labels_path ='/media/sonia/DATA/data_nico/data/redesigned/'+bdd+'/labels_'+bdd+'.csv'
+            log_path ='../../results/'+bdd+'/log_'
         elif bdd == 'SMALLTEST':
             labels_path ='/media/sonia/DATA/data_nico/data/redesigned/small_test/labels_test.csv'
             log_path ='../../results/smalltest/log_'
@@ -73,30 +65,21 @@ def getPaths(bdd, computer):
             log_path ='../../results/bigtest/log_'
 
     else: #for others configurations,all paths are relative paths in git repository
-        if bdd == 'CFD':
-            labels_path ='../../data/redesigned/CFD/labels_CFD.csv'
-            images_path ='../../data/redesigned/CFD/images'
-            log_path ='../../results/CFD/log_'
-        elif bdd == 'JEN':
-            labels_path ='../../data/redesigned/JEN/labels_JEN.csv'
-            images_path ='../../data/redesigned/JEN/images'
-            log_path ='../../results/JEN/log_'
-        elif bdd == 'SCUT-FBP':
-            labels_path ='../../data/redesigned/SCUT-FBP/labels_SCUT_FBP.csv'
-            images_path ='../../data/redesigned/SCUT-FBP/images'
-            log_path ='../../results/SCUT-FBP/log_'
-        elif bdd == 'MART':
-            labels_path ='../../data/redesigned/MART/labels_MART.csv'
-            images_path ='../../data/redesigned/MART/images'
-            log_path ='../../results/MART/log_'
-        elif bdd == 'SMALLTEST':                       
-            labels_path ='../../data/redesigned/small_test/labels_test.csv'
-            images_path ='../../data/redesigned/small_test/images'
-            log_path ='../../results/smalltest/log_'            
+        if pathData == 'LINUX-ES03':
+            pathData = '../../'
+
+        if bdd in ['CFD','JEN','SCUT-FBP','MART']:
+            labels_path =pathData+'data/redesigned/'+bdd+'/labels_'+bdd+'.csv'
+            images_path =pathData+'data/redesigned/'+bdd+'/images'
+            log_path =pathData+'results/'+bdd+'/log_'
+        elif bdd == 'SMALLTEST':
+            labels_path =pathData+'data/redesigned/small_test/labels_test.csv'
+            images_path =pathData+'data/redesigned/small_test/images'
+            log_path =pathData+'results/smalltest/log_'            
         elif bdd == 'BIGTEST':
-            labels_path ='../../data/redesigned/big_test/labels_bigtest.csv'
-            images_path ='../../data/redesigned/big_test/images'
-            log_path ='../../results/bigtest/log_'  
+            labels_path =pathData+'data/redesigned/big_test/labels_bigtest.csv'
+            images_path =pathData+'data/redesigned/big_test/images'
+            log_path =pathData+'results/bigtest/log_'  
     return labels_path, images_path, log_path
 
 def configModel(model_name, weight):
