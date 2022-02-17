@@ -416,7 +416,7 @@ def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1)
             pc = []
             #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
             #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-            metrics.acp_layers(dict_activations, pc, bdd, block, True)
+            metrics.acp_layers(dict_activations, pc, bdd, block, True,computer)
     spm.parse_rates(labels_path, dict_labels)   
     today = date.today()
     today = str(today)

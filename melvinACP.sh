@@ -7,5 +7,5 @@
 #SBATCH --partition=muse-visu
 
 echo "Running ACP Melvin"
-python3 /home/tieos/work_swp-gpu/melvin/thesis/code/pre_trained_models/main_pca.py
+python3 /home/tieos/work_swp-gpu/melvin/thesis/code/pre_trained_models/main_pca.py mesoLR
 echo "grosminet a mange titi :( "
