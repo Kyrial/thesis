@@ -372,20 +372,23 @@ def readCsv(path):
         print("an error has occurred ")
         return None
 
-def getMultigaussian(X):
+def getMultigaussian(X, name ="Gaussian Mixture"):
     # Centrage et Réduction
     std_scale = preprocessing.StandardScaler().fit(X)     
     X_scale = std_scale.transform(X)
-    gm = GaussianMixture(n_components =4).fit(X_scale)
+    gm = GaussianMixture(n_components =1).fit(X_scale)
     #print(gm.means);
-    print(gm)
-    plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
-  #  plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
+    #print(gm)
+    #plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
+    plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, name)
+  #  plot_gmm(gm, X_scale)
 
-    
+
+
+
 
 def plot_results(X, Y_, means, covariances, index, title):
-    color_iter = itertools.cycle(["navy", "c", "cornflowerblue", "gold", "darkorange"])
+    color_iter = itertools.cycle(["navy", "c", "cornflowerblue", "darkviolet", "darkorange"])
     splot = plt.subplot(2, 1, 1 + index)
     for i, (mean, covar, color) in enumerate(zip(means, covariances, color_iter)):
         v, w = linalg.eigh(covar)
@@ -401,16 +404,55 @@ def plot_results(X, Y_, means, covariances, index, title):
         # Plot an ellipse to show the Gaussian component
         angle = np.arctan(u[1] / u[0])
         angle = 180.0 * angle / np.pi  # convert to degrees
-        ell = mpl.patches.Ellipse(mean, v[0], v[1], 180.0 + angle, color=color)
-        ell.set_clip_box(splot.bbox)
-        ell.set_alpha(0.5)
-        splot.add_artist(ell)
+        #ell = mpl.patches.Ellipse(mean, v[0], v[1], 180.0 + angle, color=color)
 
-    plt.xlim(-500.0, 500.0)
-    plt.ylim(-500.0, 500.0)
+        for nsig in range(1, 5):
+            ell = (mpl.patches.Ellipse(mean, nsig * v[0], nsig * v[1],
+                             180.0 + angle, color=color))
+            ell.set_clip_box(splot.bbox)
+            ell.set_alpha(0.3)
+            splot.add_artist(ell)
+
+    plt.xlim(-100.0, 100.0)
+    plt.ylim(-100.0, 100.0)
     plt.xticks(())
     plt.yticks(())
     plt.title(title)
     plt.show()
     print('test')
    
+
+def draw_ellipse(position, covariance, ax=None, **kwargs):
+    """Draw an ellipse with a given position and covariance"""
+    ax = ax or plt.gca()
+    # Convert covariance to principal axes
+    if covariance.shape == (2, 2):
+        U, s, Vt = np.linalg.svd(covariance)
+        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
+        width, height = 2 * np.sqrt(s)
+    else:
+        angle = 0
+        width, height = 2 * np.sqrt(covariance)
+#        width, height = 2.0 * np.sqrt(2.0) * np.sqrt( linalg.eigh(covariance) )
+    
+    # Draw the Ellipse
+    for nsig in range(1, 4):
+        ax.add_patch(Ellipse(position, nsig * width, nsig * height,
+                             angle, **kwargs))
+
+
+def plot_gmm(gmm, X, label=True, ax=None):
+    ax = ax or plt.gca()
+    labels = gmm.fit(X).predict(X)
+    if label:
+        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
+    else:
+        ax.scatter(X[:, 0], X[:, 1], s=40, zorder=2)
+    
+    w_factor = 0.2 / gmm.weights_.max()
+    for pos, covar, w in zip(gmm.means_, gmm.covariances_, gmm.weights_):
+        draw_ellipse(pos, covar, alpha=w * w_factor)
+    plt.title("GMM with %d components"%len(gmm.means_), fontsize=(20))
+    plt.xlabel("U.A.")
+    plt.ylabel("U.A.")
+    plt.show()
