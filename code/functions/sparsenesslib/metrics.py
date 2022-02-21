@@ -33,11 +33,13 @@ import numpy as np
 import pandas
 import matplotlib.pyplot as plt
 import matplotlib as mpl
+from mpl_toolkits.mplot3d import Axes3D
 import itertools
 import time
 import statsmodels.api as sm
 import scipy.optimize as opt
 import os
+from sklearn.manifold import MDS
 from scipy.ndimage import gaussian_filter1d
 from scipy import linalg
 from matplotlib.collections import LineCollection
@@ -372,18 +374,21 @@ def readCsv(path):
         print("an error has occurred ")
         return None
 
-def getMultigaussian(X, name ="Gaussian Mixture"):
+def getMultigaussian(X, name ="Gaussian Mixture", index = 0):
+    mds = MDS(random_state=0,n_jobs= -1)
+    #X_transform =
+    X_scale =mds.fit_transform(X)
+    
+    
     # Centrage et Réduction
-    std_scale = preprocessing.StandardScaler().fit(X)     
-    X_scale = std_scale.transform(X)
-    gm = GaussianMixture(n_components =1).fit(X_scale)
+   # std_scale = preprocessing.StandardScaler().fit(X_transform) 
+    #X_scale = std_scale.transform(X_transform)
+    gm = GaussianMixture(n_components =1, n_init = 4).fit(X_scale)
     #print(gm.means);
     #print(gm)
     #plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
-    plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, name)
+    plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, index, name)
   #  plot_gmm(gm, X_scale)
-
-
 
 
 
@@ -399,28 +404,86 @@ def plot_results(X, Y_, means, covariances, index, title):
         # components.
         if not np.any(Y_ == i):
             continue
+
         plt.scatter(X[Y_ == i, 0], X[Y_ == i, 1], 0.8, color=color)
+
+       # plt.scatter(X[Y_ == i, 0], X[Y_ == i, 1], 0.8, color=color)
+       # plt.scatter(X[Y_ == i, 4], X[Y_ == i, 5], 0.8, color="pink")
 
         # Plot an ellipse to show the Gaussian component
         angle = np.arctan(u[1] / u[0])
         angle = 180.0 * angle / np.pi  # convert to degrees
         #ell = mpl.patches.Ellipse(mean, v[0], v[1], 180.0 + angle, color=color)
 
-        for nsig in range(1, 5):
+        for nsig in range(1, 3):
             ell = (mpl.patches.Ellipse(mean, nsig * v[0], nsig * v[1],
                              180.0 + angle, color=color))
+           
             ell.set_clip_box(splot.bbox)
-            ell.set_alpha(0.3)
+            ell.set_alpha(0.1)
             splot.add_artist(ell)
 
-    plt.xlim(-100.0, 100.0)
-    plt.ylim(-100.0, 100.0)
-    plt.xticks(())
-    plt.yticks(())
+    plt.xlim(X.min(), X.max())
+    
+    plt.ylim(X.min(), X.max())
+    
+    #plt.xticks(())
+    #plt.yticks(())
+    #plt.xlabel("U.A.")
+    #plt.ylabel("U.A.")
     plt.title(title)
     plt.show()
     print('test')
-   
+    #logLikelihood(X)
+    logLikelihood(X,X[0])
+
+
+
+import scipy.stats
+
+def logLikelihood(data, x = None):
+    """
+    if x==None:
+        x = np.linspace(data.min(), data.max(), 1000, endpoint=True)
+        y=[]
+        for i in x:
+            y.append(scipy.stats.norm.logpdf(data,i,0.5).sum())
+        plt.plot(x,y)
+        plt.title(r'Log-Likelihood')
+        plt.xlabel(r'$\mu$')
+
+        plt.grid()
+
+        #plt.savefig("likelihood_normal_distribution_02.png", bbox_inches='tight')
+        plt.show()
+        
+    else:
+    """
+    y=[]
+    y.append(scipy.stats.norm.logpdf(data,x,0.5).sum())
+    plt.plot(x,y)
+    plt.title(r'Log-Likelihood')
+    plt.xlabel(r'$\mu$')
+
+    plt.grid()
+
+    #plt.savefig("likelihood_normal_distribution_02.png", bbox_inches='tight')
+    plt.show()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def draw_ellipse(position, covariance, ax=None, **kwargs):
     """Draw an ellipse with a given position and covariance"""
@@ -439,7 +502,6 @@ def draw_ellipse(position, covariance, ax=None, **kwargs):
     for nsig in range(1, 4):
         ax.add_patch(Ellipse(position, nsig * width, nsig * height,
                              angle, **kwargs))
-
 
 def plot_gmm(gmm, X, label=True, ax=None):
     ax = ax or plt.gca()

@@ -39,6 +39,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import json
 import re
+import csv
 #import vggplaces.vgg16_places_365 as places
 #personnal librairies
 sys.path.insert(1,'../../code/functions')
@@ -514,3 +515,67 @@ def analyse_metrics(model_name, computer, bdd, weight, metric,k):
     write_file(log_path, bdd, weight, metric, df_metrics, df_reglog, df_scope, df_inflexions ,layers, k)    
 #####################################################################################
 
+
+
+
+def eachFileCSV(path):
+
+        files = [f for f in os.listdir(path)]    
+        i = 1
+        for each in files:         
+            print('###### file n°',i,'/',len(files))
+            i += 1
+            csv_path = path + "/" + each
+            x = readCsv(csv_path)
+            metrics.getMultigaussian(x, path+" "+each)
+
+    
+
+def readCsv(path):
+    """
+    lit un fichier .csv, convertit toutes les valeurs en float et retourne un numpyArray
+    """
+    try:
+        with open(path, newline='') as csvfile:
+            rows = list(csv.reader(csvfile,delimiter=','))
+            for row in rows[1:]:
+                for i in range(len(row)):
+                    row[i] = float(row[i])
+                row.pop(0)
+            rows.pop(0)
+            return np.array(rows)
+    except OSError:
+        print("cannot open", path)
+        return None
+    else:
+        print("an error has occurred ")
+        return None
+
+
+
+def getLLH(bdd,weight,metric, model_name, computer, freqmod,k = 1):
+    '''
+    donne la LogLikeliHood
+    '''
+    t0 = time.time()
+    labels_path, images_path, log_path = getPaths(bdd, computer)
+    model, layers, flatten_layers =configModel(model_name, weight)
+
+    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
+    dict_labels = {}
+
+    
+    for layer in layers:   
+        
+            print('##### current block is: ', layer)
+            #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
+            #elle retourne l'array des activations à la couche choisie
+            dict_activations = {}
+        
+            parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
+
+            
+
+    spm.parse_rates(labels_path, dict_labels)   
+    today = date.today()
+    today = str(today)

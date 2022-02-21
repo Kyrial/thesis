@@ -43,9 +43,14 @@ for bdd in list_bdd:
     for weight in list_weights:
         for metric in list_metrics:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
-            path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
-            x = metrics.readCsv(path)
-            metrics.getMultigaussian(x, bdd+" "+"pcaBlock"+" "+"block1")
+            #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
+           # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
+            path = "../../results"+"/"+bdd+"/"+"pca";
+            #x = metrics.readCsv(path)
+           # metrics.getMultigaussian(x, bdd+" "+"pcaBlock"+" "+"block1")
+            #metrics.getMultigaussian(x, bdd+" "+"pcaBlock"+" "+"block1_conv1")
+            hl.eachFileCSV(path)
+                                     
             k += 1
 #####################################################################################
 
