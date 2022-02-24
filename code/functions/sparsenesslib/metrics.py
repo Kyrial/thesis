@@ -32,41 +32,16 @@
 import numpy as np
 import pandas
 import matplotlib.pyplot as plt
-import matplotlib as mpl
-from matplotlib.collections import LineCollection
-from mpl_toolkits.mplot3d import Axes3D
-import sparsenesslib.plots as plots
 import itertools
 import time
 import statsmodels.api as sm
 import scipy.optimize as opt
 import os
-from sklearn.manifold import MDS
 from scipy.ndimage import gaussian_filter1d
-from scipy import linalg
-
+from matplotlib.collections import LineCollection
 from sklearn import decomposition
 from sklearn.decomposition import IncrementalPCA
 from sklearn import preprocessing
-from sklearn.mixture import GaussianMixture
-from sklearn.mixture import BayesianGaussianMixture
-from sklearn import metrics
-import csv
-
-
-###############
-#Verbose Procedures
-#permet d'afficher les pourcentage de progression
-def verbosePourcent(current, valMax):
-    if verbosePourcent.pourcent < int(current*100/valMax):
-        print("\033[A                             \033[A")
-        print( int(current*100/valMax) , "%" )
-        verbosePourcent.pourcent = int(current*100/valMax)
-    if verbosePourcent.pourcent ==100:
-        verbosePourcent.pourcent = 0 # reset le compteur une fois 100% atteint
-verbosePourcent.pourcent=0
-##########
-
 
 #####################################################################################
 # PROCEDURES/FUNCTIONS:
@@ -316,7 +291,7 @@ def inflexion_points(df_metrics,dict_labels):
     df2 = pandas.DataFrame.from_dict(dict_inflexions, orient='index', columns = ['reglog'] ) 
     return pandas.concat([df1, df2], axis = 1)  
 #####################################################################################
-def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../"):
+def acp_layers(dict_metrics, pc, bdd, layer):
     
     '''
     A PCA with activations of each layer as features
@@ -348,196 +323,14 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         df = pandas.DataFrame(coordinates)
         print("i")
         bdd = bdd.lower()
-        if block:
-            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pcaBlock", exist_ok=True)
-            #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+layer+".csv")
-        else:
-            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca", exist_ok=True)
-            #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
+        os.makedirs("/home/renoult/Bureau/thesis/results"+"/"+bdd+"/"+"pca", exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+        df.to_csv("/home/renoult/Bureau/thesis/results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
+
 
         #timer pour l'ACP de chaque couche
         print('############################################################################')
         toc = time.perf_counter()
         print(f"time: {toc - tic:0.4f} seconds")
         print('############################################################################')
-
-def Acp_densiteProba(dict_metrics, pc, bdd, layer):
-    '''
-    A PCA with activations of each bloc as features
-    '''
-    #conversion d'un dictionnaire avec chaque image en clé et un vecteur de toutes leurs activations en valeur, en pandas dataframe
-    df_metrics = pandas.DataFrame.from_dict(dict_metrics)     
-      
-    tic = time.perf_counter()    
-
-
-
-def readCsv(path):
-    """
-    lit un fichier .csv, convertit toutes les valeurs en float et retourne un numpyArray
-    """
-    try:
-        with open(path, newline='') as csvfile:
-            rows = list(csv.reader(csvfile,delimiter=','))
-            for row in rows[1:]:
-                for i in range(len(row)):
-                    row[i] = float(row[i])
-                row.pop(0)
-            rows.pop(0)
-            return np.array(rows)
-    except OSError:
-        print("cannot open", path)
-        return None
-    else:
-        print("an error has occurred ")
-        return None
-
-
-
-
-def SelBest(arr:list, X:int)->list:
-    '''
-    returns the set of X configurations with shorter distance
-    '''
-    dx=np.argsort(arr)[:X]
-    return arr[dx]
-
-
-def SilouhetteCoef(X, showGraphe=False, verbose = False):
-    print("calculs Silouhette Coef");
-    maxCluster = 20
-    n_clusters=np.arange(2, maxCluster)
-    sils=[]
-    sils_err=[]
-    iterations=10
-    for n in n_clusters:
-        if verbose:
-            verbosePourcent(n, maxCluster)
-        tmp_sil=[]
-        for _ in range(iterations):
-            gmm=GaussianMixture(n, n_init=2).fit(X) 
-            labels=gmm.predict(X)
-            sil=metrics.silhouette_score(X, labels, metric='euclidean')
-            tmp_sil.append(sil)
-        val=np.mean(SelBest(np.array(tmp_sil), int(iterations/5)))
-        err=np.std(tmp_sil)
-        sils.append(val)
-        sils_err.append(err)
-    if showGraphe:
-        plt.errorbar(n_clusters, sils, yerr=sils_err)
-        plt.title("Silhouette Scores", fontsize=20)
-        plt.xticks(n_clusters)
-        plt.xlabel("N. of clusters")
-        plt.ylabel("Score")
-        plt.show()
-
-
-def MultiDimensionalScaling(X):  
-    """! Calculs la MDS
-    @param X array de dimension N
-    @return retourne un tableau de dimension 2
-    """
-    mds = MDS(random_state=0,n_jobs= -1)
-    X_MDS =mds.fit_transform(X)
-    return X_MDS
-
-
-def BIC(X, verbose = False, plot = False):
-    """! Bayesian Information Criterion
-    """
-    lowest_bic = np.infty
-    bic = []
-    n_components_range = range(1, 10)
-    cv_types = ["spherical", "tied", "diag", "full"]
-    for cv_type in cv_types:
-        for n_components in n_components_range:
-            if verbose:
-                verbosePourcent(n_components*(cv_types.index(cv_type)),len(n_components_range)*len(cv_types) )
-            # Fit a Gaussian mixture with EM
-            gmm = GaussianMixture(
-                n_components=n_components, covariance_type=cv_type
-            )
-            gmm.fit(X)
-            bic.append(gmm.bic(X))
-            if bic[-1] < lowest_bic:
-                lowest_bic = bic[-1]
-                best_gmm = gmm
-    
-    if plot:
-        plots.plotBIC(bic, best_gmm, n_components_range = n_components_range)
-
-    return best_gmm
-   # clf = best_gmm
-    #bars = []
-
-
-
-
-
-def getMultigaussian(X, name ="Gaussian Mixture", index = 1):
-    
-    X_scale = X #MultiDimensionalScaling(X)
-    
-    
-    # Centrage et Réduction
-   # std_scale = preprocessing.StandardScaler().fit(X_transform) 
-    #X_scale = std_scale.transform(X_transform)
-    #SilouhetteCoef(X_scale, showGraphe=True, verbose = True)
-    gm = BIC(X_scale, verbose = True, plot = True)
-
-    X_MDS = MultiDimensionalScaling(X)
-    #gm2 = GaussianMixture(n_components =3, n_init = 2).fit(X_scale)
-    #gm = BayesianGaussianMixture(n_components =10, n_init = 2, weight_concentration_prior_type ="dirichlet_process", weight_concentration_prior =0.0000000001).fit(X_scale)
-    #print(gm.means);
-    #print(gm)
-    #plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
-    #plots.plot_MultiGaussian(X_scale, gm2, index, name)
-    plots.plot_MultiGaussian(X_scale, gm, index, name, X_MDS)
-  #  plot_gmm(gm, X_scale)
-
-
-
-
-
-
-
-import scipy.stats
-
-def logLikelihood(data, x = None):
-    
-    #if x==None:
-    x = np.linspace(data.min(), data.max(), 1000, endpoint=True)
-    y=[]
-    for i in x:
-        y.append(scipy.stats.norm.logpdf(data,i,0.5).sum())
-    plt.plot(x,y)
-    plt.title(r'Log-Likelihood')
-    plt.xlabel(r'$\mu$')
-
-    plt.grid()
-
-    #plt.savefig("likelihood_normal_distribution_02.png", bbox_inches='tight')
-    plt.show()
-    
-    """    
-    else:
-    
-    
-    y=[]
-    y.append(scipy.stats.norm.logpdf(data,x,0.5).sum())
-    plt.plot(x,y)
-    plt.title(r'Log-Likelihood')
-    plt.xlabel(r'$\mu$')
-
-    plt.grid()
-
-    #plt.savefig("likelihood_normal_distribution_02.png", bbox_inches='tight')
-    plt.show()
-    """
-
-
-
-
 

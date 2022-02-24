@@ -21,14 +21,12 @@ import PIL
 import sys
 #personnal librairies
 sys.path.insert(1,'../../code/functions')
-
-cwd = os.getcwd()
 import sparsenesslib.high_level as hl
 #####################################################################################
 #SETTINGS:
 #####################################################################################
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
-478940                       
+478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
 list_bdd = ['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
