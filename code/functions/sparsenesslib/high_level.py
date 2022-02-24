@@ -518,17 +518,33 @@ def analyse_metrics(model_name, computer, bdd, weight, metric,k):
 
 
 
-def eachFileCSV(path):
-
+def eachFileCSV(path, formatOrdre = []):
+    """
+    formatOrdre permet de parcourir dans un ordre précis:
+    syntaxe: formatOrdre[  prefixe, TabName[], sufixe]
+    """
+    
+    if len(formatOrdre)==0:
         files = [f for f in os.listdir(path)]    
         i = 1
         for each in files:         
-            print('###### file n°',i,'/',len(files))
+#           print('###### file n°',i,'/',len(files))
+            print('######', each)
             i += 1
             csv_path = path + "/" + each
             x = readCsv(csv_path)
-            metrics.getMultigaussian(x, path+" "+each)
-
+            print("     ", x.shape[1])
+            #metrics.getMultigaussian(x, path+" "+each)
+    else:
+        for each in formatOrdre[1]:
+#           print('###### file n°',i,'/',len(files))
+            print('######', each)
+            i += 1
+            csv_path = path + "/" + format[0]+each+format[2]
+            x = readCsv(csv_path)
+            print("     ", x.shape[1])
+            #metrics.getMultigaussian(x, path+" "+each)
+        
     
 
 def readCsv(path):
