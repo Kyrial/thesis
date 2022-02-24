@@ -17,20 +17,20 @@ library("caret")
 library("jtools")
 library("broom.mixed")
 library("glmnet")
-library("tidyverse")
-setwd("/home/renoult/Bureau/internship_cefe_2021/code/functions")
+setwd("/home/renoult/Bureau/thesis/code/functions")
 #####################################################################################
 # 3. PARAMETERS:
 #####################################################################################
 model_name <- 'VGG16'
-bdd <- c('MART')
+bdd <- c('SCUT-FBP')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
+subset_db1 = 5500
 #####################################################################################
 # 4. DATA MANAGEMENT
 #####################################################################################
-labels_path ='../../data/redesigned/MART/labels_MART.csv'
-log_path ='../../results/MART/log_'
+labels_path = paste('../../data/redesigned/',bdd,'/labels_',bdd,'.csv', sep="")
+log_path =paste('../../results/',bdd,'/log_', sep="")
 
 #chargement du fichier
 matrix_metrics <- do.call(cbind, fromJSON(file = paste(log_path,'_',bdd,'_',weight,'_',metric,'_','_BRUTMETRICS','.csv',sep=""),simplify = FALSE))
@@ -81,6 +81,12 @@ df <- cbind(df$rate ,scaled_df) #si on avait pas scaled la beauté il aurait fal
 df<- as.data.frame(df, optional = TRUE)
 df <- plyr::rename(df, c("V1" = "rate"))
 
+#shuffle for subsets
+rows <- sample(nrow(df))
+df = df[rows,]
+df = df[1:subset_db1,]
+
+
 #####################################################################################
 # 5. MODEL: RIDGE REGRESSION
 #####################################################################################
@@ -95,6 +101,7 @@ variables = colnames(df[,-1])
 matrix = as.matrix(df)
 
 k = nrow(matrix)
+print(k)
 
 set.seed(123)
 
@@ -111,19 +118,19 @@ for (i in 1:k){
   x_train = train[,-1]
   y_train = train[,1]
   
-  #cv_train <- cv.glmnet(x_train, y_train, alpha = 1) #alpha = 0 fait une ridge regression (1 si lasso)
+  cv_train <- cv.glmnet(x_train, y_train, alpha = 1) #alpha = 0 fait une ridge regression (1 si lasso)
   
-  #model <- glmnet(x_train, y_train, alpha = 1, lambda = cv_train$lambda.min)
+  model <- glmnet(x_train, y_train, alpha = 1, lambda = cv_train$lambda.min)
   
-  #lambdas = c(lambdas, cv_train$lambda.min)
+  lambdas = c(lambdas, cv_train$lambda.min)
   
   #elastic net
   
-  model <- train(
-    rate ~., data = train, method = "glmnet",
-    trControl = trainControl("cv", number = 10),
-    tuneLength = 10
-  )
+  #model <- train(
+  #  rate ~., data = train, method = "glmnet",
+  #  trControl = trainControl("cv", number = 10),
+  #  tuneLength = 10
+  #)
 
   
   
