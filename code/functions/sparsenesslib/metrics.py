@@ -449,7 +449,7 @@ def BIC(X, verbose = False, plot = False):
     """
     lowest_bic = np.infty
     bic = []
-    n_components_range = range(1, 7)
+    n_components_range = range(1, 10)
     cv_types = ["spherical", "tied", "diag", "full"]
     for cv_type in cv_types:
         for n_components in n_components_range:
@@ -487,21 +487,15 @@ def getMultigaussian(X, name ="Gaussian Mixture", index = 1):
     #SilouhetteCoef(X_scale, showGraphe=True, verbose = True)
     gm = BIC(X_scale, verbose = True, plot = True)
 
-    gm2 = GaussianMixture(n_components =3, n_init = 2).fit(X_scale)
+    X_MDS = MultiDimensionalScaling(X)
+    #gm2 = GaussianMixture(n_components =3, n_init = 2).fit(X_scale)
     #gm = BayesianGaussianMixture(n_components =10, n_init = 2, weight_concentration_prior_type ="dirichlet_process", weight_concentration_prior =0.0000000001).fit(X_scale)
     #print(gm.means);
     #print(gm)
     #plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
     #plots.plot_MultiGaussian(X_scale, gm2, index, name)
-    plots.plot_MultiGaussian(X_scale, gm, index, name)
+    plots.plot_MultiGaussian(X_scale, gm, index, name, X_MDS)
   #  plot_gmm(gm, X_scale)
-
-
-
-
-
-
-
 
 
 
@@ -547,46 +541,3 @@ def logLikelihood(data, x = None):
 
 
 
-
-
-
-
-
-
-
-
-
-
-def draw_ellipse(position, covariance, ax=None, **kwargs):
-    """Draw an ellipse with a given position and covariance"""
-    ax = ax or plt.gca()
-    # Convert covariance to principal axes
-    if covariance.shape == (2, 2):
-        U, s, Vt = np.linalg.svd(covariance)
-        angle = np.degrees(np.arctan2(U[1, 0], U[0, 0]))
-        width, height = 2 * np.sqrt(s)
-    else:
-        angle = 0
-        width, height = 2 * np.sqrt(covariance)
-#        width, height = 2.0 * np.sqrt(2.0) * np.sqrt( linalg.eigh(covariance) )
-    
-    # Draw the Ellipse
-    for nsig in range(1, 4):
-        ax.add_patch(Ellipse(position, nsig * width, nsig * height,
-                             angle, **kwargs))
-
-def plot_gmm(gmm, X, label=True, ax=None):
-    ax = ax or plt.gca()
-    labels = gmm.fit(X).predict(X)
-    if label:
-        ax.scatter(X[:, 0], X[:, 1], c=labels, s=40, cmap='viridis', zorder=2)
-    else:
-        ax.scatter(X[:, 0], X[:, 1], s=40, zorder=2)
-    
-    w_factor = 0.2 / gmm.weights_.max()
-    for pos, covar, w in zip(gmm.means_, gmm.covariances_, gmm.weights_):
-        draw_ellipse(pos, covar, alpha=w * w_factor)
-    plt.title("GMM with %d components"%len(gmm.means_), fontsize=(20))
-    plt.xlabel("U.A.")
-    plt.ylabel("U.A.")
-    plt.show()
