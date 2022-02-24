@@ -30,6 +30,9 @@ import numpy as np
 sys.path.insert(1,'../../code/functions')
 import sparsenesslib.metrics as metrics
 import sparsenesslib.entropy as etp
+
+
+
 #####################################################################################
 # PROCEDURES/FUNCTIONS:
 #####################################################################################
@@ -96,7 +99,14 @@ def compute_flatten(activations, activations_dict,layer,formula,k):
     if layer[0:5] == 'input':
         layer = 'input' + '_' + str(k)
     
-    arr = activations[layer].flatten()
+    arr = np.array([])
+    for key, value in activations.items():   # iter on both keys and values
+        if key.startswith(layer): #permet de travailler par layer, par block etc..
+            arr2 = activations[key].flatten()
+            arr = np.append(arr, arr2, 0)
+           
+    
+    #arr = activations[layer].flatten()
     if formula == 'L0':    
         activations_dict[layer] = (1 - (norm(arr, 0)/len(arr)))
     elif formula == 'L1':    
@@ -165,3 +175,5 @@ def compute_activations(layers, flatten_layers, computation, activations, activa
             compute_flatten(activations, activations_dict, layer, formula,k)                
         else: print('ERROR: computation setting isnt channel, filter or flatten')
 #####################################################################################
+
+
