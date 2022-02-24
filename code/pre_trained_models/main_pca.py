@@ -58,8 +58,8 @@ for bdd in list_bdd:
     for weight in list_weights:
         for metric in list_metrics:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
-            hl.extract_pc_acp_block(bdd,weight,metric, model_name, pathData, freqmod,k)
-            k += 1
+            #hl.extract_pc_acp_block(bdd,weight,metric, model_name, pathData, freqmod,k)
+            #k += 1
             hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k)       
             k += 1
 #####################################################################################

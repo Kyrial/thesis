@@ -35,6 +35,9 @@
     <Compile Include="code\functions\sparsenesslib\high_level.py" />
     <Compile Include="code\functions\sparsenesslib\keract.py" />
     <Compile Include="code\functions\sparsenesslib\metrics.py" />
+    <Compile Include="code\functions\sparsenesslib\plots.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="code\functions\sparsenesslib\sparsenessmod.py" />
     <Compile Include="code\functions\sparsenesslib\__init__.py" />
     <Compile Include="code\pre_trained_models\distributions.py" />
