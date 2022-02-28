@@ -24,7 +24,7 @@ import PIL
 import sys
 #personnal librairies
 sys.path.insert(1,'../../code/functions')
-sys.path.insert(1,'../../code/functions')
+
 pathData = '../../'
 if len(sys.argv) >1:
     if sys.argv[1]== 'mesoLR':
@@ -34,7 +34,6 @@ if len(sys.argv) >1:
         pathData =  '/media/sonia/DATA/data_nico/'
 
 import sparsenesslib.high_level as hl
-
 #####################################################################################
 #SETTINGS:
 #####################################################################################
@@ -53,10 +52,13 @@ freqmod = 100 #frequency of prints, if 5: print for 1/5 images
 list_metrics = ['acp']
 k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
-for bdd in list_bdd:    
+for bdd in list_bdd:
     for weight in list_weights:
         for metric in list_metrics:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
-            hl.extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k)            
+            #hl.extract_pc_acp_block(bdd,weight,metric, model_name, pathData, freqmod,k)
+            #k += 1
+            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k)       
             k += 1
 #####################################################################################
+

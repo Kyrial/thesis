@@ -51,6 +51,7 @@ import sparsenesslib.activations_structures as acst
 # PROCEDURES/FUNCTIONS:
 #####################################################################################
 
+
 def getPaths(bdd, pathData):
         #path d'enregistrement des résultats
 
@@ -109,6 +110,7 @@ def configModel(model_name, weight):
         elif weight == 'vggfaces':
             print('error, model not configured')  
     return model, layers, flatten_layers
+
 
 
 def compute_sparseness_metrics_activations(model, flatten_layers, path, dict_output, layers, computation, formula, freqmod,k):
