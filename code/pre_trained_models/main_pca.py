@@ -24,7 +24,17 @@ import PIL
 import sys
 #personnal librairies
 sys.path.insert(1,'../../code/functions')
+sys.path.insert(1,'../../code/functions')
+pathData = '../../'
+if len(sys.argv) >1:
+    if sys.argv[1]== 'mesoLR':
+        sys.path.insert(1,'/home/tieos/work_swp-gpu/melvin/thesis/code/functions')
+        pathData = '/home/tieos/work_swp-gpu/melvin/thesis/'
+    elif sys.argv[1] == 'sonia':
+        pathData =  '/media/sonia/DATA/data_nico/'
+
 import sparsenesslib.high_level as hl
+
 #####################################################################################
 #SETTINGS:
 #####################################################################################
