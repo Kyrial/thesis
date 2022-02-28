@@ -341,7 +341,8 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         X_scaled = std_scale.transform(X)
         print('f')        
         # Calcul des composantes principales        
-        pca = decomposition.PCA(n_components= 0.8)  
+        pca = decomposition.PCA(n_components= 0.8)
+
         print("g")     
         coordinates = pca.fit_transform(X_scaled)          
         print("h") 
@@ -362,6 +363,22 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         toc = time.perf_counter()
         print(f"time: {toc - tic:0.4f} seconds")
         print('############################################################################')
+
+        getVarienceRatio(pca,bdd, layer, pathData)
+
+def getVarienceRatio(pca, bdd, layer, pathData = "../../"):
+   
+    variance = pca.explained_variance_ratio_ #calculate variance ratios
+
+    var=np.cumsum(np.round(pca.explained_variance_ratio_, decimals=3)*100)
+    print( var) #cumulative sum of variance explained with [n] features
+    df = pandas.DataFrame(variance).transpose()
+    df2 = pandas.DataFrame(var).transpose()
+    os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca_variance", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+    df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_variance"+"/"+"variance"+layer+".csv")
+    df2.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_variance"+"/"+"varianceCumule_"+layer+".csv")
+
 
 def Acp_densiteProba(dict_metrics, pc, bdd, layer):
     '''
@@ -449,7 +466,9 @@ def BIC(X, verbose = False, plot = False):
     """
     lowest_bic = np.infty
     bic = []
-    n_components_range = range(1, 10)
+
+    n_components_range = range(1, 8)
+
     cv_types = ["spherical", "tied", "diag", "full"]
     for cv_type in cv_types:
         for n_components in n_components_range:
@@ -482,8 +501,9 @@ def getMultigaussian(X, name ="Gaussian Mixture", index = 1):
     
     
     # Centrage et Réduction
-   # std_scale = preprocessing.StandardScaler().fit(X_transform) 
-    #X_scale = std_scale.transform(X_transform)
+    #std_scale = preprocessing.StandardScaler().fit(X_scale) 
+    #X_scale = std_scale.transform(X_scale)
+
     #SilouhetteCoef(X_scale, showGraphe=True, verbose = True)
     gm = BIC(X_scale, verbose = True, plot = True)
 
@@ -495,6 +515,18 @@ def getMultigaussian(X, name ="Gaussian Mixture", index = 1):
     #plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
     #plots.plot_MultiGaussian(X_scale, gm2, index, name)
     plots.plot_MultiGaussian(X_scale, gm, index, name, X_MDS)
+
+    value1 = gm.score_samples(X_scale);
+    value2 = gm.score(X_scale);
+    val = np.array([X_scale[0]])
+    value2 = gm.score(np.array([X_scale[0]]));
+    print("test")
+    plt.plot(range(len(X_scale)),value1)
+    plt.title(r'Log-Likelihood')
+    plt.grid()
+    plt.show()
+
+
   #  plot_gmm(gm, X_scale)
 
 
@@ -507,36 +539,21 @@ import scipy.stats
 
 def logLikelihood(data, x = None):
     
-    #if x==None:
-    x = np.linspace(data.min(), data.max(), 1000, endpoint=True)
-    y=[]
-    for i in x:
-        y.append(scipy.stats.norm.logpdf(data,i,0.5).sum())
-    plt.plot(x,y)
-    plt.title(r'Log-Likelihood')
-    plt.xlabel(r'$\mu$')
 
-    plt.grid()
+    if type(x) is np.ndarray:
+        x = np.linspace(data.min(), data.max(), 1000, endpoint=True)
+        y=[]
+        for i in x:
+            y.append(scipy.stats.norm.logpdf(data,i,0.5).sum())
+        plt.plot(x,y)
+        plt.title(r'Log-Likelihood')
+        plt.xlabel(r'$\mu$')
 
-    #plt.savefig("likelihood_normal_distribution_02.png", bbox_inches='tight')
-    plt.show()
+        plt.grid()
+
+        #plt.savefig("likelihood_normal_distribution_02.png", bbox_inches='tight')
+        plt.show()
     
-    """    
-    else:
-    
-    
-    y=[]
-    y.append(scipy.stats.norm.logpdf(data,x,0.5).sum())
-    plt.plot(x,y)
-    plt.title(r'Log-Likelihood')
-    plt.xlabel(r'$\mu$')
-
-    plt.grid()
-
-    #plt.savefig("likelihood_normal_distribution_02.png", bbox_inches='tight')
-    plt.show()
-    """
-
 
 
 

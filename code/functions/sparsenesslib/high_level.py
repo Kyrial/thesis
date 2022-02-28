@@ -350,6 +350,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
 
     Version for compute pca (loop on layers before loop on pictures)    
     '''
+    if computer == 'LINUX-ES03':
+            computer = '../../'
+
     t0 = time.time()
 
     labels_path, images_path, log_path = getPaths(bdd, computer)
@@ -516,23 +519,23 @@ def analyse_metrics(model_name, computer, bdd, weight, metric,k):
 #####################################################################################
 
 
-
-
 def eachFileCSV(path, formatOrdre = []):
     """
     formatOrdre permet de parcourir dans un ordre précis:
     syntaxe: formatOrdre[  prefixe, TabName[], sufixe]
     """
-    
+    tabPC = []
+    i = 1
     if len(formatOrdre)==0:
         files = [f for f in os.listdir(path)]    
-        i = 1
+        
         for each in files:         
 #           print('###### file n°',i,'/',len(files))
             print('######', each)
             i += 1
             csv_path = path + "/" + each
             x = readCsv(csv_path)
+            tabPC.append(x.shape[1])
             print("     ", x.shape[1])
             #metrics.getMultigaussian(x, path+" "+each)
     else:
@@ -540,10 +543,12 @@ def eachFileCSV(path, formatOrdre = []):
 #           print('###### file n°',i,'/',len(files))
             print('######', each)
             i += 1
-            csv_path = path + "/" + format[0]+each+format[2]
+            csv_path = path + "/" + formatOrdre[0]+each+formatOrdre[2]
             x = readCsv(csv_path)
+            tabPC.append(x.shape[1])
             print("     ", x.shape[1])
             #metrics.getMultigaussian(x, path+" "+each)
+    return tabPC
         
     
 
