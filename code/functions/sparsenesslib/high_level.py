@@ -546,6 +546,9 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
         print('######', each,"     ", x.shape[1])
 
         gm = metrics.getMultigaussian(x,name =  path+" "+each, plot= False)
+
+        metrics.doVarianceOfGMM(gm, x)
+
         if len(pathForLLH)>0:
             if len(pathForLLH)>2:
                 pathForLLH[2] = (each)

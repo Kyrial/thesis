@@ -344,7 +344,7 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         pca = decomposition.PCA(n_components= 0.8)
 
         print("g")     
-        coordinates = pca.fit_transform(X_scaled)          
+        coordinates = pca.fit_transform(X_scaled)      
         print("h") 
         df = pandas.DataFrame(coordinates)
         print("i")
@@ -468,7 +468,6 @@ def BIC(X, verbose = False, plot = False):
     bic = []
 
     n_components_range = range(1, 8)
-
     cv_types = ["spherical", "tied", "diag", "full"]
     for cv_type in cv_types:
         for n_components in n_components_range:
@@ -478,7 +477,7 @@ def BIC(X, verbose = False, plot = False):
             gmm = GaussianMixture(
                 n_components=n_components, covariance_type=cv_type
             )
-            gmm.fit(X)
+            gmm.fit(X) 
             bic.append(gmm.bic(X))
             if bic[-1] < lowest_bic:
                 lowest_bic = bic[-1]
@@ -507,6 +506,8 @@ def getMultigaussian(X, plot= True, name ="Gaussian Mixture", index = 1):
     #X = std_scale.transform(X)
 
     gm = BIC(X, verbose = True, plot = True)
+
+
     if plot:
         X_MDS = MultiDimensionalScaling(X) 
         plots.plot_MultiGaussian(X, gm, index, name, X_MDS)
@@ -523,7 +524,7 @@ def getlogLikelihood(gm, X, path, writeCSV = True):
     pathData,bdd, layer = path
     LLH = gm.score_samples(X); #Compute the log-likelihood of each sample.
     
-    if writeCSV:        
+    if writeCSV:
         df = pandas.DataFrame(LLH)
         df = df.transpose()
         
@@ -531,6 +532,30 @@ def getlogLikelihood(gm, X, path, writeCSV = True):
             #l'enregistrer dans results, en précisant la layer dans le nom
         df.to_csv(pathData+"results"+"/"+bdd+"/"+"LLH"+"/"+"LLH"+layer)
     return LLH
+
+
+def doVarianceOfGMM(gmm, X):
+    AllLLH = []
+    for i in range(10):
+        gmm.fit(X)
+        LLH = gmm.score_samples(X);
+        AllLLH.append(LLH)
+    AllLLH = np.array(AllLLH)
+
+    for i in range(len(AllLLH)):
+        LLH_for_i =  AllLLH[:,i]
+        
+        a = np.var(AllLLH, axis=i) # récup la variance pour tout !!
+        b = np.var(LLH_for_i)
+        print(LLH_for_i)
+    print("finish")
+
+
+
+
+
+
+
 
 
 
