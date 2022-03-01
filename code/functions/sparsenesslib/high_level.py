@@ -353,7 +353,7 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     Version for compute pca (loop on layers before loop on pictures)    
     '''
     if computer == 'LINUX-ES03':
-            computer = '../../'
+        computer = '../../'
 
     t0 = time.time()
 
@@ -521,35 +521,36 @@ def analyse_metrics(model_name, computer, bdd, weight, metric,k):
 #####################################################################################
 
 
-def eachFileCSV(path, formatOrdre = []):
-    """
-    formatOrdre permet de parcourir dans un ordre précis:
-    syntaxe: formatOrdre[  prefixe, TabName[], sufixe]
+def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
+    """! parcours tout les chifier du repertoire path, fait: mixureGaussian, LLH, tableau des nbe de PC par couche
+    
+    @param path chemin des CSV a traiter
+    @param formatOrdre permet de parcourir dans un ordre précis:
+        syntaxe: formatOrdre[  prefixe, TabName[], sufixe]
+    @param pathForLLH path pour les log likeliHood
+
+    @return tableau des nbe de PC par couche
     """
     tabPC = []
-    i = 1
-    if len(formatOrdre)==0:
+   
+    if len(formatOrdre)==0: #ordre de parcours alphabétique
         files = [f for f in os.listdir(path)]    
-        
-        for each in files:         
-#           print('###### file n°',i,'/',len(files))
-            print('######', each)
-            i += 1
-            csv_path = path + "/" + each
-            x = readCsv(csv_path)
-            tabPC.append(x.shape[1])
-            print("     ", x.shape[1])
-            #metrics.getMultigaussian(x, path+" "+each)
-    else:
-        for each in formatOrdre[1]:
-#           print('###### file n°',i,'/',len(files))
-            print('######', each)
-            i += 1
-            csv_path = path + "/" + formatOrdre[0]+each+formatOrdre[2]
-            x = readCsv(csv_path)
-            tabPC.append(x.shape[1])
-            print("     ", x.shape[1])
-            #metrics.getMultigaussian(x, path+" "+each)
+    else: #parcours les fichier qui match avec formatOrdre
+        files = [formatOrdre[0]+f+formatOrdre[2] for f in formatOrdre[1]]      
+   
+    for each in files:                   
+        csv_path = path + "/" + each
+        x = readCsv(csv_path) #recupère le CSV
+        tabPC.append(x.shape[1])
+
+        print('######', each,"     ", x.shape[1])
+
+        gm = metrics.getMultigaussian(x,name =  path+" "+each, plot= False)
+        if len(pathForLLH)>0:
+            if len(pathForLLH)>2:
+                pathForLLH[2] = (each)
+            else: pathForLLH.append(each)
+            metrics.getlogLikelihood(gm, x, pathForLLH,  True)
     return tabPC
         
     

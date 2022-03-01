@@ -482,63 +482,66 @@ def BIC(X, verbose = False, plot = False):
             bic.append(gmm.bic(X))
             if bic[-1] < lowest_bic:
                 lowest_bic = bic[-1]
-                best_gmm = gmm
-    
+                best_gmm = gmm  
     if plot:
         plots.plotBIC(bic, best_gmm, n_components_range = n_components_range)
-
     return best_gmm
-   # clf = best_gmm
-    #bars = []
+
+
+#gm = BayesianGaussianMixture(n_components =10, n_init = 2, weight_concentration_prior_type ="dirichlet_process", weight_concentration_prior =0.0000000001).fit(X_scale)
 
 
 
 
+def getMultigaussian(X, plot= True, name ="Gaussian Mixture", index = 1):
+    """! a partir d'un array, calcul le BIC, si plot, appelle MultiDimensionalScaling(X) afin d'obtenir un Array en 2D pour l'afficher
+    @param X array de dimension N
+    @param [facultatif] plot Boolean, affiche ou nom le graphique
+    @param [facultatif] name string, titre pour le Plots
+    @param [facultatif] index integer, pour la position dans le Plots
+    @param renvoie la mixureGaussian
+    """
 
-def getMultigaussian(X, name ="Gaussian Mixture", index = 1):
-    
-    X_scale = X #MultiDimensionalScaling(X)
-    
-    
     # Centrage et Réduction
-    #std_scale = preprocessing.StandardScaler().fit(X_scale) 
-    #X_scale = std_scale.transform(X_scale)
+    #std_scale = preprocessing.StandardScaler().fit(X) 
+    #X = std_scale.transform(X)
 
-    #SilouhetteCoef(X_scale, showGraphe=True, verbose = True)
-    gm = BIC(X_scale, verbose = True, plot = True)
+    gm = BIC(X, verbose = True, plot = True)
+    if plot:
+        X_MDS = MultiDimensionalScaling(X) 
+        plots.plot_MultiGaussian(X, gm, index, name, X_MDS)
+    return gm
 
-    X_MDS = MultiDimensionalScaling(X)
-    #gm2 = GaussianMixture(n_components =3, n_init = 2).fit(X_scale)
-    #gm = BayesianGaussianMixture(n_components =10, n_init = 2, weight_concentration_prior_type ="dirichlet_process", weight_concentration_prior =0.0000000001).fit(X_scale)
-    #print(gm.means);
-    #print(gm)
-    #plot_results(X_scale, gm.predict(X_scale), gm.means_, gm.covariances_, 0, "Gaussian Mixture")
-    #plots.plot_MultiGaussian(X_scale, gm2, index, name)
-    plots.plot_MultiGaussian(X_scale, gm, index, name, X_MDS)
-
-    value1 = gm.score_samples(X_scale);
-    value2 = gm.score(X_scale);
-    val = np.array([X_scale[0]])
-    value2 = gm.score(np.array([X_scale[0]]));
-    print("test")
-    plt.plot(range(len(X_scale)),value1)
-    plt.title(r'Log-Likelihood')
-    plt.grid()
-    plt.show()
-
-
-  #  plot_gmm(gm, X_scale)
+def getlogLikelihood(gm, X, path, writeCSV = True):
+    """! récupère le log likelihood et l'écris dans un CSV si writeCSV = True
+    @param gm mixure gaussian
+    @param X array de dimension N
+    @param tableau de 2, path + bdd
+    @writeCSV boolean 
+    @return array de LLH
+    """
+    pathData,bdd, layer = path
+    LLH = gm.score_samples(X); #Compute the log-likelihood of each sample.
+    
+    if writeCSV:        
+        df = pandas.DataFrame(LLH)
+        df = df.transpose()
+        
+        os.makedirs(pathData+"results"+"/"+bdd+"/"+"LLH", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+        df.to_csv(pathData+"results"+"/"+bdd+"/"+"LLH"+"/"+"LLH"+layer)
+    return LLH
 
 
 
-
+#plt.plot(range(len(X)),value1)
 
 
 
 import scipy.stats
 
+#inutilisé pour le moment
 def logLikelihood(data, x = None):
-    
 
     if type(x) is np.ndarray:
         x = np.linspace(data.min(), data.max(), 1000, endpoint=True)
@@ -554,7 +557,6 @@ def logLikelihood(data, x = None):
         #plt.savefig("likelihood_normal_distribution_02.png", bbox_inches='tight')
         plt.show()
     
-
 
 
 

@@ -56,9 +56,10 @@ for bdd in list_bdd:
            # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
             path = "../../results"+"/"+bdd+"/"+"pca";
             #x = metrics.readCsv(path)
-           # metrics.getMultigaussian(x, bdd+" "+"pcaBlock"+" "+"block1")
-            #metrics.getMultigaussian(x, bdd+" "+"pcaBlock"+" "+"block1_conv1")
-            hl.eachFileCSV(path)
+           # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
+            #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
+            _, layers, _ = hl.configModel(model_name, weight)
+            hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
                                      
             k += 1
 #####################################################################################
