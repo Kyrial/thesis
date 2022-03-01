@@ -35,7 +35,7 @@ loocv_pca <- function(bdd, weight, metric, layer, regularization, print_number) 
   log_path_rate =paste('../../results/',bdd,'/log_', sep="")
   
   #chargement du fichier
-  df_pc = read_csv(file = paste(log_path,"pca_values_",layer,".csv", sep =""))
+  df_pc = read_csv(file = paste(log_path,"pca_values_",layer,".csv", sep =""), show_col_types = FALSE)
   df_pc = df_pc[,-1]
   
   #on récupère les notes de beauté
@@ -103,7 +103,7 @@ loocv_pca <- function(bdd, weight, metric, layer, regularization, print_number) 
 #####################################################################################
 # 4. PARAMETERS:
 #####################################################################################
-bdd <- c('CFD')
+bdd <- c('MART')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 layers <- c('input_1',
@@ -114,7 +114,7 @@ layers <- c('input_1',
             'block5_conv1','block5_conv2','block5_conv3','block5_pool',
             'fc1','fc2',
             'flatten')
-regularization <- 0 #0 ridge, 1 lasso
+regularization <- 1 #0 ridge, 1 lasso
 print_number = 200
 
 set.seed(123)
