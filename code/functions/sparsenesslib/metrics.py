@@ -44,6 +44,7 @@ import os
 from sklearn.manifold import MDS
 from scipy.ndimage import gaussian_filter1d
 from scipy import linalg
+from scipy.spatial import distance
 
 from sklearn import decomposition
 from sklearn.decomposition import IncrementalPCA
@@ -51,6 +52,7 @@ from sklearn import preprocessing
 from sklearn.mixture import GaussianMixture
 from sklearn.mixture import BayesianGaussianMixture
 from sklearn import metrics
+
 import csv
 
 
@@ -475,7 +477,8 @@ def BIC(X, verbose = False, plot = False):
                 verbosePourcent(n_components*(cv_types.index(cv_type)),len(n_components_range)*len(cv_types) )
             # Fit a Gaussian mixture with EM
             gmm = GaussianMixture(
-                n_components=n_components, covariance_type=cv_type
+                n_components=n_components, covariance_type=cv_type, 
+             #   random_state = 1
             )
             gmm.fit(X) 
             bic.append(gmm.bic(X))
@@ -492,7 +495,7 @@ def BIC(X, verbose = False, plot = False):
 
 
 
-def getMultigaussian(X, plot= True, name ="Gaussian Mixture", index = 1):
+def getMultigaussian(X, plot= False, name ="Gaussian Mixture", index = 1):
     """! a partir d'un array, calcul le BIC, si plot, appelle MultiDimensionalScaling(X) afin d'obtenir un Array en 2D pour l'afficher
     @param X array de dimension N
     @param [facultatif] plot Boolean, affiche ou nom le graphique
@@ -502,10 +505,10 @@ def getMultigaussian(X, plot= True, name ="Gaussian Mixture", index = 1):
     """
 
     # Centrage et Réduction
-    #std_scale = preprocessing.StandardScaler().fit(X) 
-    #X = std_scale.transform(X)
+    std_scale = preprocessing.StandardScaler().fit(X)
+    X = std_scale.transform(X)
 
-    gm = BIC(X, verbose = True, plot = True)
+    gm = BIC(X, verbose = False, plot = False)
 
 
     if plot:
@@ -518,7 +521,7 @@ def getlogLikelihood(gm, X, path, writeCSV = True):
     @param gm mixure gaussian
     @param X array de dimension N
     @param tableau de 2, path + bdd
-    @writeCSV boolean 
+    @writeCSV boolean
     @return array de LLH
     """
     pathData,bdd, layer = path
@@ -534,25 +537,123 @@ def getlogLikelihood(gm, X, path, writeCSV = True):
     return LLH
 
 
-def doVarianceOfGMM(gmm, X):
+def doVarianceOfGMM(gmm, X, plot = False):
     AllLLH = []
+
     for i in range(10):
         gmm.fit(X)
         LLH = gmm.score_samples(X);
-        AllLLH.append(LLH)
-    AllLLH = np.array(AllLLH)
+#        std_scale = preprocessing.StandardScaler().fit(LLH)
+        LLH_tr = np.transpose([LLH])
+        std_scale = preprocessing.StandardScaler().fit(LLH_tr)
+        LLH_tr = std_scale.transform(LLH_tr)
 
-    for i in range(len(AllLLH)):
-        LLH_for_i =  AllLLH[:,i]
+        #LLH = preprocessing.scale(np.array([LLH]))
+        #LLH = LLH/np.linalg.norm(LLH)
+
+        AllLLH.append(np.transpose(LLH))
         
-        a = np.var(AllLLH, axis=i) # récup la variance pour tout !!
-        b = np.var(LLH_for_i)
-        print(LLH_for_i)
-    print("finish")
+        spl = plt.subplot(5, 2, 1+i)
+        plt.hist(LLH_tr, bins=100)
+        #        plt.title(r'variance intra image')
+        plt.grid()
+        
+        #print(np.mean(LLH_tr))
+    AllLLH = np.array(AllLLH)
+    plt.show()
+
+    #for i in range(10):
+        #plt.hist(All)
+
+    #for i in range(len(AllLLH)):
+        #LLH_for_i =  AllLLH[:,i]
+        
+    allVar = np.var(AllLLH, axis=0) # récup la variance intraImage
+    varExtra = np.var(AllLLH, axis=1)
+
+    color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange",  "darkviolet", "olive"])
+      
+
+    
+
+    if plot:
+       
+        plt.plot(range(AllLLH.shape[1]),allVar)
+        plt.title(r'variance intra image')
+        plt.grid()
+        plt.show()
+
+        plt.plot(range(AllLLH.shape[0]),varExtra)
+        plt.title(r'variance extra image')
+        plt.grid()
+        plt.show()
+        print("finish")
+    allRatio = ratioArray(allVar,varExtra)
+    for i, color in zip(range(allRatio.shape[1]), color_iter):
+        plt.plot(range(len(varExtra)), allRatio[:,i],color)
+    plt.title(r'ratio par image, pour chaque Gmm')
+   # plt.xlabel(r'$\iterations de GMM$')
+    #plt.ylabel(r'$\ratio varIntra par varExtr$')
+    plt.grid()
+    plt.show()
+      #  splot = plt.subplot(2, 1, 2)
+   # for i, color in zip(range(allRatio.shape[1]), color_iter):
+    #    plt.plot(range(len(varExtra)), allRatio[:,i],color)
+    
+    
+   # plt.show()
 
 
+def ratio(a, b):
+    a = float(a)
+    b = float(b)
+    if b == 0:
+        return a
+    return ratio(b, a % b)
+#returns a string with ratio for height and width
+def get_ratio(a, b):
+    r = ratio(a, b)
+    return float((a/r) / (b/r))
+def ratioArray(x, y):
+    val = np.array(
+        list( map(lambda b :
+               list(map(lambda a :
+                        get_ratio(a,b),
+                        x)) ,
+               y )))
+
+    return val
 
 
+def distToCentroid(X, variance):
+    centroid = np.mean(X, axis =0)
+    v = variance[0]
+    #covar = np.cov(X, aweights  = variance[0])
+    
+    #val =distance.mahalanobis(centroid,X[0], linalg.inv(covar))
+    #print(val)
+    
+    tabDist = []
+    for img in X:
+        dist = 0;
+        for i, centr, var in zip(img, centroid, variance[0]):
+            dist += ((i**2 + centr**2)**.5)*var
+            
+        tabDist.append(dist);
+    tabDist = np.array(tabDist)
+    #print(tabDist)
+
+    plt.plot(range(len(tabDist)),tabDist)
+    plt.title(r'distance to centroid')
+
+    plt.grid()
+
+    plt.show()
+
+    
+
+    
+    
 
 
 

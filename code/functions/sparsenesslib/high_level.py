@@ -544,9 +544,8 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
         tabPC.append(x.shape[1])
 
         print('######', each,"     ", x.shape[1])
-
         gm = metrics.getMultigaussian(x,name =  path+" "+each, plot= False)
-
+        
         metrics.doVarianceOfGMM(gm, x)
 
         if len(pathForLLH)>0:
@@ -556,7 +555,33 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
             metrics.getlogLikelihood(gm, x, pathForLLH,  True)
     return tabPC
         
+def eachFileCSV_Centroid(path, formatOrdre = []):
+    """!
     
+    @param path[] repertoire des CSV a traiter avec repertoire variance
+    @param formatOrdre permet de parcourir dans un ordre précis:
+        syntaxe: formatOrdre[  prefixe[], TabName[], sufixe]
+
+    """
+
+   
+    if len(formatOrdre)==0: #ordre de parcours alphabétique
+        filesCP = [f for f in os.listdir(path[0])]    
+        filesVar = [f for f in os.listdir(path[1])]    
+    else: #parcours les fichier qui match avec formatOrdre
+        filesCP = [formatOrdre[0][0]+f+formatOrdre[2] for f in formatOrdre[1]]
+        filesVar = [formatOrdre[0][1]+f+formatOrdre[2] for f in formatOrdre[1]]  
+   
+    for eachCP,eachVar in zip(filesCP, filesVar):                   
+        csv_pathCP = path[0] + "/" + eachCP
+        csv_pathVar = path[1] + "/" + eachVar
+        cp = readCsv(csv_pathCP) #recupère le CSV
+        var = readCsv(csv_pathVar) #recupère le CSV
+        
+
+        print('######', eachCP,"  ",eachVar,"   ", cp.shape[1])
+        metrics.distToCentroid(cp, var)
+
 
 def readCsv(path):
     """
