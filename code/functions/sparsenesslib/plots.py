@@ -105,7 +105,7 @@ def plotBIC(tabBIC, best_gmm, cv_types = ["spherical", "tied", "diag", "full"], 
     plt.title("BIC score per model")
     xpos = (
         np.mod(bic.argmin(), len(n_components_range))
-        + 0.65
+        + 0.55
         + 0.2 * np.floor(bic.argmin() / len(n_components_range))
     )
     plt.text(xpos, bic.min() * 0.97 + 0.03 * bic.max(), "*", fontsize=14)
@@ -145,3 +145,14 @@ def plotPC(listPC, listBDD, layersName):
     spl.legend([b[0] for b in bars], listBDD)
     plt.show()
 
+def plotHist(AllHist, bin, name = "histo"):
+    for i, hist in enumerate(AllHist):
+        
+        
+        if i<10:
+            spl = plt.subplot(2, 5, 1+i)
+            if i==2:
+                plt.title(name)
+            plt.bar(bin,hist,width=bin[1]-bin[0])         
+    plt.xticks(list(map(lambda val: round(val,1),bin[::50])))
+    plt.show()

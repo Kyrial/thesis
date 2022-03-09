@@ -45,6 +45,8 @@ import csv
 sys.path.insert(1,'../../code/functions')
 import sparsenesslib.keract as keract
 import sparsenesslib.metrics as metrics
+import sparsenesslib.plots as plots
+
 import sparsenesslib.sparsenessmod as spm
 import sparsenesslib.activations_structures as acst
 #####################################################################################
@@ -490,7 +492,6 @@ def analyse_metrics(model_name, computer, bdd, weight, metric,k):
     #récupération du nom des couches
     model, layers, flatten_layers =configModel(model_name, weight)
 
-
     labels_path, images_path, log_path = getPaths(bdd, computer)
 
     #chargement des noms des images
@@ -515,10 +516,34 @@ def analyse_metrics(model_name, computer, bdd, weight, metric,k):
     #inflexion
     df_inflexions = metrics.inflexion_points(df_metrics,dict_labels)
     df_inflexions.to_json(path_or_buf = log_path+'_'+bdd+'_'+weight+'_'+metric+'_'+'_inflexions'+'.csv')
-    #écriture du fichier    
+    #écriture du fichier
 
     write_file(log_path, bdd, weight, metric, df_metrics, df_reglog, df_scope, df_inflexions ,layers, k)    
 #####################################################################################
+
+
+
+def getAllFile(path, formatOrdre = []):
+    files = []
+    if len(formatOrdre)==0: #ordre de parcours alphabétique
+        files = [f for f in os.listdir(path)]    
+    else: #parcours les fichier qui match avec formatOrdre
+        #if isinstance(formatOrdre[0], list):
+            files = [formatOrdre[0]+f+formatOrdre[2] for f in formatOrdre[1]]
+    return files
+
+
+def eachFilePlot(path, formatOrdre = []):
+    files =  getAllFile(path, formatOrdre)
+    for each in files:
+        csv_path = path + "/" + each
+        if os.path.isfile(csv_path):
+            
+            x, head = readCsv(csv_path) #recupère le CSV
+        
+            print('######', each,"     ")
+            plots.plotHist(x, head, name =each )
+
 
 
 def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
@@ -532,27 +557,30 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
     @return tableau des nbe de PC par couche
     """
     tabPC = []
-   
-    if len(formatOrdre)==0: #ordre de parcours alphabétique
-        files = [f for f in os.listdir(path)]    
-    else: #parcours les fichier qui match avec formatOrdre
-        files = [formatOrdre[0]+f+formatOrdre[2] for f in formatOrdre[1]]      
-   
-    for each in files:                   
-        csv_path = path + "/" + each
-        x = readCsv(csv_path) #recupère le CSV
+    pathPCA = path+"/"+"pca"
+    pathHist = path+"/"+"histo"
+
+    files = getAllFile(pathPCA, formatOrdre)
+
+    for each in files:
+        csv_path = pathPCA + "/" + each
+        x, _ = readCsv(csv_path) #recupère le CSV
         tabPC.append(x.shape[1])
 
         print('######', each,"     ", x.shape[1])
-        gm = metrics.getMultigaussian(x,name =  path+" "+each, plot= False)
+        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =6)
         
-        metrics.doVarianceOfGMM(gm, x)
-
-        if len(pathForLLH)>0:
-            if len(pathForLLH)>2:
-                pathForLLH[2] = (each)
-            else: pathForLLH.append(each)
-            metrics.getlogLikelihood(gm, x, pathForLLH,  True)
+        #metrics.doVarianceOfGMM(gm, x)
+        allLLH =  metrics.DoMultipleLLH(gm, x,10)
+        allHist, legend = metrics.doHist(allLLH, True)
+        #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
+        """
+            if len(pathForLLH)>0:
+                if len(pathForLLH)>2:
+                    pathForLLH[2] = (each)
+                else: pathForLLH.append(each)
+                metrics.getlogLikelihood(gm, x, pathForLLH,  True)
+        """
     return tabPC
         
 def eachFileCSV_Centroid(path, formatOrdre = []):
@@ -564,7 +592,6 @@ def eachFileCSV_Centroid(path, formatOrdre = []):
 
     """
 
-   
     if len(formatOrdre)==0: #ordre de parcours alphabétique
         filesCP = [f for f in os.listdir(path[0])]    
         filesVar = [f for f in os.listdir(path[1])]    
@@ -572,15 +599,30 @@ def eachFileCSV_Centroid(path, formatOrdre = []):
         filesCP = [formatOrdre[0][0]+f+formatOrdre[2] for f in formatOrdre[1]]
         filesVar = [formatOrdre[0][1]+f+formatOrdre[2] for f in formatOrdre[1]]  
    
-    for eachCP,eachVar in zip(filesCP, filesVar):                   
+    for eachCP,eachVar in zip(filesCP, filesVar):
         csv_pathCP = path[0] + "/" + eachCP
         csv_pathVar = path[1] + "/" + eachVar
-        cp = readCsv(csv_pathCP) #recupère le CSV
-        var = readCsv(csv_pathVar) #recupère le CSV
+        cp, _ = readCsv(csv_pathCP) #recupère le CSV
+        var, _ = readCsv(csv_pathVar) #recupère le CSV
         
 
         print('######', eachCP,"  ",eachVar,"   ", cp.shape[1])
-        metrics.distToCentroid(cp, var)
+        metrics.distToCentroid(cp, var, eachCP+"\n distance du Centroïd")
+
+def eachFileCSV_Kernel(path, formatOrdre = [], pathForLLH=[]):
+    """!
+    """
+    tabPC = []
+    pathPCA = path+"/"+"pca"
+    pathHist = path+"/"+"histo"
+
+    files = getAllFile(pathPCA, formatOrdre)
+
+    for each in files:
+        csv_path = pathPCA + "/" + each
+        x, _ = readCsv(csv_path) #recupère le CSV
+        metrics.KDE(x)
+
 
 
 def readCsv(path):
@@ -590,12 +632,16 @@ def readCsv(path):
     try:
         with open(path, newline='') as csvfile:
             rows = list(csv.reader(csvfile,delimiter=','))
-            for row in rows[1:]:
+            #rows[0].pop(0)
+            for row in rows[0:]:
                 for i in range(len(row)):
-                    row[i] = float(row[i])
+                    try:
+                        row[i] = float(row[i])
+                    except:
+                        pass
                 row.pop(0)
-            rows.pop(0)
-            return np.array(rows)
+            head = rows.pop(0)
+            return np.array(rows), head
     except OSError:
         print("cannot open", path)
         return None
@@ -604,30 +650,3 @@ def readCsv(path):
         return None
 
 
-
-def getLLH(bdd,weight,metric, model_name, computer, freqmod,k = 1):
-    '''
-    donne la LogLikeliHood
-    '''
-    t0 = time.time()
-    labels_path, images_path, log_path = getPaths(bdd, computer)
-    model, layers, flatten_layers =configModel(model_name, weight)
-
-    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
-    dict_labels = {}
-
-    
-    for layer in layers:   
-        
-            print('##### current block is: ', layer)
-            #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
-            #elle retourne l'array des activations à la couche choisie
-            dict_activations = {}
-        
-            parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
-
-            
-
-    spm.parse_rates(labels_path, dict_labels)   
-    today = date.today()
-    today = str(today)

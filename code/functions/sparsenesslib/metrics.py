@@ -463,13 +463,13 @@ def MultiDimensionalScaling(X):
     return X_MDS
 
 
-def BIC(X, verbose = False, plot = False):
+def BIC(X, verbose = False, plot = True, nbMaxComp = 20):
     """! Bayesian Information Criterion
     """
     lowest_bic = np.infty
     bic = []
 
-    n_components_range = range(1, 8)
+    n_components_range = range(1, nbMaxComp)
     cv_types = ["spherical", "tied", "diag", "full"]
     for cv_type in cv_types:
         for n_components in n_components_range:
@@ -494,8 +494,7 @@ def BIC(X, verbose = False, plot = False):
 
 
 
-
-def getMultigaussian(X, plot= False, name ="Gaussian Mixture", index = 1):
+def getMultigaussian(X, plot= [True,True], name ="Gaussian Mixture", index = 1, nbMaxComp = 50):
     """! a partir d'un array, calcul le BIC, si plot, appelle MultiDimensionalScaling(X) afin d'obtenir un Array en 2D pour l'afficher
     @param X array de dimension N
     @param [facultatif] plot Boolean, affiche ou nom le graphique
@@ -508,13 +507,21 @@ def getMultigaussian(X, plot= False, name ="Gaussian Mixture", index = 1):
     std_scale = preprocessing.StandardScaler().fit(X)
     X = std_scale.transform(X)
 
-    gm = BIC(X, verbose = False, plot = False)
+    #gm = GaussianMixture(
+     #           n_components=1 
+             #   random_state = 1
+      #      )
+    #gm.fit(X) 
+    gm = BIC(X, verbose = False, plot = plot[0], nbMaxComp = nbMaxComp)
+    plt.show()
 
-
-    if plot:
+    if plot[1]:
         X_MDS = MultiDimensionalScaling(X) 
         plots.plot_MultiGaussian(X, gm, index, name, X_MDS)
     return gm
+
+
+
 
 def getlogLikelihood(gm, X, path, writeCSV = True):
     """! récupère le log likelihood et l'écris dans un CSV si writeCSV = True
@@ -537,29 +544,76 @@ def getlogLikelihood(gm, X, path, writeCSV = True):
     return LLH
 
 
-def doVarianceOfGMM(gmm, X, plot = False):
-    AllLLH = []
 
-    for i in range(10):
+def DoMultipleLLH(gmm, X, nbe):
+    AllLLH = []
+    for i in range(nbe):
         gmm.fit(X)
-        LLH = gmm.score_samples(X);
-#        std_scale = preprocessing.StandardScaler().fit(LLH)
-        LLH_tr = np.transpose([LLH])
-        std_scale = preprocessing.StandardScaler().fit(LLH_tr)
+        LLH = gmm.score_samples(X); #récupère LLH
+
+        LLH_tr = np.transpose([LLH]) #transpose
+        std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
         LLH_tr = std_scale.transform(LLH_tr)
 
-        #LLH = preprocessing.scale(np.array([LLH]))
-        #LLH = LLH/np.linalg.norm(LLH)
+        AllLLH.append(np.transpose(LLH_tr)[0])
 
-        AllLLH.append(np.transpose(LLH))
-        
-        spl = plt.subplot(5, 2, 1+i)
-        plt.hist(LLH_tr, bins=100)
-        #        plt.title(r'variance intra image')
-        plt.grid()
-        
-        #print(np.mean(LLH_tr))
-    AllLLH = np.array(AllLLH)
+#    AllLLH = np.array(AllLLH)
+    return np.array(AllLLH)
+
+def doHist(AllLLH, plot = False):
+    bin = np.linspace(AllLLH.min(), AllLLH.max(),200)
+    allHist = []
+    legend = []
+    for i, llh in enumerate(AllLLH):
+        if plot and i <10:
+            #spl = plt.subplot(5, 2, 1+i)
+            hist = plt.hist(llh, bins=bin)
+            plt.grid()
+        hist = np.histogram(llh, bins=bin)
+        legend = np.transpose(hist)[1]
+        allHist.append(np.transpose(hist)[0])
+    
+    if plot:
+        plt.show()
+    #compareValue(AllLLH[0], AllLLH[1])
+    return allHist, legend
+
+
+def writeHist(allHist, legend, path,name):
+   
+    df = pandas.DataFrame(allHist)
+    #df = df.transpose()
+    df.columns = legend[0:-1]
+    #os.makedirs(pathData+"results"+"/"+bdd+"/"+"LLH", exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+    os.makedirs(path, exist_ok=True)
+    df.to_csv(path+"/"+name)
+
+
+def compareValue(X, Y):
+    
+    val = abs(X - Y)
+    bin = np.linspace(val.min(), val.max(),100)
+    hist = plt.hist(val, bins=bin)
+    plt.grid()
+    plt.show()
+
+
+def doVarianceOfGMM(gmm, X, plot = False):
+    AllLLH = DoMultipleLLH(gmm, X)
+
+    allHist, legend = doHist(allLLH)
+
+    writeCSV=True
+    if writeCSV:
+        df = pandas.DataFrame(allHist)
+        #df = df.transpose()
+        df.columns = legend[0:-1]
+        #os.makedirs(pathData+"results"+"/"+bdd+"/"+"LLH", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+        df.to_csv("./test.csv")
+
+
     plt.show()
 
     #for i in range(10):
@@ -572,9 +626,6 @@ def doVarianceOfGMM(gmm, X, plot = False):
     varExtra = np.var(AllLLH, axis=1)
 
     color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange",  "darkviolet", "olive"])
-      
-
-    
 
     if plot:
        
@@ -621,11 +672,10 @@ def ratioArray(x, y):
                         get_ratio(a,b),
                         x)) ,
                y )))
-
     return val
 
 
-def distToCentroid(X, variance):
+def distToCentroid(X, variance, name =r'distance to centroid' ):
     centroid = np.mean(X, axis =0)
     v = variance[0]
     #covar = np.cov(X, aweights  = variance[0])
@@ -644,15 +694,46 @@ def distToCentroid(X, variance):
     #print(tabDist)
 
     plt.plot(range(len(tabDist)),tabDist)
-    plt.title(r'distance to centroid')
+    plt.title(name)
 
     plt.grid()
 
     plt.show()
 
     
+from sklearn.neighbors import KernelDensity
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import LeaveOneOut
 
-    
+def KDE(x):
+    # Centrage et Réduction
+    std_scale = preprocessing.StandardScaler().fit(x)
+    x = std_scale.transform(x)
+
+    bandwidths = 10 ** np.linspace(-1, 1, 100)
+    grid = GridSearchCV(KernelDensity(kernel='gaussian'),
+                        {'bandwidth': bandwidths},
+                        #cv=LeaveOneOut()
+                        #cv=is 5-Fold validation (default)
+                        )
+    grid.fit(x);
+    tailleBande = grid.best_params_
+
+    # instantiate and fit the KDE model
+    kde = KernelDensity(bandwidth=tailleBande['bandwidth'], kernel='gaussian')
+    kde.fit(x)
+
+    # score_samples returns the log of the probability density
+    logprob = kde.score_samples(x)
+    LLH_tr = np.transpose([logprob]) #transpose
+    std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
+    LLH_tr = std_scale.transform(LLH_tr)
+
+    doHist(np.array([LLH_tr]), plot = True)
+    #plt.fill_between(x, np.exp(logprob), alpha=0.5)
+    #plt.plot(x, np.full_like(x, -0.01), '|k', markeredgewidth=1)
+    #plt.ylim(-0.02, 0.22)
+    #plt.show()
     
 
 

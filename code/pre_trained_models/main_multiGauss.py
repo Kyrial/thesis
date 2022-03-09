@@ -33,8 +33,8 @@ import sparsenesslib.metrics as metrics
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-#list_bdd = ['CFD'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
-list_bdd = ['JEN'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = ['CFD'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+#list_bdd = ['JEN'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
 list_weights = ['imagenet'] #['vggface','imagenet','vggplace']
@@ -55,12 +55,21 @@ for bdd in list_bdd:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
             #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
            # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
-            path = "../../results"+"/"+bdd+"/"+"pca";
+            path = "../../results"+"/"+bdd;
             #x = metrics.readCsv(path)
            # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
             #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
             _, layers, _ = hl.configModel(model_name, weight)
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
+            
             hl.eachFileCSV(path,["pca_values_",layers,".csv"])
+
+            
+
+#            path = "../../results"+"/"+bdd+"\histo"
+#            hl.eachFilePlot(path);
+
+
+
             k += 1
 #####################################################################################
