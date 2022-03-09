@@ -30,6 +30,9 @@ if len(sys.argv) >1:
     if sys.argv[1]== 'mesoLR':
         sys.path.insert(1,'/home/tieos/work_swp-gpu/melvin/thesis/code/functions')
         pathData = '/home/tieos/work_swp-gpu/melvin/thesis/'
+    if sys.argv[1]== 'mesoLR-3T':
+        sys.path.insert(1,'/home/tieos/work_cefe_swp-smp/melvin/thesis/code/functions')
+        pathData = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
     elif sys.argv[1] == 'sonia':
         pathData =  '/media/sonia/DATA/data_nico/'
 
@@ -59,7 +62,7 @@ for bdd in list_bdd:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
             #hl.extract_pc_acp_block(bdd,weight,metric, model_name, pathData, freqmod,k)
             #k += 1
-            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k)       
+            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k)
             k += 1
 #####################################################################################
 
