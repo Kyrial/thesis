@@ -35,7 +35,8 @@ if len(sys.argv) >1:
         pathData = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
     elif sys.argv[1] == 'sonia':
         pathData =  '/media/sonia/DATA/data_nico/'
-
+print("path: ", sys.path)
+print("\n Current working directory: {0}".format(os.getcwd()))
 import sparsenesslib.high_level as hl
 #####################################################################################
 #SETTINGS:

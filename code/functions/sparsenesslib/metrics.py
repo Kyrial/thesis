@@ -561,7 +561,7 @@ def DoMultipleLLH(gmm, X, nbe):
     return np.array(AllLLH)
 
 def doHist(AllLLH, plot = False):
-    bin = np.linspace(AllLLH.min(), AllLLH.max(),200)
+    bin = np.linspace(AllLLH.min(), AllLLH.max(),300)
     allHist = []
     legend = []
     for i, llh in enumerate(AllLLH):
@@ -707,10 +707,10 @@ from sklearn.model_selection import LeaveOneOut
 
 def KDE(x):
     # Centrage et Réduction
-    std_scale = preprocessing.StandardScaler().fit(x)
-    x = std_scale.transform(x)
+    #std_scale = preprocessing.StandardScaler().fit(x)
+    #x = std_scale.transform(x)
 
-    bandwidths = 10 ** np.linspace(-1, 1, 100)
+    bandwidths = 10 ** np.linspace(-4, 4, 300)
     grid = GridSearchCV(KernelDensity(kernel='gaussian'),
                         {'bandwidth': bandwidths},
                         #cv=LeaveOneOut()
@@ -718,9 +718,12 @@ def KDE(x):
                         )
     grid.fit(x);
     tailleBande = grid.best_params_
-
+    print("taille bande = ", tailleBande['bandwidth'],"\n")
+    #tailleBande = {'bandwidth':0.01}
     # instantiate and fit the KDE model
-    kde = KernelDensity(bandwidth=tailleBande['bandwidth'], kernel='gaussian')
+    kde = KernelDensity(
+        bandwidth=tailleBande['bandwidth'],
+       kernel='gaussian')
     kde.fit(x)
 
     # score_samples returns the log of the probability density
