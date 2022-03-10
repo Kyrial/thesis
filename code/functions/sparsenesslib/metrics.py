@@ -350,12 +350,14 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         print("h") 
         df = pandas.DataFrame(coordinates)
         print("i")
-        bdd = bdd.lower()
+        
         if block:
             os.makedirs(pathData+"results"+"/"+bdd+"/"+"pcaBlock", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
             df.to_csv(pathData+"results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+layer+".csv")
         else:
+            print(bdd," show the bdd" )
+
             os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
             df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
@@ -528,7 +530,7 @@ def getlogLikelihood(gm, X, path, writeCSV = True):
     @param gm mixure gaussian
     @param X array de dimension N
     @param tableau de 2, path + bdd
-    @writeCSV boolean
+    @param writeCSV boolean
     @return array de LLH
     """
     pathData,bdd, layer = path

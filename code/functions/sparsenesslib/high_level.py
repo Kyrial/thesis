@@ -113,7 +113,13 @@ def configModel(model_name, weight):
             print('error, model not configured')  
     return model, layers, flatten_layers
 
-
+def preprocess_Image(img_path):
+    img = load_img(img_path, target_size=(224, 224))
+    image = img_to_array(img)      
+    img = image.reshape(
+        (1, image.shape[0], image.shape[1], image.shape[2]))   
+    image = preprocess_input(img)
+    return image
 
 def compute_sparseness_metrics_activations(model, flatten_layers, path, dict_output, layers, computation, formula, freqmod,k):
     '''
@@ -123,24 +129,55 @@ def compute_sparseness_metrics_activations(model, flatten_layers, path, dict_out
     and store them in the dictionary *dict_output*.
     '''
     imgs = [f for f in os.listdir(path)]    
-    i = 1
-    for each in imgs:
+    
+    for i, each in enumerate(imgs,start=1):
 
         if i%freqmod == 0:
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
-        i += 1
+      
         img_path = path + "/" + each
-        img = load_img(img_path, target_size=(224, 224))
-        image = img_to_array(img)
-        img = image.reshape(
-            (1, image.shape[0], image.shape[1], image.shape[2]))  
-        image = preprocess_input(img)
+        image = preprocess_Image(img_path)
+
         # récupération des activations
         activations = keract.get_activations(model, image)
         activations_dict = {}
         acst.compute_activations(layers, flatten_layers, computation, activations, activations_dict,formula,k)
         dict_output[each] = activations_dict
 #####################################################################################
+
+
+def getActivations_for_all_image(model,path, computation, formula, freqmod):
+    '''! Retourne un dictionnaire par image des activations  
+    
+    '''
+    imageActivation = {}
+    
+    for i, each in enumerate([f for f in os.listdir(path)],  start=1) :
+        if i%freqmod == 0:         
+            print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
+
+        
+        img_path = path + "/" + each
+        image = preprocess_Image(img_path)
+        
+        # récupération des activations
+        activations = keract.get_activations(model, image)
+        
+        imageActivation[each] = activations
+    return imageActivation
+
+
+def get_activation_by_layer(activations,path,dict_output, formula, k, layer):
+    """! a partir du dictionnaire de toutes les activations, extrait la layer choisis
+
+    """
+    for i, each in enumerate([f for f in os.listdir(path)],  start=1) :
+        activations_dict = {}
+        
+        acst.compute_flatten(activations[each], activations_dict, layer, formula,k)
+        
+        dict_output[each] = activations_dict
+
 def parse_activations_by_layer(model,path, dict_output, layer, computation, formula, freqmod,k):
     
     '''
@@ -149,30 +186,22 @@ def parse_activations_by_layer(model,path, dict_output, layer, computation, form
     '''
     
     imgs = [f for f in os.listdir(path)] 
-    i = 1
+  
     
-    for each in imgs:     
+    for i, each in enumerate(imgs,start=1):
         if i%freqmod == 0:         
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
-        i += 1
+       
         
         img_path = path + "/" + each
-        
-        img = load_img(img_path, target_size=(224, 224))
-        
-        image = img_to_array(img)
-        
-        img = image.reshape(
-            (1, image.shape[0], image.shape[1], image.shape[2]))  
-        
-        image = preprocess_input(img)
+        image = preprocess_Image(img_path)
         
         # récupération des activations
         activations = keract.get_activations(model, image)
         
         activations_dict = {}
         
-        acst.compute_flatten(activations, activations_dict, layer, formula,k)  
+        acst.compute_flatten(activations, activations_dict, layer, formula,k)
         
         dict_output[each] = activations_dict
 #####################################################################################
@@ -186,39 +215,28 @@ def parse_activations_by_filter(model,path, list_output, layer, computation, for
     
     imgs = [f for f in os.listdir(path)] 
       
-    i = 1
-    
 
     #pour avoir le nombre d'activations, test sur une image quelconque
     img_path = path + "/" + imgs[1]
-    img = load_img(img_path, target_size=(224, 224))
-    image = img_to_array(img)
-    img = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))  
-    image = preprocess_input(img)
+    image = preprocess_Image(img_path)
+
+
     activations = keract.get_activations(model, image)
     print(layer)
     #print(activations.items())
     [print(k, '->', v.shape, '- Numpy array') for (k, v) in activations.items()]
 
 
-    for each in imgs:
+    for i, each in enumerate(imgs,start=1):
         
 
         if i%freqmod == 0:
             
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
-        i += 1
+       
         
         img_path = path + "/" + each
-        
-        img = load_img(img_path, target_size=(224, 224))
-        
-        image = img_to_array(img)
-        
-        img = image.reshape(
-            (1, image.shape[0], image.shape[1], image.shape[2]))  
-        
-        image = preprocess_input(img)
+        image = preprocess_Image(img_path)
         
         # récupération des activations
         activations = keract.get_activations(model, image)
@@ -365,6 +383,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}
 
+    activations = getActivations_for_all_image(model,images_path,'flatten', metric, freqmod)
+    
+
     for layer in layers:   
 
         
@@ -372,9 +393,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
         #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
         #elle retourne l'array des activations à la couche choisie
         dict_activations = {}
+        get_activation_by_layer(activations,images_path,dict_activations, metric, k, layer)
         
-        
-        parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
+        #parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
         
         pc = []
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
