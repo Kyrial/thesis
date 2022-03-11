@@ -350,7 +350,8 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         print("h") 
         df = pandas.DataFrame(coordinates)
         print("i")
-        
+        if pathData == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
+            pathData = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
         if block:
             os.makedirs(pathData+"results"+"/"+bdd+"/"+"pcaBlock", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
@@ -563,7 +564,7 @@ def DoMultipleLLH(gmm, X, nbe):
     return np.array(AllLLH)
 
 def doHist(AllLLH, plot = False):
-    bin = np.linspace(AllLLH.min(), AllLLH.max(),300)
+    bin = np.linspace(AllLLH.min(), AllLLH.max(),500)
     allHist = []
     legend = []
     for i, llh in enumerate(AllLLH):
@@ -712,7 +713,7 @@ def KDE(x):
     #std_scale = preprocessing.StandardScaler().fit(x)
     #x = std_scale.transform(x)
 
-    bandwidths = 10 ** np.linspace(-4, 4, 300)
+    bandwidths = 10 ** np.linspace(-10, 10, 500)
     grid = GridSearchCV(KernelDensity(kernel='gaussian'),
                         {'bandwidth': bandwidths},
                         #cv=LeaveOneOut()
