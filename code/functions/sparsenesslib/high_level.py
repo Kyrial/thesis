@@ -152,8 +152,8 @@ def getActivations_for_all_image(model,path, computation, formula, freqmod):
     '''
     print("the path is: ", path)
     imageActivation = {}
-    
-    for i, each in enumerate([f for f in os.listdir(path)],  start=1):
+    imgs = [f for f in os.listdir(path)]
+    for i, each in enumerate(imgs,  start=1):
         if i%freqmod == 0:         
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
 
