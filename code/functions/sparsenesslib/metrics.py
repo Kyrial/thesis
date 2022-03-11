@@ -336,18 +336,18 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         print('b')
         df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T  
         X = df.values 
-        print('d')    
+        #print('d')    
         # Centrage et Réduction
         std_scale = preprocessing.StandardScaler().fit(X)
-        print('e')        
+        #print('e')        
         X_scaled = std_scale.transform(X)
-        print('f')        
+        #print('f')        
         # Calcul des composantes principales        
         pca = decomposition.PCA(n_components= 0.8)
 
-        print("g")     
+        #print("g")     
         coordinates = pca.fit_transform(X_scaled)      
-        print("h") 
+        #print("h") 
         df = pandas.DataFrame(coordinates)
         print("i")
         if pathData == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
@@ -370,6 +370,9 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         print('############################################################################')
 
         getVarienceRatio(pca,bdd, layer, pathData)
+        if pathData == '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/':
+            pathData = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
+            
 
 def getVarienceRatio(pca, bdd, layer, pathData = "../../"):
    
