@@ -27,13 +27,14 @@ if len(sys.argv) >1:
 
 import sparsenesslib.high_level as hl
 import sparsenesslib.metrics as metrics
+import sparsenesslib.plots as plots
 #####################################################################################
 #SETTINGS:
 #####################################################################################
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = ['CFD'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = ['SCUT-FBP'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 #list_bdd = ['JEN'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
@@ -42,6 +43,7 @@ computer = 'LINUX-ES03' #no need to change that unless it's sonia's pc, that inf
 freqmod = 100 #frequency of prints, if 5: print for 1/5 images
 
 
+AllPC=[]
 
 #####################################################################################
 #CODE
@@ -51,6 +53,7 @@ k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
 for bdd in list_bdd:
     for weight in list_weights:
+        _, layers, _ = hl.configModel(model_name, weight)
         for metric in list_metrics:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
             #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
@@ -59,17 +62,13 @@ for bdd in list_bdd:
             #x = metrics.readCsv(path)
            # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
             #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
-            _, layers, _ = hl.configModel(model_name, weight)
+            
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             
-            hl.eachFileCSV(path,["pca_values_",layers,".csv"])
-
-            
-
+            AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"]))
+            k += 1
 #            path = "../../results"+"/"+bdd+"\histo"
 #            hl.eachFilePlot(path);
-
-
-
-            k += 1
+           
+        plots.plotPC(AllPC, list_bdd, layers)
 #####################################################################################

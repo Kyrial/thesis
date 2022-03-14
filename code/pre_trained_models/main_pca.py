@@ -38,13 +38,14 @@ if len(sys.argv) >1:
 print("path: ", sys.path)
 print("\n Current working directory: {0}".format(os.getcwd()))
 import sparsenesslib.high_level as hl
+
 #####################################################################################
 #SETTINGS:
 #####################################################################################
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = ['BIGTEST','SCUT-FBP'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = ['SCUT-FBP'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 #list_bdd = ['SMALLTEST','BIGTEST','CFD','MART','JEN','SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
@@ -56,6 +57,11 @@ freqmod = 100 #frequency of prints, if 5: print for 1/5 images
 #####################################################################################
 list_metrics = ['acp']
 k = 1
+
+#pour plots les PC
+
+
+
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
 for bdd in list_bdd:
     for weight in list_weights:
@@ -65,5 +71,7 @@ for bdd in list_bdd:
             #k += 1
             hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k)
             k += 1
+
+    
 #####################################################################################
 

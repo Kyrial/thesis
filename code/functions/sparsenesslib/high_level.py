@@ -150,9 +150,10 @@ def getActivations_for_all_image(model,path, computation, formula, freqmod):
     '''! Retourne un dictionnaire par image des activations  
     
     '''
+    print("the path is: ", path)
     imageActivation = {}
-    
-    for i, each in enumerate([f for f in os.listdir(path)],  start=1) :
+    imgs = [f for f in os.listdir(path)]
+    for i, each in enumerate(imgs,  start=1):
         if i%freqmod == 0:         
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
 
@@ -446,7 +447,7 @@ def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1)
             #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
             #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
             metrics.acp_layers(dict_activations, pc, bdd, block, True, computer)
-    spm.parse_rates(labels_path, dict_labels)   
+    spm.parse_rates(labels_path, dict_labels)
     today = date.today()
     today = str(today)
 
@@ -589,11 +590,11 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
         tabPC.append(x.shape[1])
 
         print('######', each,"     ", x.shape[1])
-        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =6)
+        #gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =6)
         
         #metrics.doVarianceOfGMM(gm, x)
-        allLLH =  metrics.DoMultipleLLH(gm, x,10)
-        allHist, legend = metrics.doHist(allLLH, True)
+        #allLLH =  metrics.DoMultipleLLH(gm, x,10)
+        #allHist, legend = metrics.doHist(allLLH, True)
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
         """
             if len(pathForLLH)>0:
