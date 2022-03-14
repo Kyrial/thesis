@@ -1,0 +1,2 @@
+results/SCUT-FBP/pca filter=lfs diff=lfs merge=lfs -text
+results/SCUT-FBP/pca_variance filter=lfs diff=lfs merge=lfs -text
