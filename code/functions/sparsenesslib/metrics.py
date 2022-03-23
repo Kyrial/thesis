@@ -45,6 +45,7 @@ from sklearn.manifold import MDS
 from scipy.ndimage import gaussian_filter1d
 from scipy import linalg
 from scipy.spatial import distance
+from scipy import stats
 
 from sklearn import decomposition
 from sklearn.decomposition import IncrementalPCA
@@ -551,11 +552,11 @@ def getlogLikelihood(gm, X, path, writeCSV = True):
 
 
 
-def DoMultipleLLH(gmm, X, nbe):
+def DoMultipleLLH(gmm_kde, X, nbe):
     AllLLH = []
     for i in range(nbe):
-        gmm.fit(X)
-        LLH = gmm.score_samples(X); #récupère LLH
+        gmm_kde.fit(X)
+        LLH = gmm_kde.score_samples(X); #récupère LLH
 
         LLH_tr = np.transpose([LLH]) #transpose
         std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
@@ -564,24 +565,28 @@ def DoMultipleLLH(gmm, X, nbe):
         AllLLH.append(np.transpose(LLH_tr)[0])
 
 #    AllLLH = np.array(AllLLH)
+    
+    
+
     return np.array(AllLLH)
 
-def doHist(AllLLH, plot = False):
+
+
+def doHist(AllLLH, plot = False, name = "histogramme"):
     bin = np.linspace(AllLLH.min(), AllLLH.max(),500)
     allHist = []
     legend = []
     for i, llh in enumerate(AllLLH):
-        if plot and i <10:
-            #spl = plt.subplot(5, 2, 1+i)
-            hist = plt.hist(llh, bins=bin)
-            plt.grid()
+        
         hist = np.histogram(llh, bins=bin)
         legend = np.transpose(hist)[1]
         allHist.append(np.transpose(hist)[0])
     
     if plot:
-        plt.show()
-    #compareValue(AllLLH[0], AllLLH[1])
+        plots.plotHist(AllLLH, name, max = 2)
+    #if len(AllLLH)>1:
+    #    compareValue(AllLLH[0], AllLLH[1])
+    #    CompareOrdre(AllLLH[0], AllLLH[1])
     return allHist, legend
 
 
@@ -595,22 +600,34 @@ def writeHist(allHist, legend, path,name):
     os.makedirs(path, exist_ok=True)
     df.to_csv(path+"/"+name)
 
+def CompareOrdre(x, y, name = "compare"):
+    ordre_X = np.argsort(x)
+    ordre_Y = np.argsort(y)
+    compareValue(ordre_X, ordre_Y, name )
 
-def compareValue(X, Y):
+def compareValue(X, Y, name = "compare"):
     
     val = abs(X - Y)
-    bin = np.linspace(val.min(), val.max(),100)
+    bin = np.linspace(val.min(), val.max(),1000)
     hist = plt.hist(val, bins=bin)
     plt.grid()
+    plt.title(name)
     plt.show()
 
+def spearman(x,y):
+    s = stats.spearmanr(x, y)
+    print(s)
+    return s
+    #plt.grid()
+    #plt.title(name)
+    #plt.show()
 
 def doVarianceOfGMM(gmm, X, plot = False):
-    AllLLH = DoMultipleLLH(gmm, X)
+    allLLH = DoMultipleLLH(gmm, X, 2)
 
     allHist, legend = doHist(allLLH)
 
-    writeCSV=True
+    writeCSV=False
     if writeCSV:
         df = pandas.DataFrame(allHist)
         #df = df.transpose()
@@ -618,7 +635,6 @@ def doVarianceOfGMM(gmm, X, plot = False):
         #os.makedirs(pathData+"results"+"/"+bdd+"/"+"LLH", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
         df.to_csv("./test.csv")
-
 
     plt.show()
 
@@ -685,10 +701,10 @@ def distToCentroid(X, variance, name =r'distance to centroid' ):
     centroid = np.mean(X, axis =0)
     v = variance[0]
     #covar = np.cov(X, aweights  = variance[0])
-    
+
     #val =distance.mahalanobis(centroid,X[0], linalg.inv(covar))
     #print(val)
-    
+
     tabDist = []
     for img in X:
         dist = 0;
@@ -701,9 +717,7 @@ def distToCentroid(X, variance, name =r'distance to centroid' ):
 
     plt.plot(range(len(tabDist)),tabDist)
     plt.title(name)
-
     plt.grid()
-
     plt.show()
 
     
@@ -711,41 +725,57 @@ from sklearn.neighbors import KernelDensity
 from sklearn.model_selection import GridSearchCV
 from sklearn.model_selection import LeaveOneOut
 
-def KDE(x):
-    # Centrage et Réduction
-    #std_scale = preprocessing.StandardScaler().fit(x)
-    #x = std_scale.transform(x)
+def findBandWith(x, intervalle, profondeur =4):
 
-    bandwidths = 10 ** np.linspace(-10, 10, 500)
     grid = GridSearchCV(KernelDensity(kernel='gaussian'),
-                        {'bandwidth': bandwidths},
+                        {'bandwidth': intervalle},
                         #cv=LeaveOneOut()
                         #cv=is 5-Fold validation (default)
                         )
     grid.fit(x);
     tailleBande = grid.best_params_
     print("taille bande = ", tailleBande['bandwidth'],"\n")
+    if profondeur > 0:
+        newIntervalle = (intervalle.max() - intervalle.min())/10 
+        return findBandWith(x, np.linspace(max(10**-50,tailleBande['bandwidth']-newIntervalle), tailleBande['bandwidth']+newIntervalle, 80), profondeur-1)
+    else:
+        return tailleBande
+
+def KDE(x, recursion = False):
+    # Centrage et Réduction
+    std_scale = preprocessing.StandardScaler().fit(x)
+    x = std_scale.transform(x)
+
+    
+    bandwidths = np.linspace(10**-50, 150, 200)
+    
+    if recursion:
+        tailleBande = findBandWith(x, bandwidths, 2)
+    else:
+        grid = GridSearchCV(KernelDensity(kernel='gaussian'),
+                        {'bandwidth': bandwidths},
+                        #cv=LeaveOneOut()
+                        #cv=is 5-Fold validation (default)
+                        )
+        grid.fit(x);
+        tailleBande = grid.best_params_
+    print("taille bande is  = ", tailleBande['bandwidth'],"\n")
     #tailleBande = {'bandwidth':0.01}
     # instantiate and fit the KDE model
     kde = KernelDensity(
         bandwidth=tailleBande['bandwidth'],
-       kernel='gaussian')
-    kde.fit(x)
+       kernel='gaussian') 
+    kde.fit(x);
 
+    return kde
     # score_samples returns the log of the probability density
-    logprob = kde.score_samples(x)
-    LLH_tr = np.transpose([logprob]) #transpose
-    std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
-    LLH_tr = std_scale.transform(LLH_tr)
-
-    doHist(np.array([LLH_tr]), plot = True)
-    #plt.fill_between(x, np.exp(logprob), alpha=0.5)
-    #plt.plot(x, np.full_like(x, -0.01), '|k', markeredgewidth=1)
-    #plt.ylim(-0.02, 0.22)
-    #plt.show()
+  #  logprob = kde.score_samples(x)
+  #  LLH_tr = np.transpose([logprob]) #transpose
+  #  std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
+  #  LLH_tr = std_scale.transform(LLH_tr)
     
-
-
+   # return np.transpose(LLH_tr)[0]
+    
 
 
 
@@ -754,25 +784,19 @@ def KDE(x):
 
 
 
-import scipy.stats
 
-#inutilisé pour le moment
-def logLikelihood(data, x = None):
 
-    if type(x) is np.ndarray:
-        x = np.linspace(data.min(), data.max(), 1000, endpoint=True)
-        y=[]
-        for i in x:
-            y.append(scipy.stats.norm.logpdf(data,i,0.5).sum())
-        plt.plot(x,y)
-        plt.title(r'Log-Likelihood')
-        plt.xlabel(r'$\mu$')
-
-        plt.grid()
-
-        #plt.savefig("likelihood_normal_distribution_02.png", bbox_inches='tight')
-        plt.show()
+def removeOutliers(tabIn):
+    tab = np.transpose(tabIn)
+    listdf = [pandas.DataFrame(x) for x in tabIn]
+    zscore = (np.abs(stats.zscore(listdf[0])))
+    boolvar = [(np.abs(stats.zscore(df)) < 2.5).all(axis=1) for df in listdf]
     
+    boolvar = np.transpose(boolvar)
+    listdf2 = np.transpose(listdf)[0]
 
+    tabOut = [np.mean([a for a,b in zip(x,y) if b]) for x,y  in zip(listdf2, boolvar)] 
+    return np.array([tabOut]);
+#    df[(np.abs(stats.zscore(df)) < 3).all(axis=1)]
 
 

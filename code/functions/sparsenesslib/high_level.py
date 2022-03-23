@@ -562,10 +562,20 @@ def eachFilePlot(path, formatOrdre = []):
         if os.path.isfile(csv_path):
             
             x, head = readCsv(csv_path) #recupère le CSV
-        
+            
             print('######', each,"     ")
-            plots.plotHist(x, head, name =each )
+            plots.plotHist_fromFiles(x, head, name =each )
 
+def eachFile(path, formatOrdre = []):
+    files =  getAllFile(path, formatOrdre)
+    tabcsv =[]
+    for each in files:
+        csv_path = path + "/" + each
+        if os.path.isfile(csv_path):
+            
+            x, head = readCsv(csv_path) #recupère le CSV
+            tabcsv.append(x)
+    return tabcsv
 
 
 def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
@@ -590,11 +600,12 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
         tabPC.append(x.shape[1])
 
         print('######', each,"     ", x.shape[1])
-        #gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =6)
+        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =10)
         
-        #metrics.doVarianceOfGMM(gm, x)
-        #allLLH =  metrics.DoMultipleLLH(gm, x,10)
-        #allHist, legend = metrics.doHist(allLLH, True)
+       # metrics.doVarianceOfGMM(gm, x)
+        allLLH =  metrics.DoMultipleLLH(gm, x,100)
+        allLLH =metrics.removeOutliers(allLLH)
+        allHist, legend = metrics.doHist(allLLH, True, "distributions des LLH pour GMM")
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
         """
             if len(pathForLLH)>0:
@@ -613,6 +624,7 @@ def eachFileCSV_Centroid(path, formatOrdre = []):
         syntaxe: formatOrdre[  prefixe[], TabName[], sufixe]
 
     """
+    #getAllFile(path[0], [formatOrdre[0][0], formatOrdre[1],formatOrdre[2]] )
 
     if len(formatOrdre)==0: #ordre de parcours alphabétique
         filesCP = [f for f in os.listdir(path[0])]    
@@ -631,20 +643,67 @@ def eachFileCSV_Centroid(path, formatOrdre = []):
         print('######', eachCP,"  ",eachVar,"   ", cp.shape[1])
         metrics.distToCentroid(cp, var, eachCP+"\n distance du Centroïd")
 
-def eachFileCSV_Kernel(path, formatOrdre = [], pathForLLH=[]):
+def eachFileCSV_Kernel(path, filesPC):
     """!
     """
-    tabPC = []
+    #tabPC = []
     pathPCA = path+"/"+"pca"
-    pathHist = path+"/"+"histo"
+    
+    #pathHist = path+"/"+"histo"
 
-    files = getAllFile(pathPCA, formatOrdre)
+    #files = getAllFile(pathPCA, formatOrdre)
+   
+    for each in filesPC:
+        x, _ = readCsv(pathPCA + "/" + each)  #recupère le CSV
+        kde= metrics.KDE(x)
 
-    for each in files:
-        csv_path = pathPCA + "/" + each
-        x, _ = readCsv(csv_path) #recupère le CSV
-        metrics.KDE(x)
+        AllLLH =  metrics.DoMultipleLLH(kde, x,1)
 
+        metrics.doHist(AllLLH, plot = True, name = "distributions des LLH pour KDE")
+
+
+def each_compare_GMM_KDE(path, filesPC):
+    """!
+    """
+    #tabPC = []
+    pathPCA = path+"/"+"pca"
+    
+    #pathHist = path+"/"+"histo"
+
+    #files = getAllFile(pathPCA, formatOrdre)
+    AllSpearman = []
+    for each in filesPC:
+        x, _ = readCsv(pathPCA + "/" + each)  #recupère le CSV
+        kde = metrics.KDE(x)
+        LLH_KDE =  metrics.DoMultipleLLH(kde, x,1)[0]
+#        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =10)
+        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
+        
+       # metrics.doVarianceOfGMM(gm, x)
+        LLH_GMM =  metrics.DoMultipleLLH(gm, x,50)
+        LLH_GMM =metrics.removeOutliers(LLH_GMM)
+        
+        AllSpearman.append( metrics.spearman(LLH_KDE, LLH_GMM[0]))
+
+       # plots.plotHist(np.array([LLH_KDE,LLH_GMM[0]]), name= "distribution des LLH\n KDE         |           GMM", max = 2)
+       # metrics.compareValue(LLH_KDE, LLH_GMM[0], "Difference LLH entre GMM et KDE")
+        #metrics.CompareOrdre(LLH_KDE, LLH_GMM[0], "Difference d'ordre LLH entre GMM et KDE")
+        #metrics.doHist(np.array([LLH]), plot = True)
+    print( AllSpearman)
+    writeCSV=True
+    if writeCSV:
+        pathSpearman = path+"/"+"spearman"
+        df = pandas.DataFrame(AllSpearman)
+        df = df.transpose()
+        df.columns = filesPC
+        df = df.transpose()
+        #df = df.transpose()
+        #df.columns = legend[0:-1]
+        #os.makedirs(pathData+"results"+"/"+bdd+"/"+"LLH", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+        os.makedirs(pathSpearman, exist_ok=True)
+        df.to_csv(pathSpearman+"/corr_spearman.csv")
+    return AllSpearman
 
 
 def readCsv(path):

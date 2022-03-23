@@ -114,7 +114,7 @@ def plotBIC(tabBIC, best_gmm, cv_types = ["spherical", "tied", "diag", "full"], 
 
     #plt.show()
 
-def plotPC(listPC, listBDD, layersName):
+def plotPC(listPC, listBDD, layersName, title = "nombre PC par BDD par couche"):
     pc = np.array(listPC)
     color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange",  "darkviolet", "olive"])
     bars = []
@@ -134,7 +134,7 @@ def plotPC(listPC, listBDD, layersName):
         )
     plt.xticks(np.array(range(len(layersName)))*1.2 , layersName, rotation=90)
     plt.ylim([pc.min() * 1.01 - 0.01 * pc.max(), pc.max()+pc.max()*0.1])
-    plt.title("nombre PC par BDD par couche")
+    plt.title(title)
     #xpos = (
     #    np.mod(pc.argmin(), len(layersName))
     #    + 0.65
@@ -145,7 +145,17 @@ def plotPC(listPC, listBDD, layersName):
     spl.legend([b[0] for b in bars], listBDD)
     plt.show()
 
-def plotHist(AllHist, bin, name = "histo"):
+def plotHist(AllLLH, name= "histogramme", max = 2):
+    bin = np.linspace(AllLLH.min(), AllLLH.max(),200)
+    for i, llh in enumerate(AllLLH):
+        if  i <max:
+            spl = plt.subplot(1, 2, 1+i)
+            hist = plt.hist(llh, bins=bin)
+            plt.grid()
+    plt.suptitle(name)
+    plt.show()
+
+def plotHist_fromFiles(AllHist, bin, name = "histo"):
     for i, hist in enumerate(AllHist):
         
         
