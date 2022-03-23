@@ -33,8 +33,6 @@ import numpy as np
 import pandas
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-from matplotlib.collections import LineCollection
-from mpl_toolkits.mplot3d import Axes3D
 import sparsenesslib.plots as plots
 import itertools
 import time
@@ -344,7 +342,7 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         X_scaled = std_scale.transform(X)
         #print('f')        
         # Calcul des composantes principales        
-        pca = decomposition.PCA(n_components= 0.8)
+        pca = decomposition.PCA(n_components= 0.8, svd_solver = 'full')
 
         #print("g")     
         coordinates = pca.fit_transform(X_scaled)      
