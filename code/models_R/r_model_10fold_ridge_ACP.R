@@ -28,7 +28,9 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 #3.1 AIC/BIC
 ######################
 glmnet_cv_aicc <- function(fit, lambda = 'lambda.1se'){
+  
   whlm <- which(fit$lambda == fit[[lambda]])
+  
   with(fit$glmnet.fit,
        {
          tLL <- nulldev - nulldev * (1 - dev.ratio)[whlm]
@@ -95,7 +97,7 @@ kfold_pca <- function(bdd, weight, metric, layer, regularization, print_number) 
 #####################################################################################
 # 4. PARAMETERS:
 #####################################################################################
-bdd <- c('MART')
+bdd <- c('BIGTEST')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 layers <-   c('input_1',
@@ -106,7 +108,7 @@ layers <-   c('input_1',
             'block5_conv1','block5_conv2','block5_conv3','block5_pool',
             'fc1','fc2',
             'flatten')
-regularization <- 'lasso' #0 for ridge, 1 for lasso
+regularization <- 'glmnet' #0 for ridge, 1 for lasso
 print_number = 200
 
 set.seed(123)
