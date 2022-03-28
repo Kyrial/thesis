@@ -6,6 +6,7 @@ import itertools
 from scipy import linalg
 import numpy as np
 import math as math
+import pandas
 
 def getCovariances(gmm):
     #covar = np.array();
@@ -83,7 +84,8 @@ def plot_MultiGaussian(X, gm, index, title, X_MDS = None):
 
 def plotBIC(tabBIC, best_gmm, cv_types = ["spherical", "tied", "diag", "full"], n_components_range =7):
     bic = np.array(tabBIC)
-    color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange"])
+    color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange",  "darkviolet", "olive"])
+
     clf = best_gmm
     bars = []
     # Plot the BIC scores
@@ -104,10 +106,92 @@ def plotBIC(tabBIC, best_gmm, cv_types = ["spherical", "tied", "diag", "full"], 
     plt.title("BIC score per model")
     xpos = (
         np.mod(bic.argmin(), len(n_components_range))
-        + 0.65
+        + 0.55
         + 0.2 * np.floor(bic.argmin() / len(n_components_range))
     )
     plt.text(xpos, bic.min() * 0.97 + 0.03 * bic.max(), "*", fontsize=14)
     spl.set_xlabel("Number of components")
     spl.legend([b[0] for b in bars], cv_types)
+
     #plt.show()
+
+def plotPC(listPC, listBDD, layersName, title = "nombre PC par BDD par couche"):
+    pc = np.array(listPC)
+    color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange",  "darkviolet", "olive"])
+    bars = []
+    # Plot the pc
+    plt.figure(figsize=(8, 6))
+    spl = plt.subplot(2, 1, 1)
+    for i, (cv_type, color) in enumerate(zip(listBDD, color_iter)):
+        xpos = np.array(range(len(layersName)))*1.2 + 0.2 * (i - len(listBDD)/2)
+        bars.append(
+            plt.bar(
+                xpos,
+                #pc[i * len(layersName) : (i + 1) * len(layersName)],
+                pc[i],
+                width=0.2,
+                color=color,
+            )
+        )
+    plt.xticks(np.array(range(len(layersName)))*1.2 , layersName, rotation=90)
+    plt.ylim([pc.min() * 1.01 - 0.01 * pc.max(), pc.max()+pc.max()*0.1])
+    plt.title(title)
+    #xpos = (
+    #    np.mod(pc.argmin(), len(layersName))
+    #    + 0.65
+    #    + 0.2 * np.floor(pc.argmin() / len(layersName))
+    #)
+    #plt.text(xpos, pc.min() * 0.97 + 0.03 * pc.max(), "*", fontsize=14)
+   # spl.set_xlabel("layers")
+    spl.legend([b[0] for b in bars], listBDD)
+    plt.show()
+
+def plotHist(AllLLH, name= "histogramme", max = 2):
+    bin = np.linspace(AllLLH.min(), AllLLH.max(),200)
+    for i, llh in enumerate(AllLLH):
+        if  i <max:
+            spl = plt.subplot(1, 2, 1+i)
+            hist = plt.hist(llh, bins=bin)
+            plt.grid()
+    plt.suptitle(name)
+    plt.show()
+
+def plotHist_fromFiles(AllHist, bin, name = "histo"):
+    for i, hist in enumerate(AllHist):
+        
+        
+        if i<10:
+            spl = plt.subplot(2, 5, 1+i)
+            if i==2:
+                plt.title(name)
+            plt.bar(bin,hist,width=bin[1]-bin[0])         
+    plt.xticks(list(map(lambda val: round(val,1),bin[::50])))
+    plt.show()
+
+def plot_correlation(AllLLH, name = ""):
+    if len(AllLLH)>1:
+        
+        df = pandas.DataFrame(AllLLH)
+        df = df.T
+        corr_df_P = df.corr(method='pearson')
+        import seaborn as sns
+        plt.subplot(2, 2, 1)
+        #plt.figure(figsize=(8, 6))
+        sns.heatmap(corr_df_P,annot=True)
+        plt.title("Correlation Pearson")
+        plt.grid()
+
+        corr_df_S = df.corr(method='spearman')
+        
+        plt.subplot(2, 2, 2)
+        sns.heatmap(corr_df_S,annot=True)
+        plt.title("Correlation Spearman")
+        plt.grid()
+        
+
+        plt.subplot(2, 2, 3)
+        a = sns.scatterplot(x= AllLLH[0],y= AllLLH[1]);
+        plt.title("nuage de point")
+        plt.grid()
+        plt.suptitle(name)
+        plt.show()

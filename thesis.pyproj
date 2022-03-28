@@ -1,0 +1,192 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{ac8f23c5-93d1-42b0-b3a9-cb66c3329825}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>code\pre_trained_models\main_pca.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>code\pre_trained_models\</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <ProjectTypeGuids>{888888a0-9f3d-457c-b088-3a5042f75d52}</ProjectTypeGuids>
+    <LaunchProvider>Standard Python launcher</LaunchProvider>
+    <InterpreterId>Global|VisualStudio|Python39_64</InterpreterId>
+    <IsWindowsApplication>False</IsWindowsApplication>
+    <CommandLineArguments>
+    </CommandLineArguments>
+    <EnableNativeCodeDebugging>False</EnableNativeCodeDebugging>
+    <InterpreterArguments>
+    </InterpreterArguments>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <PropertyGroup>
+    <VisualStudioVersion Condition=" '$(VisualStudioVersion)' == '' ">10.0</VisualStudioVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="code\data_management\CFD\data_management_pictures_CFD.py" />
+    <Compile Include="code\data_management\CFD\data_management_rename_pictures_CFD.py" />
+    <Compile Include="code\data_management\Imagenet\redesigned_subset.py" />
+    <Compile Include="code\data_management\JEN\data_management_labels_JEN.py" />
+    <Compile Include="code\data_management\JEN\download_jen.py" />
+    <Compile Include="code\data_management\SCUT-FBP\data_management_labels_SCUT-FBP.py" />
+    <Compile Include="code\data_management\SCUT-FBP\data_management_pictures_SCUT-FBP.py" />
+    <Compile Include="code\functions\sparsenesslib\activations_structures.py" />
+    <Compile Include="code\functions\sparsenesslib\entropy.py" />
+    <Compile Include="code\functions\sparsenesslib\high_level.py" />
+    <Compile Include="code\functions\sparsenesslib\keract.py" />
+    <Compile Include="code\functions\sparsenesslib\metrics.py" />
+    <Compile Include="code\functions\sparsenesslib\plots.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="code\functions\sparsenesslib\sparsenessmod.py" />
+    <Compile Include="code\functions\sparsenesslib\__init__.py" />
+    <Compile Include="code\pre_trained_models\distributions.py" />
+    <Compile Include="code\pre_trained_models\graphs.py" />
+    <Compile Include="code\pre_trained_models\main_metrics.py" />
+    <Compile Include="code\pre_trained_models\main_model.py" />
+    <Compile Include="code\pre_trained_models\main_pca.py" />
+    <Compile Include="code\pre_trained_models\main_pca_filter.py" />
+    <Compile Include="code\pre_trained_models\main_multiGauss.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="code\pre_trained_models\main_centroid.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="code\pre_trained_models\main_Kernel.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="code\pre_trained_models\vggplaces\places_utils.py" />
+    <Compile Include="code\pre_trained_models\vggplaces\vgg16_hybrid_places_1365.py" />
+    <Compile Include="code\pre_trained_models\vggplaces\vgg16_places_365.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="code\data_management\JEN\log_fails.txt" />
+    <Content Include="code\pre_trained_models\vggplaces\categories_hybrid1365.txt" />
+    <Content Include="code\pre_trained_models\vggplaces\categories_places365.txt" />
+    <Content Include="code\pre_trained_models\vggplaces\vgg16-hybrid1365.png" />
+    <Content Include="code\pre_trained_models\vggplaces\vgg16-places365.png" />
+    <Content Include="results\ALL\comparaison\imagenet\cfd_imagenet_l1_vs_tr_r2.png" />
+    <Content Include="results\ALL\comparaison\imagenet\cfd_imagenet_l1_vs_tr_rvalue.png" />
+    <Content Include="results\ALL\comparaison\imagenet\mart_imagenet_l1_vs_tr_r2.png" />
+    <Content Include="results\ALL\comparaison\imagenet\mart_imagenet_l1_vs_tr_rvalue.png" />
+    <Content Include="results\ALL\comparaison\vggfaces\cfd_vggfaces_l1_vs_tr_r2.png" />
+    <Content Include="results\ALL\comparaison\vggfaces\cfd_vggfaces_l1_vs_tr_rvalue.png" />
+    <Content Include="results\ALL\comparaison\vggfaces\mart_vggfaces_l1_vs_tr_r2.png" />
+    <Content Include="results\ALL\comparaison\vggfaces\mart_vggfaces_l1_vs_tr_rvalue.png" />
+    <Content Include="results\ALL\L1\all_l1norm_r2.png" />
+    <Content Include="results\ALL\L1\all_l1norm_rvalue.png" />
+    <Content Include="results\ALL\TR\all_TR_rvalue.png" />
+    <Content Include="results\bigtest\corrélations_métriques\graph_corr_metrics.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block1_conv1_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block1_conv2_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block1_pool_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block2_conv1_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block2_conv2_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block2_pool_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block3_conv1_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block3_conv2_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block3_conv3_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block3_pool_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block4_conv1_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block4_conv2_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block4_conv3_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block4_pool_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block5_conv1_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block5_conv2_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block5_conv3_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_block5_pool_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_fc1_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_fc2_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_flatten_graphe.png" />
+    <Content Include="results\bigtest\distributions\log_bigtest_input_1_graphe.png" />
+    <Content Include="results\CFD\barplots\ R2_pearson    CFD   imagenet   gini_flatten .jpg" />
+    <Content Include="results\CFD\barplots\ R2_pearson    CFD   imagenet   L0 .jpg" />
+    <Content Include="results\CFD\barplots\ R2_pearson    CFD   vggface   gini_flatten .jpg" />
+    <Content Include="results\CFD\barplots\ R2_pearson    CFD   vggface   L0 .jpg" />
+    <Content Include="results\CFD\barplots\ R2_pearson    CFD   vggplaces   gini_flatten .jpg" />
+    <Content Include="results\CFD\barplots\ R2_pearson    CFD   vggplaces   L0 .jpg" />
+    <Content Include="results\CFD\barplots\ R_pearson   CFD   imagenet   L0 .jpg" />
+    <Content Include="results\CFD\barplots\ R_pearson   CFD   vggface   gini_flatten .jpg" />
+    <Content Include="results\CFD\barplots\ R_pearson   CFD   vggface   L0 .jpg" />
+    <Content Include="results\CFD\barplots\ R_pearson   CFD   vggplaces   gini_flatten .jpg" />
+    <Content Include="results\CFD\barplots\ R_pearson   CFD   vggplaces   L0 .jpg" />
+    <Content Include="results\CFD\barplots\R2_pearsonCFDimagenetgini_flatten.jpg" />
+    <Content Include="results\CFD\barplots\R2_pearsonCFDvggfacegini_flatten.jpg" />
+    <Content Include="results\CFD\barplots\R2_pearsonCFDvggplacesgini_flatten.jpg" />
+    <Content Include="results\CFD\barplots\R_pearsonCFDimagenetgini_flatten.jpg" />
+    <Content Include="results\CFD\barplots\R_pearsonCFDvggfacegini_flatten.jpg" />
+    <Content Include="results\CFD\barplots\R_pearsonCFDvggplacesgini_flatten.jpg" />
+    <Content Include="results\JEN\barplots\R2_pearsonJENimagenetgini_flatten.jpg" />
+    <Content Include="results\JEN\barplots\R2_pearsonJENimagenetL0.jpg" />
+    <Content Include="results\JEN\barplots\R2_pearsonJENvggfacegini_flatten.jpg" />
+    <Content Include="results\JEN\barplots\R2_pearsonJENvggfaceL0.jpg" />
+    <Content Include="results\JEN\barplots\R2_pearsonJENvggplacesgini_flatten.jpg" />
+    <Content Include="results\JEN\barplots\R2_pearsonJENvggplacesL0.jpg" />
+    <Content Include="results\JEN\barplots\R_pearsonJENimagenetgini_flatten.jpg" />
+    <Content Include="results\JEN\barplots\R_pearsonJENimagenetL0.jpg" />
+    <Content Include="results\JEN\barplots\R_pearsonJENvggfacegini_flatten.jpg" />
+    <Content Include="results\JEN\barplots\R_pearsonJENvggfaceL0.jpg" />
+    <Content Include="results\JEN\barplots\R_pearsonJENvggplacesgini_flatten.jpg" />
+    <Content Include="results\JEN\barplots\R_pearsonJENvggplacesL0.jpg" />
+    <Content Include="results\MART\barplots\R2_pearsonMARTimagenetgini_flatten.jpg" />
+    <Content Include="results\MART\barplots\R2_pearsonMARTimagenetL0.jpg" />
+    <Content Include="results\MART\barplots\R2_pearsonMARTvggfacegini_flatten.jpg" />
+    <Content Include="results\MART\barplots\R2_pearsonMARTvggfaceL0.jpg" />
+    <Content Include="results\MART\barplots\R2_pearsonMARTvggplacesgini_flatten.jpg" />
+    <Content Include="results\MART\barplots\R2_pearsonMARTvggplacesL0.jpg" />
+    <Content Include="results\MART\barplots\R_pearsonMARTimagenetgini_flatten.jpg" />
+    <Content Include="results\MART\barplots\R_pearsonMARTimagenetL0.jpg" />
+    <Content Include="results\MART\barplots\R_pearsonMARTvggfacegini_flatten.jpg" />
+    <Content Include="results\MART\barplots\R_pearsonMARTvggfaceL0.jpg" />
+    <Content Include="results\MART\barplots\R_pearsonMARTvggplacesgini_flatten.jpg" />
+    <Content Include="results\MART\barplots\R_pearsonMARTvggplacesL0.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R2_pearsonSCUT-FBPimagenetgini_flatten.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R2_pearsonSCUT-FBPimagenetL0.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R2_pearsonSCUT-FBPvggfacegini_flatten.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R2_pearsonSCUT-FBPvggfaceL0.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R2_pearsonSCUT-FBPvggplacesgini_flatten.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R2_pearsonSCUT-FBPvggplacesL0.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R_pearsonSCUT-FBPimagenetgini_flatten.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R_pearsonSCUT-FBPimagenetL0.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R_pearsonSCUT-FBPvggfacegini_flatten.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R_pearsonSCUT-FBPvggfaceL0.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R_pearsonSCUT-FBPvggplacesgini_flatten.jpg" />
+    <Content Include="results\SCUT-FBP\barplots\R_pearsonSCUT-FBPvggplacesL0.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="code\" />
+    <Folder Include="code\data_management\" />
+    <Folder Include="code\data_management\CFD" />
+    <Folder Include="code\data_management\Imagenet" />
+    <Folder Include="code\data_management\JEN" />
+    <Folder Include="code\data_management\SCUT-FBP" />
+    <Folder Include="code\functions\" />
+    <Folder Include="code\functions\sparsenesslib" />
+    <Folder Include="code\pre_trained_models" />
+    <Folder Include="code\pre_trained_models\vggplaces" />
+    <Folder Include="results\" />
+    <Folder Include="results\ALL\" />
+    <Folder Include="results\ALL\comparaison\" />
+    <Folder Include="results\ALL\comparaison\imagenet" />
+    <Folder Include="results\ALL\comparaison\vggfaces" />
+    <Folder Include="results\ALL\L1" />
+    <Folder Include="results\ALL\TR" />
+    <Folder Include="results\bigtest\" />
+    <Folder Include="results\bigtest\corrélations_métriques" />
+    <Folder Include="results\bigtest\distributions" />
+    <Folder Include="results\CFD\" />
+    <Folder Include="results\CFD\barplots" />
+    <Folder Include="results\JEN\" />
+    <Folder Include="results\JEN\barplots" />
+    <Folder Include="results\MART\" />
+    <Folder Include="results\MART\barplots" />
+    <Folder Include="results\SCUT-FBP\" />
+    <Folder Include="results\SCUT-FBP\barplots" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterpreterReference Include="Global|VisualStudio|Python39_64" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+</Project>
