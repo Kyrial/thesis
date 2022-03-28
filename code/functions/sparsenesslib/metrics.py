@@ -617,9 +617,10 @@ def spearman(x,y):
     s = stats.spearmanr(x, y)
     print(s)
     return s
-    #plt.grid()
-    #plt.title(name)
-    #plt.show()
+def pearson(x,y):
+    s = stats.pearsonr(x, y)
+    print(s)
+    return np.array(s)
 
 def doVarianceOfGMM(gmm, X, plot = False):
     allLLH = DoMultipleLLH(gmm, X, 2)
@@ -761,7 +762,7 @@ def KDE(x, recursion = False):
         grid.fit(x);
         tailleBande = grid.best_params_
         
-        plot_Grid_KDE(grid,bandwidths)
+        #plot_Grid_KDE(grid,bandwidths)
 
     print("taille bande is  = ", tailleBande['bandwidth'],"\n")
     #tailleBande = {'bandwidth':0.01}

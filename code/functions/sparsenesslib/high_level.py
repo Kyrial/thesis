@@ -606,7 +606,7 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
         allLLH =  metrics.DoMultipleLLH(gm, x,100)
         allLLH2 =  metrics.DoMultipleLLH(gm, x,100)
         CompareAndDoMedian(allLLH,allLLH2)
-        allLLH = np.median(allLLH)
+        allLLH = np.array([np.median(allLLH, axis=0)])
         #allLLH =metrics.removeOutliers(allLLH)
         allHist, legend = metrics.doHist(allLLH, True, "distributions des LLH pour GMM")
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
@@ -672,6 +672,7 @@ def each_compare_GMM_KDE(path, filesPC):
     pathPCA = path+"/"+"pca"
     
     AllSpearman = []
+    AllPearson = []
     for each in filesPC:
         
         x, _ = readCsv(pathPCA + "/" + each)  #recupère le CSV
@@ -679,38 +680,35 @@ def each_compare_GMM_KDE(path, filesPC):
             continue
         x = metrics.centreReduit(x)
         kde = metrics.KDE(x, False)
-        LLH_KDE =  metrics.DoMultipleLLH(kde, x,1)[0]
-
+        LLH_KDE =  metrics.DoMultipleLLH(kde, x,100)[0]
+        #LLH_2 = np.median(LLH_KDE, axis=0)
         gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
         
        # metrics.doVarianceOfGMM(gm, x)
-        LLH_GMM =  metrics.DoMultipleLLH(gm, x,1)
+        LLH_GMM =  metrics.DoMultipleLLH(gm, x,100)
+        LLH_GMM = np.median(LLH_GMM, axis=0)
        # LLH_GMM =metrics.removeOutliers(LLH_GMM)
         
-        metrics.doHist([LLH_GMM[0],LLH_KDE], plot = True, name = "histogramme GMM et KDE")
+        metrics.doHist([LLH_GMM,LLH_KDE], plot = False, name = "histogramme GMM et KDE")
 
-        plots.plot_correlation([LLH_GMM[0],LLH_KDE], name = "correlation GMM et KDE")
-        AllSpearman.append( metrics.spearman(LLH_KDE, LLH_GMM[0]))
-
+        #plots.plot_correlation([LLH_GMM,LLH_KDE], name = "correlation GMM et KDE", nameXaxis="GMM",nameYaxis="KDE")
+        AllSpearman.append( metrics.spearman( LLH_GMM,LLH_KDE))
+        AllPearson.append( metrics.pearson( LLH_GMM,LLH_KDE))
        # plots.plotHist(np.array([LLH_KDE,LLH_GMM[0]]), name= "distribution des LLH\n KDE         |           GMM", max = 2)
        # metrics.compareValue(LLH_KDE, LLH_GMM[0], "Difference LLH entre GMM et KDE")
         #metrics.CompareOrdre(LLH_KDE, LLH_GMM[0], "Difference d'ordre LLH entre GMM et KDE")
         #metrics.doHist(np.array([LLH]), plot = True)
     print( AllSpearman)
-    writeCSV=True
+    writeCSV=False
     if writeCSV:
         pathSpearman = path+"/"+"spearman"
         df = pandas.DataFrame(AllSpearman)
         df = df.transpose()
         df.columns = filesPC
         df = df.transpose()
-        #df = df.transpose()
-        #df.columns = legend[0:-1]
-        #os.makedirs(pathData+"results"+"/"+bdd+"/"+"LLH", exist_ok=True)
-            #l'enregistrer dans results, en précisant la layer dans le nom
         os.makedirs(pathSpearman, exist_ok=True)
         df.to_csv(pathSpearman+"/corr_spearman.csv")
-    return AllSpearman
+    return AllSpearman, AllPearson
 
 
 def readCsv(path):
