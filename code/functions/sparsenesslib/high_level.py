@@ -45,11 +45,14 @@ import csv
 sys.path.insert(1,'../../code/functions')
 import sparsenesslib.keract as keract
 import sparsenesslib.metrics as metrics
+import sparsenesslib.plots as plots
+
 import sparsenesslib.sparsenessmod as spm
 import sparsenesslib.activations_structures as acst
 #####################################################################################
 # PROCEDURES/FUNCTIONS:
 #####################################################################################
+
 
 def getPaths(bdd, pathData):
         #path d'enregistrement des résultats
@@ -110,6 +113,13 @@ def configModel(model_name, weight):
             print('error, model not configured')  
     return model, layers, flatten_layers
 
+def preprocess_Image(img_path):
+    img = load_img(img_path, target_size=(224, 224))
+    image = img_to_array(img)      
+    img = image.reshape(
+        (1, image.shape[0], image.shape[1], image.shape[2]))   
+    image = preprocess_input(img)
+    return image
 
 def compute_sparseness_metrics_activations(model, flatten_layers, path, dict_output, layers, computation, formula, freqmod,k):
     '''
@@ -119,24 +129,56 @@ def compute_sparseness_metrics_activations(model, flatten_layers, path, dict_out
     and store them in the dictionary *dict_output*.
     '''
     imgs = [f for f in os.listdir(path)]    
-    i = 1
-    for each in imgs:
+    
+    for i, each in enumerate(imgs,start=1):
 
         if i%freqmod == 0:
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
-        i += 1
+      
         img_path = path + "/" + each
-        img = load_img(img_path, target_size=(224, 224))
-        image = img_to_array(img)
-        img = image.reshape(
-            (1, image.shape[0], image.shape[1], image.shape[2]))  
-        image = preprocess_input(img)
+        image = preprocess_Image(img_path)
+
         # récupération des activations
         activations = keract.get_activations(model, image)
         activations_dict = {}
         acst.compute_activations(layers, flatten_layers, computation, activations, activations_dict,formula,k)
         dict_output[each] = activations_dict
 #####################################################################################
+
+
+def getActivations_for_all_image(model,path, computation, formula, freqmod):
+    '''! Retourne un dictionnaire par image des activations  
+    
+    '''
+    print("the path is: ", path)
+    imageActivation = {}
+    imgs = [f for f in os.listdir(path)]
+    for i, each in enumerate(imgs,  start=1):
+        if i%freqmod == 0:         
+            print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
+
+        
+        img_path = path + "/" + each
+        image = preprocess_Image(img_path)
+        
+        # récupération des activations
+        activations = keract.get_activations(model, image)
+        
+        imageActivation[each] = activations
+    return imageActivation
+
+
+def get_activation_by_layer(activations,path,dict_output, formula, k, layer):
+    """! a partir du dictionnaire de toutes les activations, extrait la layer choisis
+
+    """
+    for i, each in enumerate([f for f in os.listdir(path)],  start=1) :
+        activations_dict = {}
+        
+        acst.compute_flatten(activations[each], activations_dict, layer, formula,k)
+        
+        dict_output[each] = activations_dict
+
 def parse_activations_by_layer(model,path, dict_output, layer, computation, formula, freqmod,k):
     
     '''
@@ -145,30 +187,22 @@ def parse_activations_by_layer(model,path, dict_output, layer, computation, form
     '''
     
     imgs = [f for f in os.listdir(path)] 
-    i = 1
+  
     
-    for each in imgs:     
+    for i, each in enumerate(imgs,start=1):
         if i%freqmod == 0:         
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
-        i += 1
+       
         
         img_path = path + "/" + each
-        
-        img = load_img(img_path, target_size=(224, 224))
-        
-        image = img_to_array(img)
-        
-        img = image.reshape(
-            (1, image.shape[0], image.shape[1], image.shape[2]))  
-        
-        image = preprocess_input(img)
+        image = preprocess_Image(img_path)
         
         # récupération des activations
         activations = keract.get_activations(model, image)
         
         activations_dict = {}
         
-        acst.compute_flatten(activations, activations_dict, layer, formula,k)  
+        acst.compute_flatten(activations, activations_dict, layer, formula,k)
         
         dict_output[each] = activations_dict
 #####################################################################################
@@ -182,39 +216,28 @@ def parse_activations_by_filter(model,path, list_output, layer, computation, for
     
     imgs = [f for f in os.listdir(path)] 
       
-    i = 1
-    
 
     #pour avoir le nombre d'activations, test sur une image quelconque
     img_path = path + "/" + imgs[1]
-    img = load_img(img_path, target_size=(224, 224))
-    image = img_to_array(img)
-    img = image.reshape((1, image.shape[0], image.shape[1], image.shape[2]))  
-    image = preprocess_input(img)
+    image = preprocess_Image(img_path)
+
+
     activations = keract.get_activations(model, image)
     print(layer)
     #print(activations.items())
     [print(k, '->', v.shape, '- Numpy array') for (k, v) in activations.items()]
 
 
-    for each in imgs:
+    for i, each in enumerate(imgs,start=1):
         
 
         if i%freqmod == 0:
             
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
-        i += 1
+       
         
         img_path = path + "/" + each
-        
-        img = load_img(img_path, target_size=(224, 224))
-        
-        image = img_to_array(img)
-        
-        img = image.reshape(
-            (1, image.shape[0], image.shape[1], image.shape[2]))  
-        
-        image = preprocess_input(img)
+        image = preprocess_Image(img_path)
         
         # récupération des activations
         activations = keract.get_activations(model, image)
@@ -350,6 +373,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
 
     Version for compute pca (loop on layers before loop on pictures)    
     '''
+    if computer == 'LINUX-ES03':
+        computer = '../../'
+
     t0 = time.time()
 
     labels_path, images_path, log_path = getPaths(bdd, computer)
@@ -358,6 +384,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}
 
+    activations = getActivations_for_all_image(model,images_path,'flatten', metric, freqmod)
+    
+
     for layer in layers:   
 
         
@@ -365,9 +394,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
         #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
         #elle retourne l'array des activations à la couche choisie
         dict_activations = {}
+        get_activation_by_layer(activations,images_path,dict_activations, metric, k, layer)
         
-        
-        parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
+        #parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
         
         pc = []
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
@@ -418,7 +447,7 @@ def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1)
             #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
             #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
             metrics.acp_layers(dict_activations, pc, bdd, block, True, computer)
-    spm.parse_rates(labels_path, dict_labels)   
+    spm.parse_rates(labels_path, dict_labels)
     today = date.today()
     today = str(today)
 
@@ -485,7 +514,6 @@ def analyse_metrics(model_name, computer, bdd, weight, metric,k):
     #récupération du nom des couches
     model, layers, flatten_layers =configModel(model_name, weight)
 
-
     labels_path, images_path, log_path = getPaths(bdd, computer)
 
     #chargement des noms des images
@@ -510,42 +538,180 @@ def analyse_metrics(model_name, computer, bdd, weight, metric,k):
     #inflexion
     df_inflexions = metrics.inflexion_points(df_metrics,dict_labels)
     df_inflexions.to_json(path_or_buf = log_path+'_'+bdd+'_'+weight+'_'+metric+'_'+'_inflexions'+'.csv')
-    #écriture du fichier    
+    #écriture du fichier
 
     write_file(log_path, bdd, weight, metric, df_metrics, df_reglog, df_scope, df_inflexions ,layers, k)    
 #####################################################################################
 
 
 
-
-def eachFileCSV(path, formatOrdre = []):
-    """
-    formatOrdre permet de parcourir dans un ordre précis:
-    syntaxe: formatOrdre[  prefixe, TabName[], sufixe]
-    """
-    
-    if len(formatOrdre)==0:
+def getAllFile(path, formatOrdre = []):
+    files = []
+    if len(formatOrdre)==0: #ordre de parcours alphabétique
         files = [f for f in os.listdir(path)]    
-        i = 1
-        for each in files:         
-#           print('###### file n°',i,'/',len(files))
-            print('######', each)
-            i += 1
-            csv_path = path + "/" + each
-            x = readCsv(csv_path)
-            print("     ", x.shape[1])
-            #metrics.getMultigaussian(x, path+" "+each)
-    else:
-        for each in formatOrdre[1]:
-#           print('###### file n°',i,'/',len(files))
-            print('######', each)
-            i += 1
-            csv_path = path + "/" + format[0]+each+format[2]
-            x = readCsv(csv_path)
-            print("     ", x.shape[1])
-            #metrics.getMultigaussian(x, path+" "+each)
-        
+    else: #parcours les fichier qui match avec formatOrdre
+        #if isinstance(formatOrdre[0], list):
+            files = [formatOrdre[0]+f+formatOrdre[2] for f in formatOrdre[1]]
+    return files
+
+
+def eachFilePlot(path, formatOrdre = []):
+    files =  getAllFile(path, formatOrdre)
+    for each in files:
+        csv_path = path + "/" + each
+        if os.path.isfile(csv_path):
+            
+            x, head = readCsv(csv_path) #recupère le CSV
+            
+            print('######', each,"     ")
+            plots.plotHist_fromFiles(x, head, name =each )
+
+def eachFile(path, formatOrdre = []):
+    files =  getAllFile(path, formatOrdre)
+    tabcsv =[]
+    for each in files:
+        csv_path = path + "/" + each
+        if os.path.isfile(csv_path):
+            
+            x, head = readCsv(csv_path) #recupère le CSV
+            tabcsv.append(x)
+    return tabcsv
+
+
+def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
+    """! parcours tout les chifier du repertoire path, fait: mixureGaussian, LLH, tableau des nbe de PC par couche
     
+    @param path chemin des CSV a traiter
+    @param formatOrdre permet de parcourir dans un ordre précis:
+        syntaxe: formatOrdre[  prefixe, TabName[], sufixe]
+    @param pathForLLH path pour les log likeliHood
+
+    @return tableau des nbe de PC par couche
+    """
+    tabPC = []
+    pathPCA = path+"/"+"pca"
+    pathHist = path+"/"+"histo"
+
+    files = getAllFile(pathPCA, formatOrdre)
+
+    for each in files:
+        csv_path = pathPCA + "/" + each
+        x, _ = readCsv(csv_path) #recupère le CSV
+        tabPC.append(x.shape[1])
+
+        print('######', each,"     ", x.shape[1])
+        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =10)
+        
+       # metrics.doVarianceOfGMM(gm, x)
+        allLLH =  metrics.DoMultipleLLH(gm, x,100)
+        allLLH2 =  metrics.DoMultipleLLH(gm, x,100)
+        CompareAndDoMedian(allLLH,allLLH2)
+        allLLH = np.median(allLLH)
+        #allLLH =metrics.removeOutliers(allLLH)
+        allHist, legend = metrics.doHist(allLLH, True, "distributions des LLH pour GMM")
+        #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
+        """
+            if len(pathForLLH)>0:
+                if len(pathForLLH)>2:
+                    pathForLLH[2] = (each)
+                else: pathForLLH.append(each)
+                metrics.getlogLikelihood(gm, x, pathForLLH,  True)
+        """
+    return tabPC
+        
+def eachFileCSV_Centroid(path, formatOrdre = []):
+    """!
+    
+    @param path[] repertoire des CSV a traiter avec repertoire variance
+    @param formatOrdre permet de parcourir dans un ordre précis:
+        syntaxe: formatOrdre[  prefixe[], TabName[], sufixe]
+
+    """
+    #getAllFile(path[0], [formatOrdre[0][0], formatOrdre[1],formatOrdre[2]] )
+
+    if len(formatOrdre)==0: #ordre de parcours alphabétique
+        filesCP = [f for f in os.listdir(path[0])]    
+        filesVar = [f for f in os.listdir(path[1])]    
+    else: #parcours les fichier qui match avec formatOrdre
+        filesCP = [formatOrdre[0][0]+f+formatOrdre[2] for f in formatOrdre[1]]
+        filesVar = [formatOrdre[0][1]+f+formatOrdre[2] for f in formatOrdre[1]]  
+   
+    for eachCP,eachVar in zip(filesCP, filesVar):
+        csv_pathCP = path[0] + "/" + eachCP
+        csv_pathVar = path[1] + "/" + eachVar
+        cp, _ = readCsv(csv_pathCP) #recupère le CSV
+        var, _ = readCsv(csv_pathVar) #recupère le CSV
+        
+
+        print('######', eachCP,"  ",eachVar,"   ", cp.shape[1])
+        metrics.distToCentroid(cp, var, eachCP+"\n distance du Centroïd")
+
+def eachFileCSV_Kernel(path, filesPC):
+    """!
+    """
+    #tabPC = []
+    pathPCA = path+"/"+"pca"
+    
+    #pathHist = path+"/"+"histo"
+
+    #files = getAllFile(pathPCA, formatOrdre)
+   
+    for each in filesPC:
+        x, _ = readCsv(pathPCA + "/" + each)  #recupère le CSV
+        kde= metrics.KDE(x)
+
+        AllLLH =  metrics.DoMultipleLLH(kde, x,1)
+
+        metrics.doHist(AllLLH, plot = True, name = "distributions des LLH pour KDE")
+
+
+def each_compare_GMM_KDE(path, filesPC):
+    """!
+    """
+
+    pathPCA = path+"/"+"pca"
+    
+    AllSpearman = []
+    for each in filesPC:
+        
+        x, _ = readCsv(pathPCA + "/" + each)  #recupère le CSV
+        if x is None:
+            continue
+        x = metrics.centreReduit(x)
+        kde = metrics.KDE(x, False)
+        LLH_KDE =  metrics.DoMultipleLLH(kde, x,1)[0]
+
+        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
+        
+       # metrics.doVarianceOfGMM(gm, x)
+        LLH_GMM =  metrics.DoMultipleLLH(gm, x,1)
+       # LLH_GMM =metrics.removeOutliers(LLH_GMM)
+        
+        metrics.doHist([LLH_GMM[0],LLH_KDE], plot = True, name = "histogramme GMM et KDE")
+
+        plots.plot_correlation([LLH_GMM[0],LLH_KDE], name = "correlation GMM et KDE")
+        AllSpearman.append( metrics.spearman(LLH_KDE, LLH_GMM[0]))
+
+       # plots.plotHist(np.array([LLH_KDE,LLH_GMM[0]]), name= "distribution des LLH\n KDE         |           GMM", max = 2)
+       # metrics.compareValue(LLH_KDE, LLH_GMM[0], "Difference LLH entre GMM et KDE")
+        #metrics.CompareOrdre(LLH_KDE, LLH_GMM[0], "Difference d'ordre LLH entre GMM et KDE")
+        #metrics.doHist(np.array([LLH]), plot = True)
+    print( AllSpearman)
+    writeCSV=True
+    if writeCSV:
+        pathSpearman = path+"/"+"spearman"
+        df = pandas.DataFrame(AllSpearman)
+        df = df.transpose()
+        df.columns = filesPC
+        df = df.transpose()
+        #df = df.transpose()
+        #df.columns = legend[0:-1]
+        #os.makedirs(pathData+"results"+"/"+bdd+"/"+"LLH", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+        os.makedirs(pathSpearman, exist_ok=True)
+        df.to_csv(pathSpearman+"/corr_spearman.csv")
+    return AllSpearman
+
 
 def readCsv(path):
     """
@@ -554,44 +720,24 @@ def readCsv(path):
     try:
         with open(path, newline='') as csvfile:
             rows = list(csv.reader(csvfile,delimiter=','))
-            for row in rows[1:]:
+            #rows[0].pop(0)
+            for row in rows[0:]:
                 for i in range(len(row)):
-                    row[i] = float(row[i])
+                    try:
+                        row[i] = float(row[i])
+                    except:
+                        pass
                 row.pop(0)
-            rows.pop(0)
-            return np.array(rows)
+            head = rows.pop(0)
+            return np.array(rows), head
     except OSError:
         print("cannot open", path)
-        return None
+        return None, None
     else:
         print("an error has occurred ")
-        return None
+        return None, None
 
-
-
-def getLLH(bdd,weight,metric, model_name, computer, freqmod,k = 1):
-    '''
-    donne la LogLikeliHood
-    '''
-    t0 = time.time()
-    labels_path, images_path, log_path = getPaths(bdd, computer)
-    model, layers, flatten_layers =configModel(model_name, weight)
-
-    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
-    dict_labels = {}
-
-    
-    for layer in layers:   
-        
-            print('##### current block is: ', layer)
-            #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
-            #elle retourne l'array des activations à la couche choisie
-            dict_activations = {}
-        
-            parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
-
-            
-
-    spm.parse_rates(labels_path, dict_labels)   
-    today = date.today()
-    today = str(today)
+def CompareAndDoMedian(ArrayA,ArrayB):
+    mA = np.median(ArrayA,axis=0)
+    mB = np.median(ArrayB,axis=0)
+    plots.plot_correlation([mA,mB])
