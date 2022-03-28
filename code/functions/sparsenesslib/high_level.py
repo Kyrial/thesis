@@ -604,7 +604,10 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
         
        # metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics.DoMultipleLLH(gm, x,100)
-        allLLH =metrics.removeOutliers(allLLH)
+        allLLH2 =  metrics.DoMultipleLLH(gm, x,100)
+        CompareAndDoMedian(allLLH,allLLH2)
+        allLLH = np.median(allLLH)
+        #allLLH =metrics.removeOutliers(allLLH)
         allHist, legend = metrics.doHist(allLLH, True, "distributions des LLH pour GMM")
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
         """
@@ -665,24 +668,28 @@ def eachFileCSV_Kernel(path, filesPC):
 def each_compare_GMM_KDE(path, filesPC):
     """!
     """
-    #tabPC = []
+
     pathPCA = path+"/"+"pca"
     
-    #pathHist = path+"/"+"histo"
-
-    #files = getAllFile(pathPCA, formatOrdre)
     AllSpearman = []
     for each in filesPC:
+        
         x, _ = readCsv(pathPCA + "/" + each)  #recupère le CSV
-        kde = metrics.KDE(x)
+        if x is None:
+            continue
+        x = metrics.centreReduit(x)
+        kde = metrics.KDE(x, False)
         LLH_KDE =  metrics.DoMultipleLLH(kde, x,1)[0]
-#        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =10)
+
         gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
         
        # metrics.doVarianceOfGMM(gm, x)
-        LLH_GMM =  metrics.DoMultipleLLH(gm, x,50)
-        LLH_GMM =metrics.removeOutliers(LLH_GMM)
+        LLH_GMM =  metrics.DoMultipleLLH(gm, x,1)
+       # LLH_GMM =metrics.removeOutliers(LLH_GMM)
         
+        metrics.doHist([LLH_GMM[0],LLH_KDE], plot = True, name = "histogramme GMM et KDE")
+
+        plots.plot_correlation([LLH_GMM[0],LLH_KDE], name = "correlation GMM et KDE")
         AllSpearman.append( metrics.spearman(LLH_KDE, LLH_GMM[0]))
 
        # plots.plotHist(np.array([LLH_KDE,LLH_GMM[0]]), name= "distribution des LLH\n KDE         |           GMM", max = 2)
@@ -725,9 +732,12 @@ def readCsv(path):
             return np.array(rows), head
     except OSError:
         print("cannot open", path)
-        return None
+        return None, None
     else:
         print("an error has occurred ")
-        return None
+        return None, None
 
-
+def CompareAndDoMedian(ArrayA,ArrayB):
+    mA = np.median(ArrayA,axis=0)
+    mB = np.median(ArrayB,axis=0)
+    plots.plot_correlation([mA,mB])

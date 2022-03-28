@@ -342,7 +342,7 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         X_scaled = std_scale.transform(X)
         #print('f')        
         # Calcul des composantes principales        
-        pca = decomposition.PCA(n_components= 0.8, svd_solver = 'full')
+        pca = decomposition.PCA(n_components= 0.8)#, svd_solver = 'full')
 
         #print("g")     
         coordinates = pca.fit_transform(X_scaled)      
@@ -563,14 +563,15 @@ def DoMultipleLLH(gmm_kde, X, nbe):
         AllLLH.append(np.transpose(LLH_tr)[0])
 
 #    AllLLH = np.array(AllLLH)
-    
-    
+#    plots.plot_correlation(AllLLH)
 
     return np.array(AllLLH)
 
 
 
 def doHist(AllLLH, plot = False, name = "histogramme"):
+    if isinstance(AllLLH, list):
+        AllLLH = np.array(AllLLH)
     bin = np.linspace(AllLLH.min(), AllLLH.max(),500)
     allHist = []
     legend = []
@@ -733,9 +734,10 @@ def findBandWith(x, intervalle, profondeur =4):
     grid.fit(x);
     tailleBande = grid.best_params_
     print("taille bande = ", tailleBande['bandwidth'],"\n")
+    plot_Grid_KDE(grid,intervalle)
     if profondeur > 0:
-        newIntervalle = (intervalle.max() - intervalle.min())/10 
-        return findBandWith(x, np.linspace(max(10**-50,tailleBande['bandwidth']-newIntervalle), tailleBande['bandwidth']+newIntervalle, 80), profondeur-1)
+        newIntervalle = (intervalle.max() - intervalle.min())/15 
+        return findBandWith(x, np.linspace(max(10**-1,tailleBande['bandwidth']-newIntervalle), tailleBande['bandwidth']+newIntervalle, 80), profondeur-1)
     else:
         return tailleBande
 
@@ -745,7 +747,8 @@ def KDE(x, recursion = False):
     x = std_scale.transform(x)
 
     
-    bandwidths = np.linspace(10**-50, 150, 200)
+    bandwidths = np.linspace(10**-1, 100, 200)
+    #bandwidths = 10 ** np.linspace(-1, 2, 300)
     
     if recursion:
         tailleBande = findBandWith(x, bandwidths, 2)
@@ -757,6 +760,9 @@ def KDE(x, recursion = False):
                         )
         grid.fit(x);
         tailleBande = grid.best_params_
+        
+        plot_Grid_KDE(grid,bandwidths)
+
     print("taille bande is  = ", tailleBande['bandwidth'],"\n")
     #tailleBande = {'bandwidth':0.01}
     # instantiate and fit the KDE model
@@ -765,22 +771,24 @@ def KDE(x, recursion = False):
        kernel='gaussian') 
     kde.fit(x);
 
-    return kde
+
     # score_samples returns the log of the probability density
-  #  logprob = kde.score_samples(x)
-  #  LLH_tr = np.transpose([logprob]) #transpose
-  #  std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
-  #  LLH_tr = std_scale.transform(LLH_tr)
-    
+    logprob = kde.score_samples(x)
+    LLH_tr = np.transpose([logprob]) #transpose
+    std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
+    LLH_tr = std_scale.transform(LLH_tr)
+    return kde
    # return np.transpose(LLH_tr)[0]
     
 
 
-
-
-#plt.plot(range(len(X)),value1)
-
-
+def plot_Grid_KDE(grid,bandwidths):
+    scores = [val for val in grid.cv_results_["mean_test_score"]]
+    plt.semilogx(bandwidths, scores)
+    plt.xlabel('bandwidth')
+    plt.ylabel('accuracy')  
+    plt.title('KDE Model Performance')
+    plt.show()
 
 
 
@@ -797,4 +805,7 @@ def removeOutliers(tabIn):
     return np.array([tabOut]);
 #    df[(np.abs(stats.zscore(df)) < 3).all(axis=1)]
 
+def centreReduit(x):
+    std_scale = preprocessing.StandardScaler().fit(x)
+    return std_scale.transform(x) #centré réduit
 

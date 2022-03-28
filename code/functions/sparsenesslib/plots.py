@@ -6,6 +6,7 @@ import itertools
 from scipy import linalg
 import numpy as np
 import math as math
+import pandas
 
 def getCovariances(gmm):
     #covar = np.array();
@@ -166,3 +167,31 @@ def plotHist_fromFiles(AllHist, bin, name = "histo"):
             plt.bar(bin,hist,width=bin[1]-bin[0])         
     plt.xticks(list(map(lambda val: round(val,1),bin[::50])))
     plt.show()
+
+def plot_correlation(AllLLH, name = ""):
+    if len(AllLLH)>1:
+        
+        df = pandas.DataFrame(AllLLH)
+        df = df.T
+        corr_df_P = df.corr(method='pearson')
+        import seaborn as sns
+        plt.subplot(2, 2, 1)
+        #plt.figure(figsize=(8, 6))
+        sns.heatmap(corr_df_P,annot=True)
+        plt.title("Correlation Pearson")
+        plt.grid()
+
+        corr_df_S = df.corr(method='spearman')
+        
+        plt.subplot(2, 2, 2)
+        sns.heatmap(corr_df_S,annot=True)
+        plt.title("Correlation Spearman")
+        plt.grid()
+        
+
+        plt.subplot(2, 2, 3)
+        a = sns.scatterplot(x= AllLLH[0],y= AllLLH[1]);
+        plt.title("nuage de point")
+        plt.grid()
+        plt.suptitle(name)
+        plt.show()
