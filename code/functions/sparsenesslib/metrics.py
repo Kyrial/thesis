@@ -377,7 +377,7 @@ def getVarienceRatio(pca, bdd, layer, pathData = "../../"):
    
     variance = pca.explained_variance_ratio_ #calculate variance ratios
 
-    var=np.cumsum(np.round(pca.explained_variance_ratio_, decimals=3)*100)
+    var=np.cumsum(pca.explained_variance_ratio_) * 100
     print( var) #cumulative sum of variance explained with [n] features
     df = pandas.DataFrame(variance).transpose()
     df2 = pandas.DataFrame(var).transpose()
