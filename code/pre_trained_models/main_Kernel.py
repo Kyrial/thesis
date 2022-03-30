@@ -37,7 +37,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
 list_bdd = ['MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 #list_bdd =['CFD','MART','JEN','BIGTEST']
-list_bdd =['BIGTEST']
+#list_bdd =['BIGTEST']
 
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'

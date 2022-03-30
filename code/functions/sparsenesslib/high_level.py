@@ -689,7 +689,7 @@ def each_compare_GMM_KDE(path, filesPC):
         LLH_GMM = np.median(LLH_GMM, axis=0)
        # LLH_GMM =metrics.removeOutliers(LLH_GMM)
         
-        metrics.doHist([LLH_GMM,LLH_KDE], plot = False, name = "histogramme GMM et KDE")
+        metrics.doHist([LLH_GMM,LLH_KDE], plot = True, name = "histogramme GMM et KDE")
 
         #plots.plot_correlation([LLH_GMM,LLH_KDE], name = "correlation GMM et KDE", nameXaxis="GMM",nameYaxis="KDE")
         AllSpearman.append( metrics.spearman( LLH_GMM,LLH_KDE))

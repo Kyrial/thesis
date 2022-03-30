@@ -747,8 +747,9 @@ def KDE(x, recursion = False):
     std_scale = preprocessing.StandardScaler().fit(x)
     x = std_scale.transform(x)
 
-    
+    x = removeOutliers(x)
     bandwidths = np.linspace(10**-1, 100, 200)
+    #bandwidths = np.linspace(10**-2, 10**-1, 200)
     #bandwidths = 10 ** np.linspace(-1, 2, 300)
     
     if recursion:
@@ -757,12 +758,12 @@ def KDE(x, recursion = False):
         grid = GridSearchCV(KernelDensity(kernel='gaussian'),
                         {'bandwidth': bandwidths},
                         #cv=LeaveOneOut()
-                        #cv=is 5-Fold validation (default)
+                        #cv=is 3-Fold validation (default)
                         )
         grid.fit(x);
         tailleBande = grid.best_params_
         
-        #plot_Grid_KDE(grid,bandwidths)
+        plot_Grid_KDE(grid,bandwidths)
 
     print("taille bande is  = ", tailleBande['bandwidth'],"\n")
     #tailleBande = {'bandwidth':0.01}
