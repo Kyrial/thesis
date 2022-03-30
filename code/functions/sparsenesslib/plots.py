@@ -136,15 +136,42 @@ def plotPC(listPC, listBDD, layersName, title = "nombre PC par BDD par couche"):
     plt.xticks(np.array(range(len(layersName)))*1.2 , layersName, rotation=90)
     plt.ylim([pc.min() * 1.01 - 0.01 * pc.max(), pc.max()+pc.max()*0.1])
     plt.title(title)
-    #xpos = (
-    #    np.mod(pc.argmin(), len(layersName))
-    #    + 0.65
-    #    + 0.2 * np.floor(pc.argmin() / len(layersName))
-    #)
-    #plt.text(xpos, pc.min() * 0.97 + 0.03 * pc.max(), "*", fontsize=14)
-   # spl.set_xlabel("layers")
+
     spl.legend([b[0] for b in bars], listBDD)
     plt.show()
+"""
+    def plotCorrelation(listSpearman, listPearson, listBDD, layersName, title = "nombre PC par BDD par couche"):
+        Spearman = np.array(listSpearman)
+        Pearson = np.array(listPearson)
+    
+        color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange",  "darkviolet", "olive"])
+        bars = []
+        # Plot the pc
+        plt.figure(figsize=(8, 6))
+        spl = plt.subplot(2, 1, 1)
+
+
+        for k, (cv_type, color) in enumerate(zip(listBDD, color_iter)):
+            for i in [Pearson,SpSearman]:
+
+                xpos = np.array(range(len(layersName)))*1.2 + 0.2* (i+1) * (i - len(listBDD)/2)
+                bars.append(
+                    plt.bar(
+                        xpos,
+                        #pc[i * len(layersName) : (i + 1) * len(layersName)],
+                        pc[i],
+                        width=0.2,
+                        color=color,
+                    )
+                )
+        plt.xticks(np.array(range(len(layersName)))*1.2 , layersName, rotation=90)
+        plt.ylim([pc.min() * 1.01 - 0.01 * pc.max(), pc.max()+pc.max()*0.1])
+        plt.title(title)
+
+        spl.legend([b[0] for b in bars], listBDD)
+        plt.show()
+"""
+
 
 def plotHist(AllLLH, name= "histogramme", max = 2):
     bin = np.linspace(AllLLH.min(), AllLLH.max(),200)
@@ -168,7 +195,7 @@ def plotHist_fromFiles(AllHist, bin, name = "histo"):
     plt.xticks(list(map(lambda val: round(val,1),bin[::50])))
     plt.show()
 
-def plot_correlation(AllLLH, name = ""):
+def plot_correlation(AllLLH, name = "", nameXaxis= "", nameYaxis=""):
     if len(AllLLH)>1:
         
         df = pandas.DataFrame(AllLLH)
@@ -192,6 +219,9 @@ def plot_correlation(AllLLH, name = ""):
         plt.subplot(2, 2, 3)
         a = sns.scatterplot(x= AllLLH[0],y= AllLLH[1]);
         plt.title("nuage de point")
+        plt.xlabel(nameXaxis)
+        plt.ylabel(nameYaxis)
         plt.grid()
         plt.suptitle(name)
         plt.show()
+        

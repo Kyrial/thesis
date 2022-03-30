@@ -57,6 +57,7 @@ l = len(list_bdd)*len(list_weights)*len(list_metrics)
 _, layers, _ = hl.configModel(model_name, list_weights[0])
 
 AllSpearman = []
+AllPearson  = []
 
 for bdd in list_bdd:
     for weight in list_weights:
@@ -77,13 +78,21 @@ for bdd in list_bdd:
             #AllSpearman.append(  hl.eachFile(path+"/"+"spearman"))
 
             #hl.eachFileCSV_Kernel(path,filesPC)
-            AllSpearman = hl.each_compare_GMM_KDE(path, filesPC)
+            spearman, pearson = hl.each_compare_GMM_KDE(path, filesPC)
+            AllSpearman.append(spearman)
+            AllPearson.append(pearson)
             k += 1
 
 
 
 #AllCorrelation = [np.transpose(np.transpose(x)[0])[0] for x in AllSpearman]
-#plots.plotPC(AllCorrelation, list_bdd, layers, "Correlation de Spearman par BDD")
+AllCorrelation = [np.transpose(np.transpose(x)[0]) for x in AllSpearman]
+plots.plotPC(AllCorrelation, list_bdd, layers, "Correlation de Spearman par BDD")
+
+AllCorrelation2 = [np.transpose(np.transpose(x)[0]) for x in AllPearson]
+plots.plotPC(AllCorrelation2, list_bdd, layers, "Correlation de Pearson par BDD")
+
+
 #AllPValue = [x[1] for x in AllSpearman]
 #plots.plotPC(AllPValue, list_bdd, layers)
             #correlation

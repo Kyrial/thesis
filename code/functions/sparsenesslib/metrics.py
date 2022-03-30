@@ -377,7 +377,7 @@ def getVarienceRatio(pca, bdd, layer, pathData = "../../"):
    
     variance = pca.explained_variance_ratio_ #calculate variance ratios
 
-    var=np.cumsum(np.round(pca.explained_variance_ratio_, decimals=3)*100)
+    var=np.cumsum(pca.explained_variance_ratio_) * 100
     print( var) #cumulative sum of variance explained with [n] features
     df = pandas.DataFrame(variance).transpose()
     df2 = pandas.DataFrame(var).transpose()
@@ -617,9 +617,10 @@ def spearman(x,y):
     s = stats.spearmanr(x, y)
     print(s)
     return s
-    #plt.grid()
-    #plt.title(name)
-    #plt.show()
+def pearson(x,y):
+    s = stats.pearsonr(x, y)
+    print(s)
+    return np.array(s)
 
 def doVarianceOfGMM(gmm, X, plot = False):
     allLLH = DoMultipleLLH(gmm, X, 2)
@@ -746,8 +747,9 @@ def KDE(x, recursion = False):
     std_scale = preprocessing.StandardScaler().fit(x)
     x = std_scale.transform(x)
 
-    
+    x = removeOutliers(x)
     bandwidths = np.linspace(10**-1, 100, 200)
+    #bandwidths = np.linspace(10**-2, 10**-1, 200)
     #bandwidths = 10 ** np.linspace(-1, 2, 300)
     
     if recursion:
@@ -756,7 +758,7 @@ def KDE(x, recursion = False):
         grid = GridSearchCV(KernelDensity(kernel='gaussian'),
                         {'bandwidth': bandwidths},
                         #cv=LeaveOneOut()
-                        #cv=is 5-Fold validation (default)
+                        #cv=is 3-Fold validation (default)
                         )
         grid.fit(x);
         tailleBande = grid.best_params_
