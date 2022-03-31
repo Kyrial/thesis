@@ -45,6 +45,7 @@ import csv
 sys.path.insert(1,'../../code/functions')
 import sparsenesslib.keract as keract
 import sparsenesslib.metrics as metrics
+import sparsenesslib.metrics_melvin as metrics_melvin
 import sparsenesslib.plots as plots
 
 import sparsenesslib.sparsenessmod as spm
@@ -600,11 +601,11 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
         tabPC.append(x.shape[1])
 
         print('######', each,"     ", x.shape[1])
-        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =10)
+        gm = metrics_melvin.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =10)
         
        # metrics.doVarianceOfGMM(gm, x)
-        allLLH =  metrics.DoMultipleLLH(gm, x,100)
-        allLLH2 =  metrics.DoMultipleLLH(gm, x,100)
+        allLLH =  metrics_melvin.DoMultipleLLH(gm, x,100)
+        allLLH2 =  metrics_melvin.DoMultipleLLH(gm, x,100)
         CompareAndDoMedian(allLLH,allLLH2)
         allLLH = np.array([np.median(allLLH, axis=0)])
         #allLLH =metrics.removeOutliers(allLLH)
@@ -644,7 +645,7 @@ def eachFileCSV_Centroid(path, formatOrdre = []):
         
 
         print('######', eachCP,"  ",eachVar,"   ", cp.shape[1])
-        metrics.distToCentroid(cp, var, eachCP+"\n distance du Centroïd")
+        metrics_melvin.distToCentroid(cp, var, eachCP+"\n distance du Centroïd")
 
 def eachFileCSV_Kernel(path, filesPC):
     """!
@@ -658,11 +659,11 @@ def eachFileCSV_Kernel(path, filesPC):
    
     for each in filesPC:
         x, _ = readCsv(pathPCA + "/" + each)  #recupère le CSV
-        kde= metrics.KDE(x)
+        kde= metrics_melvin.KDE(x)
 
-        AllLLH =  metrics.DoMultipleLLH(kde, x,1)
+        AllLLH =  metrics_melvin.DoMultipleLLH(kde, x,1)
 
-        metrics.doHist(AllLLH, plot = True, name = "distributions des LLH pour KDE")
+        metrics_melvin.doHist(AllLLH, plot = True, name = "distributions des LLH pour KDE")
 
 
 def each_compare_GMM_KDE(path, filesPC):
@@ -678,22 +679,22 @@ def each_compare_GMM_KDE(path, filesPC):
         x, _ = readCsv(pathPCA + "/" + each)  #recupère le CSV
         if x is None:
             continue
-        x = metrics.centreReduit(x)
-        kde = metrics.KDE(x, False)
-        LLH_KDE =  metrics.DoMultipleLLH(kde, x,100)[0]
+        x = metrics_melvin.centreReduit(x)
+        kde = metrics_melvin.KDE(x, False)
+        LLH_KDE =  metrics_melvin.DoMultipleLLH(kde, x,100)[0]
         #LLH_2 = np.median(LLH_KDE, axis=0)
-        gm = metrics.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
+        gm = metrics_melvin.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
         
        # metrics.doVarianceOfGMM(gm, x)
-        LLH_GMM =  metrics.DoMultipleLLH(gm, x,100)
+        LLH_GMM =  metrics_melvin.DoMultipleLLH(gm, x,100)
         LLH_GMM = np.median(LLH_GMM, axis=0)
        # LLH_GMM =metrics.removeOutliers(LLH_GMM)
         
-        metrics.doHist([LLH_GMM,LLH_KDE], plot = True, name = "histogramme GMM et KDE")
+        metrics_melvin.doHist([LLH_GMM,LLH_KDE], plot = True, name = "histogramme GMM et KDE")
 
         #plots.plot_correlation([LLH_GMM,LLH_KDE], name = "correlation GMM et KDE", nameXaxis="GMM",nameYaxis="KDE")
-        AllSpearman.append( metrics.spearman( LLH_GMM,LLH_KDE))
-        AllPearson.append( metrics.pearson( LLH_GMM,LLH_KDE))
+        AllSpearman.append( metrics_melvin.spearman( LLH_GMM,LLH_KDE))
+        AllPearson.append( metrics_melvin.pearson( LLH_GMM,LLH_KDE))
        # plots.plotHist(np.array([LLH_KDE,LLH_GMM[0]]), name= "distribution des LLH\n KDE         |           GMM", max = 2)
        # metrics.compareValue(LLH_KDE, LLH_GMM[0], "Difference LLH entre GMM et KDE")
         #metrics.CompareOrdre(LLH_KDE, LLH_GMM[0], "Difference d'ordre LLH entre GMM et KDE")

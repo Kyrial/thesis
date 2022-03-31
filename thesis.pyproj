@@ -57,6 +57,9 @@
     <Compile Include="code\pre_trained_models\main_Kernel.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="code\functions\sparsenesslib\metrics_melvin.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="code\pre_trained_models\vggplaces\places_utils.py" />
     <Compile Include="code\pre_trained_models\vggplaces\vgg16_hybrid_places_1365.py" />
     <Compile Include="code\pre_trained_models\vggplaces\vgg16_places_365.py" />
