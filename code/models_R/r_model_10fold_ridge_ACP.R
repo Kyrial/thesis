@@ -97,7 +97,7 @@ kfold_pca <- function(bdd, weight, metric, layer, regularization, print_number) 
 #####################################################################################
 # 4. PARAMETERS:
 #####################################################################################
-bdd <- c('BIGTEST')
+bdd <- c('JEN')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 layers <-   c('input_1',
@@ -108,7 +108,7 @@ layers <-   c('input_1',
             'block5_conv1','block5_conv2','block5_conv3','block5_pool',
             'fc1','fc2',
             'flatten')
-regularization <- 'glmnet' #0 for ridge, 1 for lasso
+regularization <- 'lasso' #0 for ridge, 1 for lasso
 print_number = 200
 
 set.seed(123)
