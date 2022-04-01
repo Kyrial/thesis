@@ -189,14 +189,14 @@ for (index in tresholds_index) {
   
   max_AIC_per_percentage = c(max_AIC_per_percentage, min(list_AIC))
   max_BIC_per_percentage = c(max_BIC_per_percentage, min(list_BIC))
-  max_R_squareds_per_percentage = c(max_R_squareds_per_percentage, max(list_R_squareds))
+  max_R_squareds_per_percentage = c(max_R_squareds_per_percentage, median(list_R_squareds))
 }
 
 percentages = c('20%','30%','40%','50%','60%','70%','80%')
 
 barplot(max_AIC_per_percentage, names.arg = percentages, xlab = "percentages", ylab= "AIC", main = cbind('AIC_min_',bdd,'_',regularization))
 barplot(max_BIC_per_percentage, names.arg = percentages, xlab = "percentages", ylab= "BIC", main = cbind('BIC_min_',bdd,'_',regularization))
-barplot(max_R_squareds_per_percentage, names.arg = percentages, xlab = "percentages", ylab= "R_squareds_max", main = cbind('R_squareds_max_',bdd,'_',regularization))
+barplot(max_R_squareds_per_percentage, names.arg = percentages, xlab = "percentages", ylab= "R_squareds_max", main = cbind('R_squareds_median_',bdd,'_',regularization))
 
 
 
