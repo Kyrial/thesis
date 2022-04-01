@@ -29,13 +29,13 @@ PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
 list_bdd = ['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
-list_bdd = ['SMALLTEST']
+list_bdd = ['SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
 list_weights = ['imagenet'] #['vggface','imagenet','vggplace']
-list_metrics = ['mean'] #['L0','L1','gini_flatten','gini_channel','gini_filter','kurtosis']
+list_metrics = ['gini_flatten'] #['L0','L1','gini_flatten','gini_channel','gini_filter','kurtosis']
 computer = 'LINUX-ES03' 
-freqmod = 100 #frequency of prints, if 5: print for 1/5 images
+freqmod = 250 #frequency of prints, if 5: print for 1/5 images
 #####################################################################################
 #CODE
 #####################################################################################

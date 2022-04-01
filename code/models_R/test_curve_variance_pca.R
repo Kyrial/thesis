@@ -67,3 +67,36 @@ set.seed(123)
 for (layer in layers){
   kfold_gini(bdd, weight, metric, layer, regularization, print_number)
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+bdd = 'SCUT-FBP'
+layer = 'block1_conv1'
+log_path =paste('../../results/',bdd,'/pca/', sep="")
+df_pc = read_csv(file = paste(log_path,"pca_values_",layer,".csv", sep =""), show_col_types = FALSE)
+
+
+
+
+
+
