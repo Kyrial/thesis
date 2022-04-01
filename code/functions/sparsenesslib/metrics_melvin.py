@@ -133,30 +133,25 @@ def getMultigaussian(X, plot= [True,True], name ="Gaussian Mixture", index = 1, 
 
     if plot[1]:
         X_MDS = MultiDimensionalScaling(X) 
-        plots.plot_MultiGaussian(X, gm, index, name, X_MDS)
+        plots.plot_MultiGaussian(llh, index, name, X_MDS)
     return gm
 
 
 
 
-def getlogLikelihood(gm, X, path, writeCSV = True):
+def writeLikelihood(LLH,pathLLH, layer):
     """! récupère le log likelihood et l'écris dans un CSV si writeCSV = True
-    @param gm mixure gaussian
-    @param X array de dimension N
-    @param tableau de 2, path + bdd
-    @param writeCSV boolean
     @return array de LLH
     """
-    pathData,bdd, layer = path
-    LLH = gm.score_samples(X); #Compute the log-likelihood of each sample.
+
     
-    if writeCSV:
-        df = pandas.DataFrame(LLH)
-        df = df.transpose()
+    
+    df = pandas.DataFrame(LLH)
+    df = df.transpose()
         
-        os.makedirs(pathData+"results"+"/"+bdd+"/"+"LLH", exist_ok=True)
-            #l'enregistrer dans results, en précisant la layer dans le nom
-        df.to_csv(pathData+"results"+"/"+bdd+"/"+"LLH"+"/"+"LLH"+layer)
+    os.makedirs(pathLLH, exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+    df.to_csv(pathLLH+"/"+"LLH_"+layer)
     return LLH
 
 

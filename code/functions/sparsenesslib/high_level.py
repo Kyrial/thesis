@@ -579,7 +579,7 @@ def eachFile(path, formatOrdre = []):
     return tabcsv
 
 
-def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
+def eachFileCSV(path, formatOrdre = [],writeLLH = False):
     """! parcours tout les chifier du repertoire path, fait: mixureGaussian, LLH, tableau des nbe de PC par couche
     
     @param path chemin des CSV a traiter
@@ -592,6 +592,7 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
     tabPC = []
     pathPCA = path+"/"+"pca"
     pathHist = path+"/"+"histo"
+    pathLLH = path+"/"+"LLH"
 
     files = getAllFile(pathPCA, formatOrdre)
 
@@ -601,23 +602,25 @@ def eachFileCSV(path, formatOrdre = [], pathForLLH=[]):
         tabPC.append(x.shape[1])
 
         print('######', each,"     ", x.shape[1])
-        gm = metrics_melvin.getMultigaussian(x,name =  pathPCA+" "+each, plot=[True,False], nbMaxComp =10)
+        gm = metrics_melvin.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
         
        # metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, x,100)
-        allLLH2 =  metrics_melvin.DoMultipleLLH(gm, x,100)
-        CompareAndDoMedian(allLLH,allLLH2)
+        #allLLH2 =  metrics_melvin.DoMultipleLLH(gm, x,100)
+        #CompareAndDoMedian(allLLH,allLLH2)
         allLLH = np.array([np.median(allLLH, axis=0)])
         #allLLH =metrics.removeOutliers(allLLH)
-        allHist, legend = metrics.doHist(allLLH, True, "distributions des LLH pour GMM")
+        #allHist, legend = metrics_melvin.doHist(allLLH, false, "distributions des LLH pour GMM")
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
-        """
-            if len(pathForLLH)>0:
-                if len(pathForLLH)>2:
-                    pathForLLH[2] = (each)
-                else: pathForLLH.append(each)
-                metrics.getlogLikelihood(gm, x, pathForLLH,  True)
-        """
+        
+        if writeLLH:
+            import re
+
+            regex = re.search("((?:pca_values){1})(.*\.csv$)",each)
+            layer = regex.group(2)
+
+            metrics_melvin.writeLikelihood(allLLH, pathLLH, layer)
+        
     return tabPC
         
 def eachFileCSV_Centroid(path, formatOrdre = []):
