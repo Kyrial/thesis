@@ -75,11 +75,11 @@ for bdd in list_bdd:
             
             alldf = pd.DataFrame()
             
-            for each in filesLLH:
+            for each, name in zip(filesLLH,layers):
                 csv_path = pathLLH + "/" + each
                 x, _ = hl.readCsv(csv_path)
                 #df = pd.DataFrame(x)
                 a = np.transpose(x)[0]
-                alldf[each] = np.transpose(x)[0]
+                alldf[name] = np.transpose(x)[0]
             alldf = alldf.transpose()
             metrics_melvin.writeLikelihood(alldf, pathLLH, bdd+"_AllLLH.csv")
