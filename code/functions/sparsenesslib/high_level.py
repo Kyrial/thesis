@@ -592,7 +592,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False):
     tabPC = []
     pathPCA = path+"/"+"pca"
     pathHist = path+"/"+"histo"
-    pathLLH = path+"/"+"LLH"
+    pathLLH = path+"/"+"LLH_1"
 
     files = getAllFile(pathPCA, formatOrdre)
 
@@ -605,7 +605,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False):
         gm = metrics_melvin.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
         
        # metrics.doVarianceOfGMM(gm, x)
-        allLLH =  metrics_melvin.DoMultipleLLH(gm, x,100)
+        allLLH =  metrics_melvin.DoMultipleLLH(gm, x,1)
         #allLLH2 =  metrics_melvin.DoMultipleLLH(gm, x,100)
         #CompareAndDoMedian(allLLH,allLLH2)
         allLLH = np.array([np.median(allLLH, axis=0)])
