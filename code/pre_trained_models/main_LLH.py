@@ -39,7 +39,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
 list_bdd = ['MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
-list_bdd =['CFD','MART','JEN','SCUT-FBP']
+#list_bdd =['CFD','MART','JEN','SCUT-FBP']
 #list_bdd =['BIGTEST']
 
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
@@ -56,10 +56,8 @@ list_metrics = ['acp']
 k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
 
-_, layers, _ = hl.configModel(model_name, list_weights[0])
 
-AllSpearman = []
-AllPearson  = []
+
 
 for bdd in list_bdd:
     for weight in list_weights:
