@@ -13,7 +13,7 @@ library("plyr")
 library("corrplot")
 library("FactoMineR")
 library("dplyr")
-setwd("/home/nicolas/Bureau/internship_cefe_2021/code/functions")
+setwd("/home/renoult/Bureau/thesis/code/functions")
 #####################################################################################
 # 3. PARAMETRES: def analyse_metrics(model_name, bdd, weight, metric,k):
 #####################################################################################
@@ -23,8 +23,9 @@ setwd("/home/nicolas/Bureau/internship_cefe_2021/code/functions")
 #mettre ça pas en dur a terme mais en paramètres passé au script python (ou pas?)
 
 model_name <- 'VGG16'
-bdds <- c('MART','JEN','CFD','SCUT-FBP')
-weights <- c('vggface','imagenet','vggplaces')
+bdds <- c('MART')
+#'JEN','CFD','SCUT-FBP'
+weights <- c('imagenet')
 metrics <- c('gini_flatten')
 
 
@@ -343,7 +344,7 @@ main_model = function(model_name, bdds, weights, metrics) {
       } 
     }
   }
-  graphics.off()
+  #graphics.off()
 }
 
 

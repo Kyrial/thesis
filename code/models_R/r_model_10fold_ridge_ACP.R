@@ -97,7 +97,7 @@ kfold_pca <- function(bdd, weight, metric, layer, regularization, print_number) 
 #####################################################################################
 # 4. PARAMETERS:
 #####################################################################################
-bdd <- c('JEN')
+bdd <- c('MART')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 layers <-   c('input_1',

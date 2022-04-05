@@ -22,8 +22,8 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 # 3. PARAMETERS:
 #####################################################################################
 model_name <- 'VGG16'
-bdd <- c('SCUT-FBP')
-bdd2 <- c('JEN')
+bdd <- c('CFD')
+bdd2 <- c('MART')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 subset_db1 = 500
