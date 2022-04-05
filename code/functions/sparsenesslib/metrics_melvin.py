@@ -140,12 +140,9 @@ def getMultigaussian(X, plot= [True,True], name ="Gaussian Mixture", index = 1, 
 
 
 def writeLikelihood(LLH,pathLLH, layer):
-    """! récupère le log likelihood et l'écris dans un CSV si writeCSV = True
+    """! a partir d'un array de LLH, écris le fichier correspondant
     @return array de LLH
     """
-
-    
-    
     df = pandas.DataFrame(LLH)
     df = df.transpose()
         
@@ -161,12 +158,11 @@ def DoMultipleLLH(gmm_kde, X, nbe):
     for i in range(nbe):
         gmm_kde.fit(X)
         LLH = gmm_kde.score_samples(X); #récupère LLH
-
-        LLH_tr = np.transpose([LLH]) #transpose
-        std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
-        LLH_tr = std_scale.transform(LLH_tr)
-
-        AllLLH.append(np.transpose(LLH_tr)[0])
+        AllLLH.append(np.transpose(LLH))
+        #LLH_tr = np.transpose([LLH]) #transpose
+        #std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
+        #LLH_tr = std_scale.transform(LLH_tr)
+        #AllLLH.append(np.transpose(LLH_tr)[0])
 
 #    AllLLH = np.array(AllLLH)
 #    plots.plot_correlation(AllLLH)
