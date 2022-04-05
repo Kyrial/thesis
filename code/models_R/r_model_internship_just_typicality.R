@@ -93,8 +93,8 @@ metric <- 'gini_flatten'
                                          'conv5_3' =  'block5_conv3',
                                           'pool5' = 'block5_pool',
                                           'flatten' = 'flatten',
-                                          'fc6/relu' = 'fc1',
-                                          'fc7/relu' = 'fc2'))
+                                          'fc6_relu' = 'fc1',
+                                          'fc7_relu' = 'fc2'))
           
         }
         print(paste('parameters are:',bdd,'-',weight,'-',metric, sep = ""))
@@ -107,17 +107,18 @@ metric <- 'gini_flatten'
         #5.3. model with layers and interaction with complexity
         #####################################################################################
         
-        model = lm(rate ~ 
+        model = step(lm(rate ~ 
                                        +conv1_1+conv1_2+pool1   
                                        +conv2_1+conv2_2+pool2   
                                        +conv3_1+conv3_2+conv3_3+pool3   
                                        +conv4_1+conv4_2+conv4_3+pool4   
                                        +conv5_1+conv5_2+conv5_3+pool5
-                                       ,data = df_metrics)
+                                       +fc6_relu + fc7_relu
+                                       ,data = df_metrics), trace=0)
         
        print(summary(model))
         
-    
+        
 
 
 
