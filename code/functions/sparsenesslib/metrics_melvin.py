@@ -179,8 +179,8 @@ def chooseBestComposante(allLLH):
     print(indexTab.max())
 
     max = indexTab.argmax()
-
-    return allLLH[max]
+    result = np.array([allLLH[max]])
+    return result
 
 
 def doHist(AllLLH, plot = False, name = "histogramme"):
