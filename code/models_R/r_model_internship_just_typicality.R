@@ -42,9 +42,8 @@ metric <- 'gini_flatten'
           
          
         #path d'enregistrement des résultats et chargement des données  
-        
-        labels_path = paste('../../data/redesigned/',bdd,'/labels_CFD.csv', sep='')
-        log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
+
+        log_path =paste('../../results/',bdd,'/LLH_bestRepetition/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="") 
         
         
