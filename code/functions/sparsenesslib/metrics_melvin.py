@@ -165,10 +165,22 @@ def DoMultipleLLH(gmm_kde, X, nbe):
         #AllLLH.append(np.transpose(LLH_tr)[0])
 
 #    AllLLH = np.array(AllLLH)
-#    plots.plot_correlation(AllLLH)
-
+#    plots.plot_correlation(AllLLH
     return np.array(AllLLH)
 
+def chooseBestComposante(allLLH):
+    median = np.array(np.median(allLLH, axis=0))
+    indexTab=[]
+    for repetition in allLLH:
+        similarite = repetition==median
+        indexTab.append(similarite.sum())
+
+    indexTab = np.array(indexTab)
+    print(indexTab.max())
+
+    max = indexTab.argmax()
+
+    return allLLH[max]
 
 
 def doHist(AllLLH, plot = False, name = "histogramme"):

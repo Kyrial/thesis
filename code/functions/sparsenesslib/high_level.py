@@ -592,7 +592,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False):
     tabPC = []
     pathPCA = path+"/"+"pca"
     pathHist = path+"/"+"histo"
-    pathLLH = path+"/"+"LLH_1"
+    pathLLH = path+"/"+"LLH_bestRepetition"
 
     files = getAllFile(pathPCA, formatOrdre)
 
@@ -605,10 +605,11 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False):
         gm = metrics_melvin.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
         
        # metrics.doVarianceOfGMM(gm, x)
-        allLLH =  metrics_melvin.DoMultipleLLH(gm, x,1)
+        allLLH =  metrics_melvin.DoMultipleLLH(gm, x,101)
         #allLLH2 =  metrics_melvin.DoMultipleLLH(gm, x,100)
         #CompareAndDoMedian(allLLH,allLLH2)
-        allLLH = np.array([np.median(allLLH, axis=0)])
+        #allLLH = np.array([np.median(allLLH, axis=0)])
+        allLLH = metrics_melvin.chooseBestComposante(allLLH)
         #allLLH =metrics.removeOutliers(allLLH)
         #allHist, legend = metrics_melvin.doHist(allLLH, false, "distributions des LLH pour GMM")
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
