@@ -73,7 +73,7 @@ def getPaths(bdd, pathData):
         if pathData == 'LINUX-ES03':
             pathData = '../../'
 
-        if bdd in ['CFD','JEN','SCUT-FBP','MART']:
+        if bdd in ['CFD','JEN','SCUT-FBP','MART','CFD_1']:
             labels_path =pathData+'data/redesigned/'+bdd+'/labels_'+bdd+'.csv'
             images_path =pathData+'data/redesigned/'+bdd+'/images'
             log_path =pathData+'results/'+bdd+'/log_'
@@ -579,7 +579,7 @@ def eachFile(path, formatOrdre = []):
     return tabcsv
 
 
-def eachFileCSV(path, formatOrdre = [],writeLLH = False):
+def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data/redesigned/CFD/labels_CFD.csv"):
     """! parcours tout les chifier du repertoire path, fait: mixureGaussian, LLH, tableau des nbe de PC par couche
     
     @param path chemin des CSV a traiter
@@ -591,25 +591,49 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False):
     """
     tabPC = []
     pathPCA = path+"/"+"pca"
+    
+
     pathHist = path+"/"+"histo"
-    pathLLH = path+"/"+"LLH_bestRepetition"
+    pathLLH = path+"/"+"LLH_1"
 
     files = getAllFile(pathPCA, formatOrdre)
 
+    #label, _ = readCsv(pathLabel, True)
+    #label = np.transpose(label)[0]
+    arrayIntra = []
+    arrayInter = []
     for each in files:
         csv_path = pathPCA + "/" + each
         x, _ = readCsv(csv_path) #recupère le CSV
         tabPC.append(x.shape[1])
 
-        print('######', each,"     ", x.shape[1])
-        gm = metrics_melvin.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
+        model = x #getSousBDD(x, label)
+
+
+        #print('######', each,"     ", x.shape[1])
+        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
         
-       # metrics.doVarianceOfGMM(gm, x)
-        allLLH =  metrics_melvin.DoMultipleLLH(gm, x,101)
+        #metrics.doVarianceOfGMM(gm, x)
+        allLLH =  metrics_melvin.DoMultipleLLH(gm, model,3,x)
+#        metrics_melvin.doVarianceOfGMM(allLLH, plot = True)
+        
+        allVar = np.var(allLLH, axis=0) # récup la variance intraImage
+        varExtra = np.var(allLLH, axis=1) # variance interImage
+        intraMoy =  np.mean(allVar)
+        interMoy = np.mean(varExtra)
+        arrayIntra.append(intraMoy)
+        arrayInter.append(interMoy)
+
+        print(each," ;  intraMoyenne = ",intraMoy,"    ;  interMoyenne = ",interMoy)
+        
         #allLLH2 =  metrics_melvin.DoMultipleLLH(gm, x,100)
         #CompareAndDoMedian(allLLH,allLLH2)
-        #allLLH = np.array([np.median(allLLH, axis=0)])
-        allLLH = metrics_melvin.chooseBestComposante(allLLH)
+        
+
+        metrics_melvin.doHist(allLLH, plot = True, name = "distributions des LLH pour GMM")
+        allLLH = np.array([np.median(allLLH, axis=0)])
+
+        #allLLH = metrics_melvin.chooseBestComposante(allLLH)
         #allLLH =metrics.removeOutliers(allLLH)
         #allHist, legend = metrics_melvin.doHist(allLLH, false, "distributions des LLH pour GMM")
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
@@ -620,7 +644,9 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False):
             layer = regex.group(2)
 
             metrics_melvin.writeLikelihood(allLLH, pathLLH, layer)
-        
+       
+    
+    plots.plotPC([arrayIntra, arrayInter], ["intra", "inter"], files, title = "moyenne des variance intra et inter image par couche");        
     return tabPC
         
 def eachFileCSV_Centroid(path, formatOrdre = []):
@@ -664,7 +690,7 @@ def eachFileCSV_Kernel(path, filesPC):
         x, _ = readCsv(pathPCA + "/" + each)  #recupère le CSV
         kde= metrics_melvin.KDE(x)
 
-        AllLLH =  metrics_melvin.DoMultipleLLH(kde, x,1)
+        AllLLH =  metrics_melvin.DoMultipleLLH(kde, x,1, x)
 
         metrics_melvin.doHist(AllLLH, plot = True, name = "distributions des LLH pour KDE")
 
@@ -684,12 +710,12 @@ def each_compare_GMM_KDE(path, filesPC):
             continue
         x = metrics_melvin.centreReduit(x)
         kde = metrics_melvin.KDE(x, False)
-        LLH_KDE =  metrics_melvin.DoMultipleLLH(kde, x,100)[0]
+        LLH_KDE =  metrics_melvin.DoMultipleLLH(kde, x,100, x)[0]
         #LLH_2 = np.median(LLH_KDE, axis=0)
         gm = metrics_melvin.getMultigaussian(x,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
         
        # metrics.doVarianceOfGMM(gm, x)
-        LLH_GMM =  metrics_melvin.DoMultipleLLH(gm, x,100)
+        LLH_GMM =  metrics_melvin.DoMultipleLLH(gm, x,100, x)
         LLH_GMM = np.median(LLH_GMM, axis=0)
        # LLH_GMM =metrics.removeOutliers(LLH_GMM)
         
@@ -715,7 +741,7 @@ def each_compare_GMM_KDE(path, filesPC):
     return AllSpearman, AllPearson
 
 
-def readCsv(path):
+def readCsv(path,noHeader = False):
     """
     lit un fichier .csv, convertit toutes les valeurs en float et retourne un numpyArray
     """
@@ -729,8 +755,12 @@ def readCsv(path):
                         row[i] = float(row[i])
                     except:
                         pass
+
                 row.pop(0)
-            head = rows.pop(0)
+            if not noHeader:
+                head = rows.pop(0)
+            else:
+                head = rows[0]
             return np.array(rows), head
     except OSError:
         print("cannot open", path)
@@ -743,3 +773,10 @@ def CompareAndDoMedian(ArrayA,ArrayB):
     mA = np.median(ArrayA,axis=0)
     mB = np.median(ArrayB,axis=0)
     plots.plot_correlation([mA,mB])
+
+def getSousBDD(acp, label, min = 0, max=100):
+    if min==0 and max ==100:
+        min = np.quantile(label, .50)
+    filterLabel = np.where((label >min) & (label < max), True, False)
+    model = acp[filterLabel]
+    return model

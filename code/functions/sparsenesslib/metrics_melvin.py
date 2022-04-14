@@ -120,11 +120,11 @@ def getMultigaussian(X, plot= [True,True], name ="Gaussian Mixture", index = 1, 
     """
 
     # Centrage et Réduction
-    std_scale = preprocessing.StandardScaler().fit(X)
-    X = std_scale.transform(X)
+    #std_scale = preprocessing.StandardScaler().fit(X)
+    #X = std_scale.transform(X)
 
     #gm = GaussianMixture(
-     #           n_components=1 
+     #           n_components=1
              #   random_state = 1
       #      )
     #gm.fit(X) 
@@ -153,11 +153,11 @@ def writeLikelihood(LLH,pathLLH, layer):
 
 
 
-def DoMultipleLLH(gmm_kde, X, nbe):
+def DoMultipleLLH(gmm_kde, X_model, nbe, X_train):
     AllLLH = []
     for i in range(nbe):
-        gmm_kde.fit(X)
-        LLH = gmm_kde.score_samples(X); #récupère LLH
+        gmm_kde.fit(X_model)
+        LLH = gmm_kde.score_samples(X_train); #récupère LLH
         AllLLH.append(np.transpose(LLH))
         #LLH_tr = np.transpose([LLH]) #transpose
         #std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
@@ -236,10 +236,9 @@ def pearson(x,y):
     print(s)
     return np.array(s)
 
-def doVarianceOfGMM(gmm, X, plot = False):
-    allLLH = DoMultipleLLH(gmm, X, 2)
+def doVarianceOfGMM(AllLLH, plot = False):
 
-    allHist, legend = doHist(allLLH)
+    allHist, legend = doHist(AllLLH)
 
     writeCSV=False
     if writeCSV:
@@ -259,7 +258,13 @@ def doVarianceOfGMM(gmm, X, plot = False):
         #LLH_for_i =  AllLLH[:,i]
         
     allVar = np.var(AllLLH, axis=0) # récup la variance intraImage
-    varExtra = np.var(AllLLH, axis=1)
+    varExtra = np.var(AllLLH, axis=1) # variance interImage
+    
+    intraMoy =  np.mean(allVar)
+    enterMoy = np.mean(varExtra)
+
+    mediane = np.median(AllLLH, axis=0)
+    moyenne = np.mean(AllLLH, axis=0)
 
     color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange",  "darkviolet", "olive"])
 
@@ -274,6 +279,19 @@ def doVarianceOfGMM(gmm, X, plot = False):
         plt.title(r'variance extra image')
         plt.grid()
         plt.show()
+
+        plt.plot(range(AllLLH.shape[1]),mediane)
+        plt.plot(range(AllLLH.shape[1]),moyenne)
+        plt.title(r'moyenne mediane')
+        plt.grid()
+        plt.show()
+
+
+        plt.plot(range(AllLLH.shape[1]),mediane - moyenne)
+        plt.title(r'difference moyenne mediane')
+        plt.grid()
+        plt.show()
+
         print("finish")
     allRatio = ratioArray(allVar,varExtra)
     for i, color in zip(range(allRatio.shape[1]), color_iter):

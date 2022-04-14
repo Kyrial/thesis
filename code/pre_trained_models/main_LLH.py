@@ -65,7 +65,8 @@ for bdd in list_bdd:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
 
             path = "../../results"+"/"+bdd;
-            pathLLH = path+"/"+"LLH_bestRepetition"
+            #pathLLH = path+"/"+"LLH_bestRepetition"
+            pathLLH = path+"/"+"LLH_1"
             _, layers, _ = hl.configModel(model_name, weight)
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             
