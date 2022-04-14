@@ -34,7 +34,7 @@ import sparsenesslib.plots as plots
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = ['CFD'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = [ 'MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 #list_bdd = ['SCUT-FBP','SMALLTEST','BIGTEST']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
@@ -59,16 +59,19 @@ for bdd in list_bdd:
             #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
            # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
             path = "../../results"+"/"+bdd;
+            pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
             #x = metrics.readCsv(path)
            # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
             #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
             
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             
-            AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], True))
+
+            AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathLabel =pathLabel))
             k += 1
 #            path = "../../results"+"/"+bdd+"\histo"
 #            hl.eachFilePlot(path);
            
         #plots.plotPC(AllPC, list_bdd, layers)
 #####################################################################################
+import main_LLH
