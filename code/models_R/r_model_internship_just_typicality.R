@@ -24,7 +24,7 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 #mettre ça pas en dur a terme mais en paramètres passé au script python (ou pas?)
 
 model_name <- 'VGG16'
-bdd <- 'MART'
+bdd <- 'SCUT-FBP'
 weight <- 'imagenet'
 metric <- 'gini_flatten'
 
@@ -43,7 +43,7 @@ metric <- 'gini_flatten'
          
         #path d'enregistrement des résultats et chargement des données  
 
-        log_path =paste('../../results/',bdd,'/LLH_bestRepetition/LLH_',bdd,'_AllLLH.csv',sep = '')
+        log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="") 
         
         
@@ -116,6 +116,15 @@ metric <- 'gini_flatten'
                                        ,data = df_metrics), trace=0)
         
        print(summary(model))
+       
+       model = lm(rate ~ 
+                               +conv1_1+conv1_2+pool1   
+                       +conv2_1+conv2_2+pool2   
+                       +conv3_1+conv3_2+conv3_3+pool3   
+                       +conv4_1+conv4_2+conv4_3+pool4   
+                       +conv5_1+conv5_2+conv5_3+pool5
+                       +fc6_relu + fc7_relu
+                       ,data = df_metrics)
         
         
 

@@ -1,42 +1,63 @@
-r_model: 
-Pour chaque couche séparément, sans validation croisée, modèle multiple de la fluence + complexité + interaction + effet quadratique fluence + effet quadratique complexité
+SPARSITE + COMPLEXITE:
 
-r_model_10fold_ridge_ACP:
-modèles 10-fold sur les ACP sur les composantes de chaque couche pour 80% de variance, output: BIC AIC R2 pour toutes les couches
+	-r_model: 
+	Pour chaque couche séparément, sans validation croisée, modèle multiple de la fluence + complexité + interaction + effet quadratique fluence + effet quadratique complexité
+	
+	-r_model_LOOCV_glm:
+	C'est la qu'il y a les plots des estimates !!
+	Sur chaque couche, LOOCV de la complexité + gini + interaction entre les deux + effets quadratiques des deux
+	
+	-r_model_LOOCV_glmsans_effet_quadra:
+	idem sans les effets quadratiques
 
-r_model_10fold_ridge_gini: CHANGER NOM
-modèles 10-fold sur les ACP sur les composantes de chaque couche pour des seuils de 20 à 80% de variance expliquée, output: graphes d'AIC/BIC min, R2max (parmis chaque couche) pour chaque % de variance
+	-r_model_LOOCV_glmsans_effet_quadra_ni_complexite:
+	idem sans les effets quadratiques ET la complextié
+	
+	- r_model_LOOCV_ridge:
+	Ridge en LOOCV (ou lasso) sur toutes les couches, sparsité + complexité
+	
+	- r_model_ridge_2db:
+	r2 entre un modèle entrainé sur une db et testé sur une autre (r2 entre la bveauté vraie et la beauté prédite), y = pour toutes les couches, beauté  complexité
 
-r_model_internship:
-models divers, complexité, points d'inflexion, birckoff, acp sur gini des dernières couches de conv, etc (des trucs de la fin du stage) etc
+	- r_model_ridge_3db:
+	idem entre deux db concaténes en train pour prédire une autre
 
-r_model_LOOCV_glm:
-C'est la qu'il y a les plots des estimates !!
-Sur chaque couche, LOOCV de la complexité + gini + interaction entre les deux + effets quadratiques des deux
+	- r_model_ridge_4db:
+	idem avec deux db concaténées en train et 2 db concaténées en test
+		
+	
 
-r_model_LOOCV_glmsans_effet_quadra:
-idem sans les effets quadratiques
+ACP:
 
-r_model_LOOCV_glmsans_effet_quadra_ni_complexite:
-idem sans les effets quadratiques ET la complextié
+	- r_model_10fold_ridge_ACP:
+	modèles 10-fold sur les ACP sur les composantes de chaque couche pour 80% de variance, output: BIC AIC R2 pour toutes les couches
+	
+	- r_model_10fold_ridge_gini: CHANGER NOM
+	modèles 10-fold sur les ACP sur les composantes de chaque couche pour des seuils de 20 à 80% de variance expliquée, output: graphes d'AIC/BIC min, R2max (parmis chaque couche) pour chaque % de 	variance
 
-r_model_LOOCV_ridge:
-Ridge en LOOCV (ou lasso) sur toutes les couches, sparsité + complexité, 
+	- r_model_LOOCV_ridge_ACP:
+	ridge sur les   ACP pour chaque couche, en LOOCV donc infaisable
+	
+	- test_curve_variance_pca:
+	Plot de la variance cumulée des composnates de l'acp pour voir si la forme est cohérente (log), a permis de débuguer le pb d'arrondi, en partie
 
-r_model_LOOCV_ridge_ACP:
-ridge sur les   ACP pour chaque couche, en LOOCV donc infaisable
+AUTRE:
 
-r_model_ridge_2db:
-r2 entre un modèle entrainé sur une db et testé sur une autre (r2 entre la bveauté vraie et la beauté prédite), y = pour toutes les couches, beauté  complexité
+	r_model_internship:
+	models divers, complexité, points d'inflexion, birckoff, acp sur gini des dernières couches de conv, etc (des trucs de la fin du stage) etc
 
-r_model_ridge_3db:
-idem entre deux db concaténes en train pour prédire une autre
 
-r_model_ridge_4db:
-idem avec deux db concaténées en train et 2 db concaténées en test
 
-test_curve_variance_pca:
-Plot de la variance cumulée des composnates de l'acp pour voir si la forme est cohérente (log), a permis de débuguer le pb d'arrondi, en partie
+
+
+
+
+
+
+
+
+
+
 
 
 

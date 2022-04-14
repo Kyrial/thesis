@@ -77,7 +77,7 @@ kfold_gini <- function(bdd, weight, metric, layer, regularization, print_number)
   df_variance = df_variance[,-1]
   
   #définition des seuils, en %
-  variances = c(20,30,40,50,60,70,80)
+  variances = c(30) #c(20,30,40,50,60,70,80)
   var_tresholds = c()
   
   #création d'un vecteur contenant l'indice de la dernière variable pour chaque seuil
@@ -90,13 +90,14 @@ kfold_gini <- function(bdd, weight, metric, layer, regularization, print_number)
   AICs = c()
   BICs = c()
   R_squareds = c()
+  all_models = c()
   
   for (treshold in var_tresholds) {
     ###############################
     # 3.2.3. MODEL: REGRESSION WITH REGULARIZATION (ridge, lasso or elasticnet)
     ###############################
     treshold = treshold + 1 #pour prendre en compte la colonne "rate"
-    print('####TRESHOLD: #####')
+    print('####TRESHOLD:')
     print(treshold)
     
     temp_df = df[,1:treshold]
@@ -119,29 +120,36 @@ kfold_gini <- function(bdd, weight, metric, layer, regularization, print_number)
       model2 = cv.glmnet(x, y, alpha = 0)
     }
     
+    coefs = coef(model2)
+    print(" ## number of nonzero coefficients : ")
+    print(length(coefs@x))
+    print("percentage of non 0 coefficients:")
+    print((length(coefs@x)/treshold)*100)
+    
+    
     criterions =  glmnet_cv_aicc(model2, lambda =  'lambda.min')
     
     AICs = c(AICs, criterions$AICc)
     BICs = c(BICs, criterions$BIC)
     R_squareds = c(R_squareds, r_squared)
-    
   }
   
+ 
   list = list('r_squareds' = R_squareds, 'AIC'= AICs, 'BIC'= BICs)
   return(list)
 }
 #####################################################################################
 # 4. PARAMETERS:
 #####################################################################################
-bdd <- c('SCUT-FBP')
+bdd <- c('CFD')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 layers <-  c( 'block1_conv1','block1_conv2',
               'block2_conv1','block2_conv2',
               'block3_conv1','block3_conv2','block3_conv3',
               'block4_conv1','block4_conv2','block4_conv3',
-              'block5_conv1','block5_conv2','block5_conv3',
-              'fc1','fc2')
+              'block5_conv1','block5_conv2','block5_conv3'
+              )
 regularization <- 'lasso' #ridge for ridge, lasso for lasso, glmnet for elasticnet
 print_number = 200
 
@@ -154,7 +162,7 @@ R_squareds = c()
 AICs = c()
 BICs = c()
 vector_tresholds = c()
-
+models = c()
 ######################
 #5.1 Loop on kfold_gini's function for each layer
 ######################
