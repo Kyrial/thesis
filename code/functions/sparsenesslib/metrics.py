@@ -328,25 +328,27 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
       
     tic = time.perf_counter()    
 
-    for index, row in df_metrics.iterrows():         
+    for index, row in df_metrics.iterrows():
         
         print('a') #flags pour monitorer visuellement le temps d'exécution de chaque étape (en fonction des jeux de données c'est pas au même endroit que ça plante)
         n_comp = 10 #nombre de composantes à calculer, fixé de manière à ce que leur somme soit au moins supérieure à 35  (a passer en paramètres)
         print('b')
         df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T  
-        X = df.values 
+        X = df.values
+        test = row.values
+        testEgalite = X==test
         #print('d')    
         # Centrage et Réduction
         std_scale = preprocessing.StandardScaler().fit(X)
-        #print('e')        
+                
         X_scaled = std_scale.transform(X)
-        #print('f')        
+            
         # Calcul des composantes principales        
         pca = decomposition.PCA(n_components= 0.8)#, svd_solver = 'full')
 
-        #print("g")     
+           
         coordinates = pca.fit_transform(X_scaled)      
-        #print("h") 
+        
         df = pandas.DataFrame(coordinates)
         print("i")
         if pathData == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
@@ -371,8 +373,68 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         getVarienceRatio(pca,bdd, layer, pathData)
         if pathData == '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/':
             pathData = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
-            
+#####################################################################################
+def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData = "../../"):
+    
+    '''
+    A PCA with activations of each layer as features
+    '''
+    
+    #conversion d'un dictionnaire avec chaque image en clé et un vecteur de toutes leurs activations en valeur, en pandas dataframe
+    df_metrics = pandas.DataFrame.from_dict(dict_metrics)     
+      
+    tic = time.perf_counter()    
 
+    for index, row in df_metrics.iterrows():         
+        for featureMap in row:
+            print('a') #flags pour monitorer visuellement le temps d'exécution de chaque étape (en fonction des jeux de données c'est pas au même endroit que ça plante)
+            n_comp = 10 #nombre de composantes à calculer, fixé de manière à ce que leur somme soit au moins supérieure à 35  (a passer en paramètres)
+        
+            df = pandas.DataFrame.from_dict(dict(zip(featureMap.index, featureMap.values))).T  
+            X = df.values
+            do_PCA(X)
+            coordinates = do_PCA(X)
+        
+        df = pandas.DataFrame(coordinates)
+        print("i")
+        if pathData == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
+            pathData = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
+        if block:
+            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pcaBlock", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+layer+".csv")
+        else:
+            print(bdd," show the bdd" )
+
+            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
+
+        #timer pour l'ACP de chaque couche
+        print('############################################################################')
+        toc = time.perf_counter()
+        print(f"time: {toc - tic:0.4f} seconds")
+        print('############################################################################')
+
+        getVarienceRatio(pca,bdd, layer, pathData)
+        if pathData == '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/':
+            pathData = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
+
+
+
+def do_PCA(X):        
+    # Centrage et Réduction
+    std_scale = preprocessing.StandardScaler().fit(X)       
+    X_scaled = std_scale.transform(X)
+            
+    # Calcul des composantes principales        
+    pca = decomposition.PCA(n_components= 0.8)#, svd_solver = 'full')     
+    coordinates = pca.fit_transform(X_scaled)      
+        
+    return pandas.DataFrame(coordinates)
+
+
+######################################
 def getVarienceRatio(pca, bdd, layer, pathData = "../../"):
    
     variance = pca.explained_variance_ratio_ #calculate variance ratios

@@ -169,15 +169,22 @@ def getActivations_for_all_image(model,path, computation, formula, freqmod):
     return imageActivation
 
 
-def get_activation_by_layer(activations,path,dict_output, formula, k, layer):
+def get_activation_by_layer(activations,path,dict_output,computation, formula, k, layer):
     """! a partir du dictionnaire de toutes les activations, extrait la layer choisis
 
     """
     for i, each in enumerate([f for f in os.listdir(path)],  start=1) :
         activations_dict = {}
         
-        acst.compute_flatten(activations[each], activations_dict, layer, formula,k)
-        
+        if computation == 'flatten':
+            acst.compute_flatten(activations[each], activations_dict, layer, formula,k)
+        elif computation == 'featureMap':
+            acst.compute_flatten_byCarte(activations[each], activations_dict, layer, formula,k)
+        else:
+            print('ERROR: Computation setting isnt flatten or featureMap')
+            return -1
+
+
         dict_output[each] = activations_dict
 
 def parse_activations_by_layer(model,path, dict_output, layer, computation, formula, freqmod,k):
@@ -365,7 +372,7 @@ def extract_metrics(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     today = str(today)
     df_metrics.to_json(path_or_buf = log_path+'_'+bdd+'_'+weight+'_'+metric+'_'+'_BRUTMETRICS'+'.csv')
 #####################################################################################
-def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
+def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten'):
     '''
     something like a main, but in a function (with all previous function)
     ,also, load paths, models/weights parameters and write log file
@@ -377,6 +384,7 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     if computer == 'LINUX-ES03':
         computer = '../../'
 
+
     t0 = time.time()
 
     labels_path, images_path, log_path = getPaths(bdd, computer)
@@ -385,7 +393,8 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}
 
-    activations = getActivations_for_all_image(model,images_path,'flatten', metric, freqmod)
+    
+    activations = getActivations_for_all_image(model,images_path,computation, metric, freqmod)
     
 
     for layer in layers:   
@@ -395,15 +404,17 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1):
         #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
         #elle retourne l'array des activations à la couche choisie
         dict_activations = {}
-        get_activation_by_layer(activations,images_path,dict_activations, metric, k, layer)
+        get_activation_by_layer(activations,images_path,dict_activations,computation, metric, k, layer)
         
         #parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
         
         pc = []
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
         #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-        metrics.acp_layers(dict_activations, pc, bdd, layer,False, computer)
-        
+        if computation == 'flatten':
+            metrics.acp_layers(dict_activations, pc, bdd, layer,False, computer)
+        if computation == 'featureMap':
+            metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer,False, computer)
     
     spm.parse_rates(labels_path, dict_labels)
     

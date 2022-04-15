@@ -100,16 +100,16 @@ def compute_flatten(activations, activations_dict,layer,formula,k):
         layer = 'input' + '_' + str(k)
     
     arr = np.array([])
+
     for key, value in activations.items():   # iter on both keys and values
         if key.startswith(layer): #permet de travailler par layer, par block etc..
             arr2 = activations[key].flatten()
             arr = np.append(arr, arr2, 0)
-           
-    
+
     #arr = activations[layer].flatten()
-    if formula == 'L0':    
+    if formula == 'L0':
         activations_dict[layer] = (1 - (norm(arr, 0)/len(arr)))
-    elif formula == 'L1':    
+    elif formula == 'L1':
         activations_dict[layer] = (norm(arr, 1))        
     elif formula == 'treve-rolls':        
         activations_dict[layer] = (metrics.treves_rolls(arr))
@@ -122,8 +122,50 @@ def compute_flatten(activations, activations_dict,layer,formula,k):
     elif formula == 'mean':
         activations_dict[layer] = st.mean(arr) 
     elif formula == 'acp':        
-        activations_dict[layer] = arr               
+        activations_dict[layer] = arr
     else: print('ERROR: formula setting isnt L0, L1, treve-rolls, hoyer, gini, kurtosis, mean or acp')
+
+
+def compute_flatten_byCarte(activations, activations_dict,layer,formula,k):
+    '''
+    Create a flatten vector from each layer and compute chosen formula (gini, treve-rolls, l1 norm...) on it"
+    '''
+    if layer[0:5] == 'input':
+        layer = 'input' + '_' + str(k)
+    
+    
+
+    for key, value in activations.items():   # iter on both keys and values
+        if key.startswith(layer): #permet de travailler par layer, par block etc..
+            shape = activations[key].shape
+            allarr = np.empty([shape[3],shape[1]*shape[2]]) 
+
+            for n in range(activations[key].shape[3]):
+                arr = activations[key][:,:,:,n].flatten()
+                
+                #arr = activations[layer].flatten()
+                if formula == 'L0':
+                    activ = (1 - (norm(arr, 0)/len(arr)))
+                elif formula == 'L1':    
+                    activ = (norm(arr, 1))        
+                elif formula == 'treve-rolls':        
+                    activ = (metrics.treves_rolls(arr))
+                elif formula == 'gini':
+                    activ = (metrics.gini(arr))
+                elif formula == 'hoyer':
+                    activ = (metrics.hoyer(arr))
+                elif formula == 'kurtosis':
+                    activ = (scipy.stats.kurtosis(arr))
+                elif formula == 'mean':
+                    activ = st.mean(arr) 
+                elif formula == 'acp':        
+                    activ = arr               
+                else: print('ERROR: formula setting isnt L0, L1, treve-rolls, hoyer, gini, kurtosis, mean or acp')
+
+                #np.append()
+                allarr[n] = activ
+            activations_dict[layer] = allarr
+
 #####################################################################################
 def compute_channel(activations, activations_dict,layer,formula,k):
     '''
