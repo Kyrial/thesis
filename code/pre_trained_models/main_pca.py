@@ -45,7 +45,7 @@ import sparsenesslib.high_level as hl
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = ['CFD_1']
+list_bdd = ['MART','CFD','JEN']
 #list_bdd = ['SMALLTEST','BIGTEST','CFD','MART','JEN','SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
@@ -69,8 +69,8 @@ for bdd in list_bdd:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
             #hl.extract_pc_acp_block(bdd,weight,metric, model_name, pathData, freqmod,k)
             #k += 1
-            #computation='featureMap'
-            computation='flatten'
+            computation='featureMap'
+            #computation='flatten'
             hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k, computation)
             k += 1
 

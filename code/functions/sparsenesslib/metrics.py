@@ -381,20 +381,33 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
     '''
     
     #conversion d'un dictionnaire avec chaque image en clé et un vecteur de toutes leurs activations en valeur, en pandas dataframe
-    df_metrics = pandas.DataFrame.from_dict(dict_metrics)     
+    df_metrics = pandas.DataFrame.from_dict(dict_metrics)
       
-    tic = time.perf_counter()    
+    tic = time.perf_counter()   
 
-    for index, row in df_metrics.iterrows():         
-        for featureMap in row:
-            print('a') #flags pour monitorer visuellement le temps d'exécution de chaque étape (en fonction des jeux de données c'est pas au même endroit que ça plante)
+    for index, row in df_metrics.iterrows():
+        coordFeature = np.empty([0,row.shape[0]]) 
+        for n, _ in enumerate(row.values[0]):
+            #print('a') #flags pour monitorer visuellement le temps d'exécution de chaque étape (en fonction des jeux de données c'est pas au même endroit que ça plante)
             n_comp = 10 #nombre de composantes à calculer, fixé de manière à ce que leur somme soit au moins supérieure à 35  (a passer en paramètres)
-        
-            df = pandas.DataFrame.from_dict(dict(zip(featureMap.index, featureMap.values))).T  
+            
+            reshape = np.array(row.values.tolist())
+            featureMap = reshape[:,n]
+            df = pandas.DataFrame.from_dict(dict(zip(row.index,featureMap))).T  
             X = df.values
             do_PCA(X)
-            coordinates = do_PCA(X)
-        
+            coordinates, pca = do_PCA(X)
+
+
+                # Centrage et Réduction
+            std_scale = preprocessing.StandardScaler().fit(coordinates)       
+            coordinates_scaled = std_scale.transform(coordinates).T
+            if n == 0:
+                coordFeature = coordinates_scaled
+            else:
+                coordFeature = np.append(coordFeature, coordinates_scaled, 0)
+        coordFeature = coordFeature.T
+        coordinates , pca= do_PCA(coordFeature)
         df = pandas.DataFrame(coordinates)
         print("i")
         if pathData == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
@@ -406,9 +419,9 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
         else:
             print(bdd," show the bdd" )
 
-            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca", exist_ok=True)
+            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
+            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap"+"/"+"pca_values_"+layer+".csv")
 
         #timer pour l'ACP de chaque couche
         print('############################################################################')
@@ -431,7 +444,7 @@ def do_PCA(X):
     pca = decomposition.PCA(n_components= 0.8)#, svd_solver = 'full')     
     coordinates = pca.fit_transform(X_scaled)      
         
-    return pandas.DataFrame(coordinates)
+    return pandas.DataFrame(coordinates),pca
 
 
 ######################################
@@ -443,10 +456,10 @@ def getVarienceRatio(pca, bdd, layer, pathData = "../../"):
     print( var) #cumulative sum of variance explained with [n] features
     df = pandas.DataFrame(variance).transpose()
     df2 = pandas.DataFrame(var).transpose()
-    os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca_variance", exist_ok=True)
+    os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap_variance", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
-    df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_variance"+"/"+"variance"+layer+".csv")
-    df2.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_variance"+"/"+"varianceCumule_"+layer+".csv")
+    df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap_variance"+"/"+"variance"+layer+".csv")
+    df2.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap_variance"+"/"+"varianceCumule_"+layer+".csv")
 
 
 def Acp_densiteProba(dict_metrics, pc, bdd, layer):
