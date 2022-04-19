@@ -176,7 +176,7 @@ def get_activation_by_layer(activations,path,dict_output,computation, formula, k
     for i, each in enumerate([f for f in os.listdir(path)],  start=1) :
         activations_dict = {}
         
-        if computation == 'flatten':
+        if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
             acst.compute_flatten(activations[each], activations_dict, layer, formula,k)
         elif computation == 'featureMap':
             acst.compute_flatten_byCarte(activations[each], activations_dict, layer, formula,k)
