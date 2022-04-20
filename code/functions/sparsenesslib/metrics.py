@@ -351,18 +351,17 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         
         df = pandas.DataFrame(coordinates)
         print("i")
-        if pathData == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
-            pathData = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
+        
         if block:
-            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pcaBlock", exist_ok=True)
+            os.makedirs(pathData+"Block", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+layer+".csv")
+            df.to_csv(pathData+"Block"+"/"+"pca_values_"+layer+".csv")
         else:
             print(bdd," show the bdd" )
 
-            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca", exist_ok=True)
+            os.makedirs(pathData, exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+layer+".csv")
+            df.to_csv(pathData+"/"+"pca_values_"+layer+".csv")
 
         #timer pour l'ACP de chaque couche
         print('############################################################################')
@@ -371,8 +370,7 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         print('############################################################################')
 
         getVarienceRatio(pca,bdd, layer, pathData)
-        if pathData == '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/':
-            pathData = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
+
 #####################################################################################
 def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData = "../../"):
     
@@ -410,18 +408,17 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
         coordinates , pca= do_PCA(coordFeature)
         df = pandas.DataFrame(coordinates)
         print("i")
-        if pathData == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
-            pathData = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
+        
         if block:
-            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pcaBlock", exist_ok=True)
+            os.makedirs(pathData+"Block", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+layer+".csv")
+            df.to_csv(pathData+"Block"+"/"+"pca_values_"+layer+".csv")
         else:
             print(bdd," show the bdd" )
 
-            os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap", exist_ok=True)
+            os.makedirs(pathData+"_FeatureMap", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap"+"/"+"pca_values_"+layer+".csv")
+            df.to_csv(pathData+"_FeatureMap"+"/"+"pca_values_"+layer+".csv")
 
         #timer pour l'ACP de chaque couche
         print('############################################################################')
@@ -430,8 +427,7 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
         print('############################################################################')
 
         getVarienceRatio(pca,bdd, layer, pathData)
-        if pathData == '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/':
-            pathData = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
+        
 
 
 
