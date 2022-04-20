@@ -411,7 +411,7 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         pc = []
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
         #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-        if computation == 'flatten':
+        if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
             metrics.acp_layers(dict_activations, pc, bdd, layer,False, computer)
         if computation == 'featureMap':
             metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer,False, computer)
