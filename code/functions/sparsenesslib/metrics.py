@@ -381,10 +381,12 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
     #conversion d'un dictionnaire avec chaque image en clé et un vecteur de toutes leurs activations en valeur, en pandas dataframe
     df_metrics = pandas.DataFrame.from_dict(dict_metrics)
       
-    tic = time.perf_counter()   
+    tic = time.perf_counter()
+
+    tabnbCP =[]
 
     for index, row in df_metrics.iterrows():
-        coordFeature = np.empty([0,row.shape[0]]) 
+        coordFeature = np.empty([0,row.shape[0]])
         for n, _ in enumerate(row.values[0]):
             #print('a') #flags pour monitorer visuellement le temps d'exécution de chaque étape (en fonction des jeux de données c'est pas au même endroit que ça plante)
             n_comp = 10 #nombre de composantes à calculer, fixé de manière à ce que leur somme soit au moins supérieure à 35  (a passer en paramètres)
@@ -400,6 +402,7 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
                 # Centrage et Réduction
             std_scale = preprocessing.StandardScaler().fit(coordinates)       
             coordinates_scaled = std_scale.transform(coordinates).T
+            tabnbCP.append(coordinates_scaled.shape[0])
             if n == 0:
                 coordFeature = coordinates_scaled
             else:
@@ -407,6 +410,9 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
         coordFeature = coordFeature.T
         coordinates , pca= do_PCA(coordFeature)
         df = pandas.DataFrame(coordinates)
+        nbComp = pandas.DataFrame(tabnbCP)
+        nbComp.columns = [layer]
+        
         print("i")
         
         if block:
@@ -416,10 +422,11 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
         else:
             print(bdd," show the bdd" )
 
-            os.makedirs(pathData+"_FeatureMap", exist_ok=True)
+            os.makedirs(pathData+"", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"_FeatureMap"+"/"+"pca_values_"+layer+".csv")
-
+            df.to_csv(pathData+"/"+"pca_values_"+layer+".csv")
+            #nbComp.to_csv(pathData+"/"+"compPC_"+layer+".csv")
+        return nbComp
         #timer pour l'ACP de chaque couche
         print('############################################################################')
         toc = time.perf_counter()
@@ -452,10 +459,11 @@ def getVarienceRatio(pca, bdd, layer, pathData = "../../"):
     print( var) #cumulative sum of variance explained with [n] features
     df = pandas.DataFrame(variance).transpose()
     df2 = pandas.DataFrame(var).transpose()
-    os.makedirs(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap_variance", exist_ok=True)
+    os.makedirs(pathData+"_variance", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
-    df.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap_variance"+"/"+"variance"+layer+".csv")
-    df2.to_csv(pathData+"results"+"/"+bdd+"/"+"pca_FeatureMap_variance"+"/"+"varianceCumule_"+layer+".csv")
+    df.to_csv(pathData+"_variance"+"/"+"variance"+layer+".csv")
+    df2.to_csv(pathData+"_variance"+"/"+"varianceCumule_"+layer+".csv")
+
 
 
 def Acp_densiteProba(dict_metrics, pc, bdd, layer):

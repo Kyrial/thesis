@@ -400,6 +400,8 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         path= computer+"results"+"/"+bdd+"/pca"
     elif computation == 'featureMap':
         path= computer+"results"+"/"+bdd+"/pca_FeatureMap"
+    
+    nbComp = pandas.DataFrame()
     for layer in layers:
 
         
@@ -415,10 +417,16 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
         #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
         
+
         if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
-            metrics.acp_layers(dict_activations, pc, bdd, layer,False, path)
+            comp = metrics.acp_layers(dict_activations, pc, bdd, layer,False, path)
         elif computation == 'featureMap':
-            metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer,False, path)
+            comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer,False, path)
+        nbComp =  pandas.concat([nbComp,comp],axis = 1)
+        #comp = pandas.DataFrame(comp)
+       # nbComp[layer] = comp
+    #nbComp.columns = [layers]
+    nbComp.to_csv(path+"/"+"compPC.csv")
         
     if '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' in path:
         path = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
@@ -607,11 +615,12 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data
     @return tableau des nbe de PC par couche
     """
     tabPC = []
-    pathPCA = path+"/"+"pca"
+#    pathPCA = path+"/"+"pca"
+    pathPCA = path+"/"+"pca_FeatureMap"
     
 
     pathHist = path+"/"+"histo"
-    pathLLH = path+"/"+"LLH_1"
+    pathLLH = path+"/"+"LLH_FeatureMap"
 
     files = getAllFile(pathPCA, formatOrdre)
 
@@ -647,7 +656,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data
         #CompareAndDoMedian(allLLH,allLLH2)
         
 
-        metrics_melvin.doHist(allLLH, plot = True, name = "distributions des LLH pour GMM")
+        metrics_melvin.doHist(allLLH, plot = False, name = "distributions des LLH pour GMM")
         allLLH = np.array([np.median(allLLH, axis=0)])
 
         #allLLH = metrics_melvin.chooseBestComposante(allLLH)
