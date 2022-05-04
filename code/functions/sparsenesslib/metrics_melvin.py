@@ -158,11 +158,11 @@ def DoMultipleLLH(gmm_kde, X_model, nbe, X_train):
     for i in range(nbe):
         gmm_kde.fit(X_model)
         LLH = gmm_kde.score_samples(X_train); #récupère LLH
-        AllLLH.append(np.transpose(LLH))
-        #LLH_tr = np.transpose([LLH]) #transpose
-        #std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
-        #LLH_tr = std_scale.transform(LLH_tr)
-        #AllLLH.append(np.transpose(LLH_tr)[0])
+        #AllLLH.append(np.transpose(LLH))
+        LLH_tr = np.transpose([LLH]) #transpose
+        std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
+        LLH_tr = std_scale.transform(LLH_tr)
+        AllLLH.append(np.transpose(LLH_tr)[0])
 
 #    AllLLH = np.array(AllLLH)
 #    plots.plot_correlation(AllLLH

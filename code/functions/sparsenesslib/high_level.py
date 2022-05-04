@@ -85,6 +85,10 @@ def getPaths(bdd, pathData):
             labels_path =pathData+'data/redesigned/big_test/labels_bigtest.csv'
             images_path =pathData+'data/redesigned/big_test/images'
             log_path =pathData+'results/bigtest/log_'  
+        elif bdd == 'Fairface':
+            labels_path =pathData+'data/redesigned/Fairface/fairface_label_train.csv'
+            images_path =pathData+'data/redesigned/Fairface/'
+            log_path =pathData+'results/Fairface/log_'  
     return labels_path, images_path, log_path
 
 def configModel(model_name, weight):
@@ -147,13 +151,17 @@ def compute_sparseness_metrics_activations(model, flatten_layers, path, dict_out
 #####################################################################################
 
 
-def getActivations_for_all_image(model,path, computation, formula, freqmod):
+def getActivations_for_all_image(model,path, imgs, computation, formula, freqmod):
     '''! Retourne un dictionnaire par image des activations  
     
     '''
-    print("the path is: ", path)
+
+    
+
+
+    #print("the path is: ", path)
     imageActivation = {}
-    imgs = [f for f in os.listdir(path)]
+    #imgs = [f for f in os.listdir(path)]
     for i, each in enumerate(imgs,  start=1):
         if i%freqmod == 0:         
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
@@ -394,8 +402,11 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}
 
-    
-    activations = getActivations_for_all_image(model,images_path,computation, metric, freqmod)
+    if bdd == "Fairface":
+        imglist = parserFairface(labels_path, ["Female","Asian"])
+    else:
+        imglist = [f for f in os.listdir(images_path)]
+    activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
     if computation == 'flatten':
         path= computer+"results"+"/"+bdd+"/pca"
     elif computation == 'featureMap':
@@ -572,6 +583,13 @@ def analyse_metrics(model_name, computer, bdd, weight, metric,k):
 
 
 def getAllFile(path, formatOrdre = []):
+    """! parcours tout les fichier du repertoire path dans l'ordre indiquer dans formatOrdre
+    @param path chemin du répertoire
+    @param formatOrdre [optionnel] permet de parcourir le repertoire dans un ordre précis:
+        syntaxe: formatOrdre[  prefixe, TabName[], sufixe]
+
+    @return liste des nom des fichiers
+    """
     files = []
     if len(formatOrdre)==0: #ordre de parcours alphabétique
         files = [f for f in os.listdir(path)]    
@@ -582,6 +600,14 @@ def getAllFile(path, formatOrdre = []):
 
 
 def eachFilePlot(path, formatOrdre = []):
+    """! affiche un histogramme des fichier parcouru 
+    [obsolete]
+    @param path chemin du répertoire
+    @param formatOrdre [optionnel] permet de parcourir le repertoire dans un ordre précis:
+        syntaxe: formatOrdre[  prefixe, TabName[], sufixe]
+
+    @return liste des nom des fichiers
+    """
     files =  getAllFile(path, formatOrdre)
     for each in files:
         csv_path = path + "/" + each
@@ -593,6 +619,7 @@ def eachFilePlot(path, formatOrdre = []):
             plots.plotHist_fromFiles(x, head, name =each )
 
 def eachFile(path, formatOrdre = []):
+    #[obsolete]
     files =  getAllFile(path, formatOrdre)
     tabcsv =[]
     for each in files:
@@ -640,7 +667,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data
         gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
         
         #metrics.doVarianceOfGMM(gm, x)
-        allLLH =  metrics_melvin.DoMultipleLLH(gm, model,3,x)
+        allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)
 #        metrics_melvin.doVarianceOfGMM(allLLH, plot = True)
         
         allVar = np.var(allLLH, axis=0) # récup la variance intraImage
@@ -767,7 +794,32 @@ def each_compare_GMM_KDE(path, filesPC):
     return AllSpearman, AllPearson
 
 
-def readCsv(path,noHeader = False):
+def Average(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data/redesigned/CFD/labels_CFD.csv"):
+    """!
+    @param 
+
+    @return 
+    """
+    image = parserFairface(path, filt = ["Female","Asian"])
+    
+
+    pathPCA = path+"/"+"pca_FeatureMap"
+    
+    pathHist = path+"/"+"histo"
+    pathLLH = path+"/"+"LLH_FeatureMap"
+
+    files = getAllFile(pathPCA, formatOrdre)
+
+    for each in files:
+        csv_path = pathPCA + "/" + each
+        x, _ = readCsv(csv_path) #recupère le CSV
+        tabPC.append(x.shape[1])
+
+
+
+
+
+def readCsv(path,noHeader = False,noNumerate = True):
     """
     lit un fichier .csv, convertit toutes les valeurs en float et retourne un numpyArray
     """
@@ -781,8 +833,8 @@ def readCsv(path,noHeader = False):
                         row[i] = float(row[i])
                     except:
                         pass
-
-                row.pop(0)
+                if noNumerate:
+                    row.pop(0)
             if not noHeader:
                 head = rows.pop(0)
             else:
@@ -806,3 +858,8 @@ def getSousBDD(acp, label, min = 0, max=100):
     filterLabel = np.where((label >min) & (label < max), True, False)
     model = acp[filterLabel]
     return model
+
+def parserFairface(path, filt = ["Female","Asian"]):
+    x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
+    filtered = np.array(list(filter(lambda val:( val[2] in filt and filt[1] in val[3] ), x)))
+    return filtered[:,0]

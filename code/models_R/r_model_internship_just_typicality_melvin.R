@@ -14,6 +14,9 @@ library("plyr")
 library("corrplot")
 library("FactoMineR")
 library("dplyr")
+
+library(glmnet)
+
 setwd("/home/renoult/Bureau/thesis/code/functions")
 #####################################################################################
 # 3. PARAMETRES: def analyse_metrics(model_name, bdd, weight, metric,k):

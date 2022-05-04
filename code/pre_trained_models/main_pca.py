@@ -46,6 +46,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
 list_bdd = ['MART','CFD','JEN']
+list_bdd = ['Fairface']
 #list_bdd = ['SMALLTEST']
 #list_bdd = ['SMALLTEST','BIGTEST','CFD','MART','JEN','SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
@@ -67,6 +68,9 @@ l = len(list_bdd)*len(list_weights)*len(list_metrics)
 for bdd in list_bdd:
     for weight in list_weights:
         for metric in list_metrics:
+
+
+
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
             #hl.extract_pc_acp_block(bdd,weight,metric, model_name, pathData, freqmod,k)
             #k += 1
