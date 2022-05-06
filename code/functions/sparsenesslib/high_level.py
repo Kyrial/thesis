@@ -401,11 +401,12 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
 
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}
-
+    print("path :", computer)
     if bdd == "Fairface":
         imglist = parserFairface(labels_path, ["Female","Asian"])
     else:
         imglist = [f for f in os.listdir(images_path)]
+    print("longueur imglist: ", len(imglist))
     activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
     if computation == 'flatten':
         path= computer+"results"+"/"+bdd+"/pca"
