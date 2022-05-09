@@ -160,7 +160,7 @@ def compute_flatten_byCarte(activations, activations_dict,layer,formula,k):
                     activ = (scipy.stats.kurtosis(arr))
                 elif formula == 'mean':
                     activ = st.mean(arr) 
-                elif formula == 'acp':        
+                elif formula == 'acp':   
                     activ = arr               
                 else: print('ERROR: formula setting isnt L0, L1, treve-rolls, hoyer, gini, kurtosis, mean or acp')
 

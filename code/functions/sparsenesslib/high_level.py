@@ -86,7 +86,7 @@ def getPaths(bdd, pathData):
             images_path =pathData+'data/redesigned/big_test/images'
             log_path =pathData+'results/bigtest/log_'  
         elif bdd == 'Fairface':
-            labels_path =pathData+'data/redesigned/Fairface/fairface_label_train.csv'
+            labels_path =pathData+'data/redesigned/Fairface/fairface_label_val.csv'
             images_path =pathData+'data/redesigned/Fairface/'
             log_path =pathData+'results/Fairface/log_'  
     return labels_path, images_path, log_path
@@ -177,11 +177,12 @@ def getActivations_for_all_image(model,path, imgs, computation, formula, freqmod
     return imageActivation
 
 
-def get_activation_by_layer(activations,path,dict_output,computation, formula, k, layer):
+def get_activation_by_layer(activations,imgList,dict_output,computation, formula, k, layer):
     """! a partir du dictionnaire de toutes les activations, extrait la layer choisis
 
     """
-    for i, each in enumerate([f for f in os.listdir(path)],  start=1) :
+    #for i, each in enumerate([f for f in os.listdir(path)],  start=1) :
+    for i, each in enumerate(imgList,  start=1) :
         activations_dict = {}
         
         if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
@@ -397,18 +398,21 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
 
     labels_path, images_path, log_path = getPaths(bdd, computer)
     model, layers, flatten_layers =configModel(model_name, weight)
-    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
-            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
+    
 
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}
     print("path :", computer)
     if bdd == "Fairface":
-        imglist = parserFairface(labels_path, ["Female","Asian"])
+        #imglist = parserFairface(labels_path, ["Female","Asian"])
+        imglist = parserFairface(labels_path)
     else:
         imglist = [f for f in os.listdir(images_path)]
     print("longueur imglist: ", len(imglist))
     activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
+    
+    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
+            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
     if computation == 'flatten':
         path= computer+"results"+"/"+bdd+"/pca"
     elif computation == 'featureMap':
@@ -422,7 +426,7 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
         #elle retourne l'array des activations à la couche choisie
         dict_activations = {}
-        get_activation_by_layer(activations,images_path,dict_activations,computation, metric, k, layer)
+        get_activation_by_layer(activations,imglist,dict_activations,computation, metric, k, layer)
         
         #parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
         
@@ -436,7 +440,7 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         elif computation == 'featureMap':
             comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer,False, path)
         nbComp =  pandas.concat([nbComp,comp],axis = 1)
-        #comp = pandas.DataFrame(comp)
+        #comp = pandas.DataFrame  (comp)
        # nbComp[layer] = comp
     #nbComp.columns = [layers]
     nbComp.to_csv(path+"/"+"compPC.csv")
@@ -863,5 +867,6 @@ def getSousBDD(acp, label, min = 0, max=100):
 
 def parserFairface(path, filt = ["Female","Asian"]):
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
-    filtered = np.array(list(filter(lambda val:( val[2] in filt and filt[1] in val[3] ), x)))
+    filtered = np.array(list(filter(lambda val:( filt[0] in val and filt[1] in val and filt[2] in val), x)))
+    # and print(filt[1]," et ", val)
     return filtered[:,0]
