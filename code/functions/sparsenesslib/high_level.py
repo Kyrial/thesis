@@ -391,13 +391,14 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     '''
     if computer == 'LINUX-ES03':
         computer = '../../'
-    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
-            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
+    
 
     t0 = time.time()
 
     labels_path, images_path, log_path = getPaths(bdd, computer)
     model, layers, flatten_layers =configModel(model_name, weight)
+    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
+            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
 
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}

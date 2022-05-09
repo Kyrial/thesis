@@ -28,7 +28,7 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 #mettre ça pas en dur a terme mais en paramètres passé au script python (ou pas?)
 
 model_name <- 'VGG16'
-bdd <- 'CFD'
+bdd <- 'MART'
 weight <- 'imagenet'
 metric <- 'gini_flatten'
 
