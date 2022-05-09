@@ -867,6 +867,6 @@ def getSousBDD(acp, label, min = 0, max=100):
 
 def parserFairface(path, filt = ["Female","Asian"]):
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
-    filtered = np.array(list(filter(lambda val:( filt[0] in val and filt[1] in val ), x)))
+    filtered = np.array(list(filter(lambda val:( filt[0] in val and filt[1] in val[3] ), x)))
     # and print(filt[1]," et ", val)
     return filtered[:,0]
