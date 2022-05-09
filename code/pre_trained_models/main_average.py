@@ -1,17 +1,4 @@
-#!/usr/bin/env python
-#####################################################################################
-# DESCRIPTION:
-#####################################################################################
-#[EN]Main program of the PCA calculation on the activations of the intermediate layers of VGG16
-#Output: image coordinates for each layer, for the PCA components representing 80% of the explained variance
-#The goal is then to create a model under R (for example an e ridge regression in leave one out cross validation) with these values as explanatory variables and the beauty/attractiveness as variable to explain
-# Loop on the combinatorics of the parameters (databases, weights, model etc)
 
-#[FR]Programme principal du calcul d'ACP sur les activations des couches intermédiaires de VGG16
-#Sortie: coordonnées des images pour chaque couche, pour les composantes de l'ACP représentant 80% de la variance expliquée
-#Le but étant ensuite de créer un modèle sous R (par exemple un e ridge regression en leave one out cross validation) avec ces valeurs en variables explicatives et la beauté/attractivité en variable à expliquer
-# Boucle sur les combinatoires des paramètres (bases de données, poids, modèle etc)
-# Choix de ces paramètres ci dessous. 
 
 #####################################################################################
 # LIBRAIRIES:
@@ -58,7 +45,7 @@ freqmod = 100 #frequency of prints, if 5: print for 1/5 images
 #####################################################################################
 #CODE
 #####################################################################################
-list_metrics = ['acp']
+list_metrics = ['mean']
 k = 1
 
 #pour plots les PC
@@ -77,9 +64,8 @@ for bdd in list_bdd:
             #k += 1
             computation='featureMap'
             #computation='flatten'
-            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k, computation)
+            hl.average(bdd,weight,metric, model_name, pathData, freqmod,k, computation)
             k += 1
 
     
 #####################################################################################
-

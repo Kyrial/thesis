@@ -549,6 +549,71 @@ def extract_pc_acp_filter(bdd,weight,metric, model_name, computer, freqmod,k = 1
     today = str(today)
 
     
+def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten'):
+    """!
+    @param 
+
+    @return 
+    """
+    if computer == 'LINUX-ES03':
+        computer = '../../'
+    
+    t0 = time.time()
+
+    labels_path, images_path, log_path = getPaths(bdd, computer)
+    model, layers, flatten_layers =configModel(model_name, weight)
+    
+
+    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
+    dict_labels = {}
+    print("path :", computer)
+    if bdd == "Fairface":
+        #imglist = parserFairface(labels_path, ["Female","Asian"])
+        imglist = parserFairface(labels_path)
+    else:
+        imglist = [f for f in os.listdir(images_path)]
+    print("longueur imglist: ", len(imglist))
+    activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
+    
+    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
+            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
+    if computation == 'flatten':
+        path= computer+"results"+"/"+bdd+"/average"
+    elif computation == 'featureMap':
+        path= computer+"results"+"/"+bdd+"/average_FeatureMap"
+    
+    nbComp = pandas.DataFrame()
+    for layer in layers:
+
+        
+        print('##### current layer is: ', layer)
+        #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
+        #elle retourne l'array des activations à la couche choisie
+        dict_activations = {}
+        get_activation_by_layer(activations,imglist,dict_activations,computation, metric, k, layer)
+        
+        #parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
+        
+        #pc = []
+        #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
+        #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
+        df = pandas.DataFrame(dict_activations)
+        os.makedirs(path+"", exist_ok=True)
+            #l'enregistrer dans results, en précisant la layer dans le nom
+        df.to_csv(path+"/"+"average_values_"+layer+".csv")
+        #comp = pandas.DataFrame  (comp)
+       # nbComp[layer] = comp
+    #nbComp.columns = [layers]
+    nbComp.to_csv(path+"/"+"compPC.csv")
+        
+    if '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' in path:
+        path = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
+    spm.parse_rates(labels_path, dict_labels)
+    
+    today = date.today()
+    today = str(today)
+
+    
 
     
 #####################################################################################
@@ -799,27 +864,6 @@ def each_compare_GMM_KDE(path, filesPC):
         df.to_csv(pathSpearman+"/corr_spearman.csv")
     return AllSpearman, AllPearson
 
-
-def Average(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data/redesigned/CFD/labels_CFD.csv"):
-    """!
-    @param 
-
-    @return 
-    """
-    image = parserFairface(path, filt = ["Female","Asian"])
-    
-
-    pathPCA = path+"/"+"pca_FeatureMap"
-    
-    pathHist = path+"/"+"histo"
-    pathLLH = path+"/"+"LLH_FeatureMap"
-
-    files = getAllFile(pathPCA, formatOrdre)
-
-    for each in files:
-        csv_path = pathPCA + "/" + each
-        x, _ = readCsv(csv_path) #recupère le CSV
-        tabPC.append(x.shape[1])
 
 
 
