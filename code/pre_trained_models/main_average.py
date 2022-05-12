@@ -36,7 +36,7 @@ list_bdd = ['MART','CFD','JEN']
 list_bdd = ['Fairface']
 #list_bdd = ['CFD']
 
-list_bdd = ['CFD_AF']
+#list_bdd = ['CFD_AF']
 #list_bdd = ['SMALLTEST']
 #list_bdd = ['SMALLTEST','BIGTEST','CFD','MART','JEN','SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
