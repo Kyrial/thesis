@@ -120,7 +120,8 @@ def compute_flatten(activations, activations_dict,layer,formula,k):
     elif formula == 'kurtosis':
         activations_dict[layer] = (scipy.stats.kurtosis(arr))
     elif formula == 'mean':
-        activations_dict[layer] = st.mean(arr) 
+        #activations_dict[layer] = st.mean(arr) 
+        activations_dict[layer] = sum(arr) / len(arr)
     elif formula == 'acp':        
         activations_dict[layer] = arr
     else: print('ERROR: formula setting isnt L0, L1, treve-rolls, hoyer, gini, kurtosis, mean or acp')
@@ -140,7 +141,7 @@ def compute_flatten_byCarte(activations, activations_dict,layer,formula,k):
             
             shape = activations[key].shape
             if formula == 'mean':
-                allarr = np.empty([shape[3]])
+                allarr = np.empty(shape[3])#.tolist()
             else:
                 allarr = np.empty([shape[3],shape[1]*shape[2]])
 
@@ -161,8 +162,9 @@ def compute_flatten_byCarte(activations, activations_dict,layer,formula,k):
                 elif formula == 'kurtosis':
                     activ = (scipy.stats.kurtosis(arr))
                 elif formula == 'mean':
-                    activ = st.mean(arr) 
-                elif formula == 'acp':   
+                    #activ = st.mean(arr) 
+                    activ = sum(arr) / len(arr)
+                elif formula == 'acp':
                     activ = arr
 
                 else: print('ERROR: formula setting isnt L0, L1, treve-rolls, hoyer, gini, kurtosis, mean or acp')

@@ -73,7 +73,7 @@ def getPaths(bdd, pathData):
         if pathData == 'LINUX-ES03':
             pathData = '../../'
 
-        if bdd in ['CFD','JEN','SCUT-FBP','MART','CFD_1']:
+        if bdd in ['CFD','JEN','SCUT-FBP','MART','CFD_1','CFD_AF']:
             labels_path =pathData+'data/redesigned/'+bdd+'/labels_'+bdd+'.csv'
             images_path =pathData+'data/redesigned/'+bdd+'/images'
             log_path =pathData+'results/'+bdd+'/log_'
@@ -86,7 +86,7 @@ def getPaths(bdd, pathData):
             images_path =pathData+'data/redesigned/big_test/images'
             log_path =pathData+'results/bigtest/log_'  
         elif bdd == 'Fairface':
-            labels_path =pathData+'data/redesigned/Fairface/fairface_label_val.csv'
+            labels_path =pathData+'data/redesigned/Fairface/fairface_label_train.csv'
             images_path =pathData+'data/redesigned/Fairface/'
             log_path =pathData+'results/Fairface/log_'  
     return labels_path, images_path, log_path
@@ -186,6 +186,8 @@ def get_activation_by_layer(activations,imgList,dict_output,computation, formula
         activations_dict = {}
         
         if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
+            if formula == "mean":
+                formula = "acp"
             acst.compute_flatten(activations[each], activations_dict, layer, formula,k)
         elif computation == 'featureMap':
             acst.compute_flatten_byCarte(activations[each], activations_dict, layer, formula,k)
@@ -583,8 +585,9 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
         path= computer+"results"+"/"+bdd+"/average_FeatureMap"
     
     nbComp = pandas.DataFrame()
+    #layers = ['fc1','fc2','flatten']
     for layer in layers:
-
+        
         
         print('##### current layer is: ', layer)
         #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
@@ -597,10 +600,21 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
         #pc = []
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
         #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-        df = pandas.DataFrame(dict_activations)
-        os.makedirs(path+"", exist_ok=True)
+        #df = pandas.DataFrame.from_dict(dict_activations, orient = "index")
+        
+        df_metrics = pandas.DataFrame.from_dict(dict_activations)    
+        for index, row in df_metrics.iterrows():
+            #if index in ['fc1','fc2','flatten']:
+            #    df = pandas.DataFrame.from_dict(dict_activations).T
+            #else:
+            df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T
+
+        #test = list(dict_activations.values())
+        #print(test[0])
+        #df = pandas.DataFrame.from_dict(dict(zip(dict_activations.keys(),dict_activations.values().values()))).T
+            os.makedirs(path+"", exist_ok=True)
             #l'enregistrer dans results, en précisant la layer dans le nom
-        df.to_csv(path+"/"+"average_values_"+layer+".csv")
+            df.to_csv(path+"/"+"average_values_"+layer+".csv")
         #comp = pandas.DataFrame  (comp)
        # nbComp[layer] = comp
     #nbComp.columns = [layers]
@@ -702,7 +716,7 @@ def eachFile(path, formatOrdre = []):
     return tabcsv
 
 
-def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data/redesigned/CFD/labels_CFD.csv"):
+def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method = "pca"):
     """! parcours tout les chifier du repertoire path, fait: mixureGaussian, LLH, tableau des nbe de PC par couche
     
     @param path chemin des CSV a traiter
@@ -713,15 +727,17 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data
     @return tableau des nbe de PC par couche
     """
     tabPC = []
-#    pathPCA = path+"/"+"pca"
-    pathPCA = path+"/"+"pca_FeatureMap"
+    pathPCA = path+"/"+method+"_FeatureMap"
+  #  pathPCA = path+"/"+"pca_FeatureMap"
+    #pathModel = path+"/"+"average_FeatureMap"
     
 
     pathHist = path+"/"+"histo"
-    pathLLH = path+"/"+"LLH_FeatureMap"
+    pathLLH = path+"/"+"LLH_"+method+"_FeatureMap"
 
     files = getAllFile(pathPCA, formatOrdre)
-
+    if pathModel !="":
+        filesModel = getAllFile(pathModel, formatOrdre)
     #label, _ = readCsv(pathLabel, True)
     #label = np.transpose(label)[0]
     arrayIntra = []
@@ -730,8 +746,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data
         csv_path = pathPCA + "/" + each
         x, _ = readCsv(csv_path) #recupère le CSV
         tabPC.append(x.shape[1])
-
-        model = x #getSousBDD(x, label)
+        model, _ = readCsv(pathModel+ "/" + each)
+        #model = x #getSousBDD(x, label)
 
 
         #print('######', each,"     ", x.shape[1])
@@ -764,7 +780,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathLabel = "../../data
         
         if writeLLH:
             import re
-            regex = re.search("((?:pca_values){1})(.*\.csv$)",each)
+            #regex = re.search("((?:pca_values){1})(.*\.csv$)",each)
+            regex = re.search("((?:_values){1})(.*\.csv$)",each)
             layer = regex.group(2)
 
             metrics_melvin.writeLikelihood(allLLH, pathLLH, layer)
@@ -911,6 +928,8 @@ def getSousBDD(acp, label, min = 0, max=100):
 
 def parserFairface(path, filt = ["Female","Asian"]):
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
-    filtered = np.array(list(filter(lambda val:( filt[0] in val and filt[1] in val[3] ), x)))
+    #filtered = np.array(list(filter(lambda val:( filt[0] in val and filt[1] in val[3] ), x)))
+    filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
+#    filtered = np.array(list(filter(lambda val:True, x)))
     # and print(filt[1]," et ", val)
     return filtered[:,0]

@@ -38,7 +38,8 @@ import numpy as np
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = ['CFD'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = ['MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = ['CFD_1']
 #list_bdd =['CFD','MART','JEN','SCUT-FBP']
 #list_bdd =['BIGTEST']
 
@@ -56,7 +57,8 @@ list_metrics = ['acp']
 k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
 
-
+method = "average"
+method = "pca"
 
 
 for bdd in list_bdd:
@@ -66,7 +68,7 @@ for bdd in list_bdd:
 
             path = "../../results"+"/"+bdd;
             #pathLLH = path+"/"+"LLH_bestRepetition"
-            pathLLH = path+"/"+"LLH_FeatureMap"
+            pathLLH = path+"/"+"LLH_"+method+"_FeatureMap"
             _, layers, _ = hl.configModel(model_name, weight)
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             

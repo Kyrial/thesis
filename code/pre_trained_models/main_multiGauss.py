@@ -34,8 +34,8 @@ import sparsenesslib.plots as plots
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = [ 'CFD'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
-#list_bdd = ['SCUT-FBP','SMALLTEST','BIGTEST']
+list_bdd = [ 'MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = ['CFD_AF']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
 list_weights = ['imagenet'] #['vggface','imagenet','vggplace']
@@ -49,6 +49,9 @@ AllPC=[]
 #CODE
 #####################################################################################
 list_metrics = ['acp']
+method = "average"
+method = "pca"
+
 k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
 for bdd in list_bdd:
@@ -59,15 +62,16 @@ for bdd in list_bdd:
             #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
            # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
             path = "../../results"+"/"+bdd;
-            pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
+            #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
+            pathModel = "../../results/Fairface/pca_FeatureMap"
             #x = metrics.readCsv(path)
            # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
             #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
             
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             
-
-            AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathLabel =pathLabel))
+            AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method))
+            #AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathLabel =pathLabel))
             k += 1
 #            path = "../../results"+"/"+bdd+"\histo"
 #            hl.eachFilePlot(path);
