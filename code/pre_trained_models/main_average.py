@@ -33,7 +33,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
 list_bdd = ['MART','CFD','JEN']
-list_bdd = ['Fairface']
+list_bdd = ['CFD']
 #list_bdd = ['CFD']
 
 #list_bdd = ['CFD_AF']

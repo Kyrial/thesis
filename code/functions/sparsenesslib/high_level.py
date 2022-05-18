@@ -34,6 +34,7 @@ import sys
 import statistics as st
 from scipy import stats
 from datetime import date
+from more_itertools import chunked
 import pandas
 import matplotlib.pyplot as plt
 import numpy as np
@@ -248,10 +249,7 @@ def parse_activations_by_filter(model,path, list_output, layer, computation, for
 
 
     for i, each in enumerate(imgs,start=1):
-        
-
-        if i%freqmod == 0:
-            
+        if i%freqmod == 0:         
             print('###### picture n°',i,'/',len(imgs),'for ',formula, ', ', computation)
        
         
@@ -392,20 +390,32 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
 
     Version for compute pca (loop on layers before loop on pictures)    
     '''
-    if computer == 'LINUX-ES03':
-        computer = '../../'
-    
 
     t0 = time.time()
+
+    if computer == 'LINUX-ES03':
+        computer = '../../'
+
 
     labels_path, images_path, log_path = getPaths(bdd, computer)
     model, layers, flatten_layers =configModel(model_name, weight)
     
+    #sur le mesoLR, le chemin d'écriture et de lecture est différent
+    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/': 
+            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
+    
+    #adapte le chemin suivant la methode            
+    if computation == 'flatten':
+        path= computer+"results"+"/"+bdd+"/pca"
+    elif computation == 'featureMap':
+        path= computer+"results"+"/"+bdd+"/pca_FeatureMap"
+
+
 
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}
     print("path :", computer)
-    if bdd == "Fairface":
+    if bdd == "Fairface": #Fairface a une arborescence différente
         #imglist = parserFairface(labels_path, ["Female","Asian"])
         imglist = parserFairface(labels_path)
     else:
@@ -413,12 +423,7 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     print("longueur imglist: ", len(imglist))
     activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
     
-    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
-            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
-    if computation == 'flatten':
-        path= computer+"results"+"/"+bdd+"/pca"
-    elif computation == 'featureMap':
-        path= computer+"results"+"/"+bdd+"/pca_FeatureMap"
+
     
     nbComp = pandas.DataFrame()
     for layer in layers:
@@ -453,6 +458,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     
     today = date.today()
     today = str(today)
+
+#def compute_pc_acp_average()
+
 
 def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     '''
@@ -551,21 +559,34 @@ def extract_pc_acp_filter(bdd,weight,metric, model_name, computer, freqmod,k = 1
     today = str(today)
 
     
-def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten'):
+def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'featureMap'):
     """!
     @param 
 
     @return 
     """
+    t0 = time.time()
+
     if computer == 'LINUX-ES03':
         computer = '../../'
-    
-    t0 = time.time()
+
 
     labels_path, images_path, log_path = getPaths(bdd, computer)
     model, layers, flatten_layers =configModel(model_name, weight)
     
+    #sur le mesoLR, le chemin d'écriture et de lecture est différent
+    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/': 
+            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
+    
+    #adapte le chemin suivant la methode
+    if metric == 'mean':
+        path= computer+"results"+"/"+bdd+"/average"
+    elif metric == 'max':
+        path= computer+"results"+"/"+bdd+"/max"
 
+    if computation == 'featureMap':
+        path= path+"_FeatureMap"
+    
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}
     print("path :", computer)
@@ -575,50 +596,36 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
     else:
         imglist = [f for f in os.listdir(images_path)]
     print("longueur imglist: ", len(imglist))
-    activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
-    
-    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':
-            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
-    if computation == 'flatten':
-        path= computer+"results"+"/"+bdd+"/average"
-    elif computation == 'featureMap':
-        path= computer+"results"+"/"+bdd+"/average_FeatureMap"
-    
-    nbComp = pandas.DataFrame()
-    #layers = ['fc1','fc2','flatten']
-    for layer in layers:
-        
-        
-        print('##### current layer is: ', layer)
-        #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
-        #elle retourne l'array des activations à la couche choisie
-        dict_activations = {}
-        get_activation_by_layer(activations,imglist,dict_activations,computation, metric, k, layer)
-        
-        #parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
-        
-        #pc = []
-        #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
-        #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-        #df = pandas.DataFrame.from_dict(dict_activations, orient = "index")
-        
-        df_metrics = pandas.DataFrame.from_dict(dict_activations)    
-        for index, row in df_metrics.iterrows():
-            #if index in ['fc1','fc2','flatten']:
-            #    df = pandas.DataFrame.from_dict(dict_activations).T
-            #else:
-            df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T
 
-        #test = list(dict_activations.values())
-        #print(test[0])
-        #df = pandas.DataFrame.from_dict(dict(zip(dict_activations.keys(),dict_activations.values().values()))).T
-            os.makedirs(path+"", exist_ok=True)
-            #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(path+"/"+"average_values_"+layer+".csv")
-        #comp = pandas.DataFrame  (comp)
-       # nbComp[layer] = comp
-    #nbComp.columns = [layers]
-    nbComp.to_csv(path+"/"+"compPC.csv")
+
+    for count, batch in enumerate(list(chunked(imglist,100))):
+        print(count, batch)
+        activations = getActivations_for_all_image(model,images_path,batch,computation, metric, freqmod)
+
+
+        #layers = ['fc1','fc2','flatten']
+        for layer in layers:
+        
+        
+            print('##### current layer is: ', layer)
+            #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
+            #elle retourne l'array des activations à la couche choisie
+            dict_activations = {}
+            get_activation_by_layer(activations,batch,dict_activations,computation, metric, k, layer)
+        
+            df_metrics = pandas.DataFrame.from_dict(dict_activations)    
+            for index, row in df_metrics.iterrows():
+
+                df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T
+
+
+                os.makedirs(path+"", exist_ok=True)
+                #l'enregistrer dans results, en précisant la layer dans le nom
+                if count == 0:
+                    df.to_csv(path+"/"+"average_values_"+layer+".csv")
+                else:
+                    df.to_csv(path+"/"+"average_values_"+layer+".csv",mode='a', header=False)
+
         
     if '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' in path:
         path = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
@@ -742,17 +749,18 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     #label = np.transpose(label)[0]
     arrayIntra = []
     arrayInter = []
-    for each in files:
+    #for each in files:
+    for each in ["average_values_fc1.csv","average_values_fc2.csv","average_values_flatten.csv"]:
         csv_path = pathPCA + "/" + each
         x, _ = readCsv(csv_path) #recupère le CSV
         tabPC.append(x.shape[1])
-        model, _ = readCsv(pathModel+ "/" + each)
-        #model = x #getSousBDD(x, label)
+        #model, _ = readCsv(pathModel+ "/" + each)
+        model = x #getSousBDD(x, label)
 
 
         #print('######', each,"     ", x.shape[1])
         gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
-        
+        print("gauss")
         #metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)
 #        metrics_melvin.doVarianceOfGMM(allLLH, plot = True)
@@ -770,12 +778,12 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         #CompareAndDoMedian(allLLH,allLLH2)
         
 
-        metrics_melvin.doHist(allLLH, plot = False, name = "distributions des LLH pour GMM")
+        #metrics_melvin.doHist(allLLH, plot = False, name = "distributions des LLH pour GMM")
         allLLH = np.array([np.median(allLLH, axis=0)])
-
+        #plots.plotHist(np.array([LLH_KDE,LLH_GMM[0]]), name= "distribution des LLH\n KDE")
         #allLLH = metrics_melvin.chooseBestComposante(allLLH)
         #allLLH =metrics.removeOutliers(allLLH)
-        #allHist, legend = metrics_melvin.doHist(allLLH, false, "distributions des LLH pour GMM")
+        #allHist, legend = metrics_melvin.FdoHist(allLLH, false, "distributions des LLH pour GMM")
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
         
         if writeLLH:
@@ -787,7 +795,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
             metrics_melvin.writeLikelihood(allLLH, pathLLH, layer)
        
     
-    plots.plotPC([arrayIntra, arrayInter], ["intra", "inter"], files, title = "moyenne des variance intra et inter image par couche");        
+    #plots.plotPC([arrayIntra, arrayInter], ["intra", "inter"], files, title = "moyenne des variance intra et inter image par couche");        
     return tabPC
         
 def eachFileCSV_Centroid(path, formatOrdre = []):

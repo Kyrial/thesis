@@ -34,8 +34,8 @@ import sparsenesslib.plots as plots
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = [ 'MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
-list_bdd = ['CFD_AF']
+list_bdd = [ 'CFD'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = ['CFD']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
 list_weights = ['imagenet'] #['vggface','imagenet','vggplace']
@@ -50,7 +50,7 @@ AllPC=[]
 #####################################################################################
 list_metrics = ['acp']
 method = "average"
-method = "pca"
+#method = "pca"
 
 k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
@@ -64,6 +64,7 @@ for bdd in list_bdd:
             path = "../../results"+"/"+bdd;
             #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
             pathModel = "../../results/Fairface/pca_FeatureMap"
+            pathModel = ""
             #x = metrics.readCsv(path)
            # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
             #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
@@ -76,6 +77,6 @@ for bdd in list_bdd:
 #            path = "../../results"+"/"+bdd+"\histo"
 #            hl.eachFilePlot(path);
            
-        plots.plotPC(AllPC, list_bdd, layers)
+        #plots.plotPC(AllPC, list_bdd, layers)
 #####################################################################################
 import main_LLH

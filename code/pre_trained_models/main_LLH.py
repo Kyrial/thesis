@@ -32,14 +32,17 @@ import sparsenesslib.metrics_melvin as metrics_melvin
 import sparsenesslib.plots as plots
 import pandas as pd
 import numpy as np
+from sklearn import preprocessing
+import sparsenesslib.metrics_melvin as metrics_melvin
+import sparsenesslib.plots as plots
 #####################################################################################
 #SETTINGS:
 #####################################################################################
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = ['MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
-list_bdd = ['CFD_1']
+list_bdd = ['CFD'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+#list_bdd = ['CFD_1']
 #list_bdd =['CFD','MART','JEN','SCUT-FBP']
 #list_bdd =['BIGTEST']
 
@@ -57,22 +60,63 @@ list_metrics = ['acp']
 k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
 
-method = "average"
-method = "pca"
+
+method = "_FeatureMap"
+method = "_average_FeatureMap"
+#method = ""
+
+
+
+
+
+
+
+
+def do_correlation_LLH(LLH1, LLH2, hist =True):
+   # metrics_melvin.doHist([LLH1,LLH2], plot = True, name = "histogramme GMM et KDE")
+ 
+    plots.plot_correlation([LLH1,LLH2], name = "correlation LLH global et LLH/featureMap ", nameXaxis="LLH global",nameYaxis="LLH/featureMap")
+
+
+
+def each2LLH(path1, path2):
+    AllSpearman = []
+    AllPearson = []
+
+    for each, name in zip(filesLLH,layers):
+        LLH1, _ =hl.readCsv(path1 + "/" + each)
+        LLH2, _= hl.readCsv(path2 + "/" + each)
+        LLH1 =np.transpose(LLH1)[0]
+        LLH2 =np.transpose(LLH2)[0]
+       # do_correlation_LLH(LLH1, LLH2)
+        s, _ = metrics_melvin.spearman( LLH1, LLH2)
+        p, _ = metrics_melvin.pearson( LLH1, LLH2)
+        AllSpearman.append(s )
+        AllPearson.append(p )
+    plots.plotPC([np.array(AllSpearman),np.array(AllPearson)], ["Spearman","Pearson"], layers, "Correlation pour MART entre ACP FeatureMap et Average")
+
+
 
 
 for bdd in list_bdd:
     for weight in list_weights:
         for metric in list_metrics:
+            _, layers, _ = hl.configModel(model_name, weight)
+            filesLLH = hl.getAllFile("", ["LLH__",layers,".csv"])
+
+
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
+            path1 = "../../results"+"/"+bdd+"/"+"LLH"+"_FeatureMap"
+            path2 = "../../results"+"/"+bdd+"/"+"LLH"+method
+            each2LLH(path1, path2)
 
             path = "../../results"+"/"+bdd;
             #pathLLH = path+"/"+"LLH_bestRepetition"
-            pathLLH = path+"/"+"LLH_"+method+"_FeatureMap"
-            _, layers, _ = hl.configModel(model_name, weight)
+            pathLLH = path+"/"+"LLH"+method
+            #_, layers, _ = hl.configModel(model_name, weight)
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             
-            filesLLH = hl.getAllFile("", ["LLH__",layers,".csv"])
+            #filesLLH = hl.getAllFile("", ["LLH__",layers,".csv"])
             
             alldf = pd.DataFrame()
             
@@ -82,5 +126,10 @@ for bdd in list_bdd:
                 #df = pd.DataFrame(x)
                 a = np.transpose(x)[0]
                 alldf[name] = np.transpose(x)[0]
+            #std_scale = preprocessing.StandardScaler().fit(alldf) #centrer reduit
+            #LLH_tr2 = std_scale.transform(alldf)
             alldf = alldf.transpose()
+            std_scale = preprocessing.StandardScaler().fit(alldf) #centrer reduit
+            #LLH_tr = std_scale.transform(alldf)
+            #alldf2 = pd.DataFrame(LLH_tr, index = layers)
             metrics_melvin.writeLikelihood(alldf, pathLLH, bdd+"_AllLLH.csv")

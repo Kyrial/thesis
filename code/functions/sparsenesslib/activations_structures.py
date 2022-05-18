@@ -122,6 +122,7 @@ def compute_flatten(activations, activations_dict,layer,formula,k):
     elif formula == 'mean':
         #activations_dict[layer] = st.mean(arr) 
         activations_dict[layer] = sum(arr) / len(arr)
+
     elif formula == 'acp':        
         activations_dict[layer] = arr
     else: print('ERROR: formula setting isnt L0, L1, treve-rolls, hoyer, gini, kurtosis, mean or acp')
@@ -140,7 +141,7 @@ def compute_flatten_byCarte(activations, activations_dict,layer,formula,k):
         if key.startswith(layer): #permet de travailler par layer, par block etc..
             
             shape = activations[key].shape
-            if formula == 'mean':
+            if formula in ('mean', 'max'):
                 allarr = np.empty(shape[3])#.tolist()
             else:
                 allarr = np.empty([shape[3],shape[1]*shape[2]])
@@ -164,6 +165,8 @@ def compute_flatten_byCarte(activations, activations_dict,layer,formula,k):
                 elif formula == 'mean':
                     #activ = st.mean(arr) 
                     activ = sum(arr) / len(arr)
+                elif formula == "max":
+                    activ = np.amax(arr)
                 elif formula == 'acp':
                     activ = arr
 
