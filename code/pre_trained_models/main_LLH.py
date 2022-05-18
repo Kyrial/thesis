@@ -108,7 +108,7 @@ for bdd in list_bdd:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
             path1 = "../../results"+"/"+bdd+"/"+"LLH"+"_FeatureMap"
             path2 = "../../results"+"/"+bdd+"/"+"LLH"+method
-            each2LLH(path1, path2)
+            #each2LLH(path1, path2)
 
             path = "../../results"+"/"+bdd;
             #pathLLH = path+"/"+"LLH_bestRepetition"

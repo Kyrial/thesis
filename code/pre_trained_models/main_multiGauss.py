@@ -61,9 +61,9 @@ for bdd in list_bdd:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
             #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
            # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
-            path = "../../results"+"/"+bdd;
+            path = pathData+"/results"+"/"+bdd;
             #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
-            pathModel = "../../results/Fairface/pca_FeatureMap"
+            pathModel = pathData+"/results/Fairface/pca_FeatureMap"
             pathModel = ""
             #x = metrics.readCsv(path)
            # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
