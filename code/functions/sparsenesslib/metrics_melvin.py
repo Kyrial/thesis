@@ -110,7 +110,7 @@ def BIC(X, verbose = False, plot = True, nbMaxComp = 20):
 
 
 
-def getMultigaussian(X, plot= [True,True], name ="Gaussian Mixture", index = 1, nbMaxComp = 50):
+def getMultigaussian(X, plot = True, name ="Gaussian Mixture", index = 1, nbMaxComp = 50):
     """! a partir d'un array, calcul le BIC, si plot, appelle MultiDimensionalScaling(X) afin d'obtenir un Array en 2D pour l'afficher
     @param X array de dimension N
     @param [facultatif] plot Boolean, affiche ou nom le graphique
@@ -128,12 +128,13 @@ def getMultigaussian(X, plot= [True,True], name ="Gaussian Mixture", index = 1, 
              #   random_state = 1
       #      )
     #gm.fit(X) 
-    gm = BIC(X, verbose = False, plot = plot[0], nbMaxComp = nbMaxComp)
-    plt.show()
+    gm = BIC(X, verbose = False, plot = plot, nbMaxComp = nbMaxComp)
+    if plot:
+        plt.show()
 
-    if plot[1]:
-        X_MDS = MultiDimensionalScaling(X) 
-        plots.plot_MultiGaussian(llh, index, name, X_MDS)
+    #if plot[1]:
+    #    X_MDS = MultiDimensionalScaling(X) 
+    #    plots.plot_MultiGaussian(llh, index, name, X_MDS)
     return gm
 
 

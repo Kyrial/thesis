@@ -122,7 +122,8 @@ def compute_flatten(activations, activations_dict,layer,formula,k):
     elif formula == 'mean':
         #activations_dict[layer] = st.mean(arr) 
         activations_dict[layer] = sum(arr) / len(arr)
-
+    elif formula == "max":
+        activations_dict[layer] =  np.amax(arr)
     elif formula == 'acp':        
         activations_dict[layer] = arr
     else: print('ERROR: formula setting isnt L0, L1, treve-rolls, hoyer, gini, kurtosis, mean or acp')

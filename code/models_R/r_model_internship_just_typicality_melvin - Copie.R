@@ -28,7 +28,7 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 #mettre ça pas en dur a terme mais en paramètres passé au script python (ou pas?)
 
 model_name <- 'VGG16'
-bdd <- 'CFD'
+bdd <- 'CFD_AF'
 weight <- 'imagenet'
 metric <- 'gini_flatten'
 
@@ -41,15 +41,17 @@ metric <- 'gini_flatten'
                        'block2_conv1','block2_conv2','block2_pool',
                        'block3_conv1','block3_conv2','block3_conv3','block3_pool',
                        'block4_conv1','block4_conv2','block4_conv3','block4_pool',
-                       'block5_conv1','block5_conv2','block5_conv3','block5_pool',
-                       'flatten','fc1', 'fc2')
+                       'block5_conv1','block5_conv2','block5_conv3','block5_pool'
+                     #  ,'flatten','fc1', 'fc2'
+                     )
           
          
         #path d'enregistrement des résultats et chargement des données  
         
         labels_path = paste('../../data/redesigned/',bdd,'/labels_',bdd,'.csv', sep='')
         log_path =paste('../../results/',bdd,'/LLH_FeatureMap/LLH_',bdd,'_AllLLH.csv',sep = '')
-        #log_path =paste('../../results/',bdd,'/LLH_average_FeatureMap/LLH_',bdd,'_AllLLH.csv',sep = '')
+        #log_path =paste('../../results/',bdd,'/LLH_max/LLH_',bdd,'_AllLLH.csv',sep = '')
+        #log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="")
         
@@ -58,15 +60,20 @@ metric <- 'gini_flatten'
         colnames(matrix_metrics)[2] <- 'input_1'
         
        
+        matrix_beauty <- do.call(cbind,read.csv(file=labels_path, header=FALSE))
+        colnames(matrix_beauty) <- c("img","rate")
+        df_beauty <-subset(matrix_beauty, select = c(rate))
         
         
         #on récupère les notes de beauté
-        matrix_beauty <- do.call(cbind, fromJSON(file = paste(log_path_rate,'_',bdd,'_',weight,'_',metric,'_','_BRUTMETRICS','.csv',sep=""),simplify = FALSE))
-        df_beauty <- as.data.frame(matrix_beauty, optional = TRUE)
-        df_beauty = sapply(df_beauty, as.numeric)
-        df_beauty <- as.data.frame(df_beauty)
-        df = cbind(df_beauty$rate, matrix_metrics)
-        df <- plyr::rename(df, c("df_beauty$rate" = "rate"))
+      #  matrix_beauty <- do.call(cbind, fromJSON(file = paste(log_path_rate,'_',bdd,'_',weight,'_',metric,'_','_BRUTMETRICS','.csv',sep=""),simplify = FALSE))
+      #  df_beauty <- as.data.frame(matrix_beauty, optional = TRUE)
+      #  df_beauty = sapply(df_beauty, as.numeric)
+      #  df_beauty <- as.data.frame(df_beauty)
+      #  df = cbind(df_beauty$rate, matrix_metrics)
+        
+        df = cbind(df_beauty, matrix_metrics)
+        #df <- plyr::rename(df, c("df_beauty$rate" = "rate"))
         df <- df[,-2]
         
         
@@ -97,10 +104,11 @@ metric <- 'gini_flatten'
                                           'conv5_1' = 'block5_conv1',
                                           'conv5_2' = 'block5_conv2',
                                          'conv5_3' =  'block5_conv3',
-                                          'pool5' = 'block5_pool',
-                                          'flatten' = 'flatten',
-                                          'fc6_relu' = 'fc1',
-                                          'fc7_relu' = 'fc2'))
+                                          'pool5' = 'block5_pool'
+                                       #   ,'flatten' = 'flatten',
+                                      #    'fc6_relu' = 'fc1',
+                                      #    'fc7_relu' = 'fc2'
+                                         ))
           
         }
         print(paste('parameters are:',bdd,'-',weight,'-',metric, sep = ""))
@@ -116,7 +124,9 @@ metric <- 'gini_flatten'
         #####################################################################################
         # MODELE LINEAIRE
         #####################################################################################
-        model = lm(rate ~ +conv1_1+conv1_2    +conv2_1+conv2_2+conv3_1+conv3_2+conv3_3+conv4_1+conv4_2+conv4_3+conv5_1+conv5_2+conv5_3+fc6_relu+fc7_relu,data = df_metrics)
+        model = lm(rate ~ +conv1_1+conv1_2+conv2_1+conv2_2+conv3_1+conv3_2+conv3_3+conv4_1+conv4_2+conv4_3+conv5_1+conv5_2+conv5_3
+                   #+fc6_relu+fc7_relu
+                   ,data = df_metrics)
         #ajouter les couches dense
        print(summary(model))
         
@@ -126,7 +136,9 @@ metric <- 'gini_flatten'
        train = df_metrics[index,] # Create the training data 
        test = df_metrics[-index,] # Create the test data
        
-       cols_reg = c("rate", "conv1_1","conv1_2","conv2_1","conv2_2","conv3_1","conv3_2","conv3_3","conv4_1","conv4_2","conv4_3","conv5_1","conv5_2","conv5_3","fc6_relu","fc7_relu")
+       cols_reg = c("rate", "conv1_1","conv1_2","conv2_1","conv2_2","conv3_1","conv3_2","conv3_3","conv4_1","conv4_2","conv4_3","conv5_1","conv5_2","conv5_3"
+                    #,"fc6_relu","fc7_relu"
+                    )
        
        dummies <- dummyVars(rate ~ ., data = df_metrics[,cols_reg])
        

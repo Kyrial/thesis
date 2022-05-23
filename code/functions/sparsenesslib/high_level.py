@@ -187,7 +187,7 @@ def get_activation_by_layer(activations,imgList,dict_output,computation, formula
         activations_dict = {}
         
         if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
-            if formula == "mean":
+            if formula in ['mean', 'max']:
                 formula = "acp"
             acst.compute_flatten(activations[each], activations_dict, layer, formula,k)
         elif computation == 'featureMap':
@@ -443,9 +443,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         
 
         if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
-            comp = metrics.acp_layers(dict_activations, pc, bdd, layer,False, path)
+            comp = metrics.acp_layers(dict_activations, pc, bdd, layer, path)
         elif computation == 'featureMap':
-            comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer,False, path)
+            comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path)
         nbComp =  pandas.concat([nbComp,comp],axis = 1)
         #comp = pandas.DataFrame  (comp)
        # nbComp[layer] = comp
@@ -578,27 +578,41 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
     if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/': 
             computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
     
-    #adapte le chemin suivant la methode
-    if metric == 'mean':
-        path= computer+"results"+"/"+bdd+"/average"
-    elif metric == 'max':
-        path= computer+"results"+"/"+bdd+"/max"
 
-    if computation == 'featureMap':
-        path= path+"_FeatureMap"
+
+
     
-    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
-    dict_labels = {}
-    print("path :", computer)
     if bdd == "Fairface":
-        #imglist = parserFairface(labels_path, ["Female","Asian"])
-        imglist = parserFairface(labels_path)
+        filt = {'ethnie' : "Asian", 'genre' : "Female"}
+        imglist = parserFairface(labels_path,filt)
+        #imglist = parserFairface(labels_path)
+        for key, item in filt.items():
+            if bdd == "Fairface":
+                bdd = bdd+"_"
+            bdd = bdd+item[0]
     else:
         imglist = [f for f in os.listdir(images_path)]
     print("longueur imglist: ", len(imglist))
 
+        # adapte le chemin suivant la methode 
+    # 
+    if metric == 'mean':
+        path= computer+"results"+"/"+bdd+"/average"
+        namefile =  "average"
+    elif metric == 'max':
+        path= computer+"results"+"/"+bdd+"/max"
+        namefile =  "max"
+    print("path :", computer)
+    #if computation == 'featureMap' and metric = 'acp':
+    #    path= path+"_FeatureMap"
+    
+    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
+    dict_labels = {}
+
+
 
     for count, batch in enumerate(list(chunked(imglist,100))):
+        
         print(count, batch)
         activations = getActivations_for_all_image(model,images_path,batch,computation, metric, freqmod)
 
@@ -622,9 +636,10 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
                 os.makedirs(path+"", exist_ok=True)
                 #l'enregistrer dans results, en précisant la layer dans le nom
                 if count == 0:
-                    df.to_csv(path+"/"+"average_values_"+layer+".csv")
+                    df.to_csv(path+"/"+namefile+"_values_"+layer+".csv")
                 else:
-                    df.to_csv(path+"/"+"average_values_"+layer+".csv",mode='a', header=False)
+                    df.to_csv(path+"/"+namefile+"_values_"+layer+".csv",mode='a', header=False)
+            #gc.collect(generation = 2)
 
         
     if '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' in path:
@@ -734,13 +749,13 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     @return tableau des nbe de PC par couche
     """
     tabPC = []
-    pathPCA = path+"/"+method+"_FeatureMap"
+    pathPCA = path+"/"+method
   #  pathPCA = path+"/"+"pca_FeatureMap"
     #pathModel = path+"/"+"average_FeatureMap"
     
 
     pathHist = path+"/"+"histo"
-    pathLLH = path+"/"+"LLH_"+method+"_FeatureMap"
+    pathLLH = path+"/"+"LLH_"+method
 
     files = getAllFile(pathPCA, formatOrdre)
     if pathModel !="":
@@ -749,17 +764,17 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     #label = np.transpose(label)[0]
     arrayIntra = []
     arrayInter = []
-    #for each in files:
-    for each in ["average_values_fc1.csv","average_values_fc2.csv","average_values_flatten.csv"]:
+    for each in files:
+    #for each in ["average_values_fc1.csv","average_values_fc2.csv","average_values_flatten.csv"]:
         csv_path = pathPCA + "/" + each
         x, _ = readCsv(csv_path) #recupère le CSV
         tabPC.append(x.shape[1])
         #model, _ = readCsv(pathModel+ "/" + each)
         model = x #getSousBDD(x, label)
 
-
+        lll = model.shape[0]//2
         #print('######', each,"     ", x.shape[1])
-        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot=[False,False], nbMaxComp =10)
+        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp =min(12,model.shape[0]//2))
         print("gauss")
         #metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)
@@ -933,11 +948,26 @@ def getSousBDD(acp, label, min = 0, max=100):
     filterLabel = np.where((label >min) & (label < max), True, False)
     model = acp[filterLabel]
     return model
+'''
+    def parserFairface(path, filt = ["Female","Asian"]):
+        x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
+        filtered = np.array(list(filter(lambda val:( filt[0] in val and filt[1] in val[3] ), x)))
+        #filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
+    #    filtered = np.array(list(filter(lambda val:True, x)))
+        # and print(filt[1]," et ", val)
+        print(filtered[-1])
+        return filtered[:,0]
+'''
 
-def parserFairface(path, filt = ["Female","Asian"]):
+def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
-    #filtered = np.array(list(filter(lambda val:( filt[0] in val and filt[1] in val[3] ), x)))
-    filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
+    filtered = np.array(list(filter(lambda val:(
+       (filt.get('genre','') in val or len(filt.get('genre','')) == 0) #soit match soit list vide
+       and 
+       (filt.get('ethnie','') in val[3] or len(filt.get('ethnie','')) == 0))
+                                    , x)))
+    #filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
 #    filtered = np.array(list(filter(lambda val:True, x)))
     # and print(filt[1]," et ", val)
+    print(filtered[-1])
     return filtered[:,0]

@@ -317,7 +317,7 @@ def inflexion_points(df_metrics,dict_labels):
     df2 = pandas.DataFrame.from_dict(dict_inflexions, orient='index', columns = ['reglog'] ) 
     return pandas.concat([df1, df2], axis = 1)  
 #####################################################################################
-def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../"):
+def acp_layers(dict_metrics, pc, bdd, layer, pathData = "../../", saveModele = False):
     
     '''
     A PCA with activations of each layer as features
@@ -325,7 +325,6 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
     
     #conversion d'un dictionnaire avec chaque image en clé et un vecteur de toutes leurs activations en valeur, en pandas dataframe
     df_metrics = pandas.DataFrame.from_dict(dict_metrics)     
-      
     tic = time.perf_counter()    
 
     for index, row in df_metrics.iterrows():
@@ -335,33 +334,23 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         print('b')
         df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T  
         X = df.values
-        test = row.values
-        testEgalite = X==test
+        
         #print('d')    
-        # Centrage et Réduction
-        std_scale = preprocessing.StandardScaler().fit(X)
-                
-        X_scaled = std_scale.transform(X)
-            
-        # Calcul des composantes principales        
-        pca = decomposition.PCA(n_components= 0.8)#, svd_solver = 'full')
-
-           
-        coordinates = pca.fit_transform(X_scaled)      
         
-        df = pandas.DataFrame(coordinates)
-        print("i")
+        pc, pca = do_PCA(X)
         
-        if block:
-            os.makedirs(pathData+"Block", exist_ok=True)
-            #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"Block"+"/"+"pca_values_"+layer+".csv")
-        else:
-            print(bdd," show the bdd" )
+       
+        print("sauvegarde des restulats")
+        os.makedirs(pathData, exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+        pc.to_csv(pathData+"/"+"pca_values_"+layer+".csv")
+        
+        if saveModele:
+            print("sauvegarde le modele")
+            os.makedirs(pathData+"/Modele", exist_ok=True)
+            dump(pca_model, pathData+"/Modele"+"/"+layer+'_pca_model.joblib')
 
-            os.makedirs(pathData, exist_ok=True)
-            #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"/"+"pca_values_"+layer+".csv")
+
 
         #timer pour l'ACP de chaque couche
         print('############################################################################')
@@ -372,7 +361,7 @@ def acp_layers(dict_metrics, pc, bdd, layer, block = False, pathData = "../../")
         getVarienceRatio(pca,bdd, layer, pathData)
 
 #####################################################################################
-def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData = "../../"):
+def acp_layers_featureMap(dict_metrics, pc, bdd, layer, pathData = "../../", saveModele = False):
     
     '''
     A PCA with activations of each layer as features
@@ -380,10 +369,8 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
     
     #conversion d'un dictionnaire avec chaque image en clé et un vecteur de toutes leurs activations en valeur, en pandas dataframe
     df_metrics = pandas.DataFrame.from_dict(dict_metrics)
-      
-    tic = time.perf_counter()
 
-    tabnbCP =[]
+    tic = time.perf_counter()
 
     for index, row in df_metrics.iterrows():
         coordFeature = np.empty([0,row.shape[0]])
@@ -395,38 +382,34 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
             featureMap = reshape[:,n]
             df = pandas.DataFrame.from_dict(dict(zip(row.index,featureMap))).T  
             X = df.values
-            do_PCA(X)
-            coordinates, pca = do_PCA(X)
+            pc, pca = do_PCA(X)
+            if saveModele:
+                print("sauvegarde le modèle")
+                os.makedirs(pathData+"/Modele", exist_ok=True)
+                dump(pca_model, pathData+"/Modele"+"/"+layer+'_'+n +'_pca_model.joblib')
 
 
                 # Centrage et Réduction
-            std_scale = preprocessing.StandardScaler().fit(coordinates)       
-            coordinates_scaled = std_scale.transform(coordinates).T
-            tabnbCP.append(coordinates_scaled.shape[0])
+            std_scale = preprocessing.StandardScaler().fit(pc)       
+            coordinates_scaled = std_scale.transform(pc).T
+            
             if n == 0:
                 coordFeature = coordinates_scaled
             else:
                 coordFeature = np.append(coordFeature, coordinates_scaled, 0)
         coordFeature = coordFeature.T
-        coordinates , pca= do_PCA(coordFeature)
-        df = pandas.DataFrame(coordinates)
-        nbComp = pandas.DataFrame(tabnbCP)
-        nbComp.columns = [layer]
-        
-        print("i")
-        
-        if block:
-            os.makedirs(pathData+"Block", exist_ok=True)
-            #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"Block"+"/"+"pca_values_"+layer+".csv")
-        else:
-            print(bdd," show the bdd" )
+        pc , pca= do_PCA(coordFeature)
 
-            os.makedirs(pathData+"", exist_ok=True)
-            #l'enregistrer dans results, en précisant la layer dans le nom
-            df.to_csv(pathData+"/"+"pca_values_"+layer+".csv")
-            #nbComp.to_csv(pathData+"/"+"compPC_"+layer+".csv")
-        return nbComp
+        print(bdd," show the bdd" )
+        os.makedirs(pathData+"", exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+        pc.to_csv(pathData+"/"+"pca_values_"+layer+".csv")
+
+        if saveModele:
+            print("sauvegarde le modèle")
+            os.makedirs(pathData+"/Modele", exist_ok=True)
+            dump(pca_model, pathData+"/Modele"+"/"+layer+'_pca_model.joblib')
+
         #timer pour l'ACP de chaque couche
         print('############################################################################')
         toc = time.perf_counter()
@@ -434,18 +417,127 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, block = False, pathData 
         print('############################################################################')
 
         getVarienceRatio(pca,bdd, layer, pathData)
+
+#################################################
+##ACP avec modèle de référence charger
+#################################################
+def acp_layers_loadModele(dict_metrics, pc, bdd, layer, pathData = "../../", modelePath=""):
+    
+    '''
+    A PCA with activations of each layer as features
+    '''
+    
+    #conversion d'un dictionnaire avec chaque image en clé et un vecteur de toutes leurs activations en valeur, en pandas dataframe
+    df_metrics = pandas.DataFrame.from_dict(dict_metrics)     
+    tic = time.perf_counter()    
+
+    for index, row in df_metrics.iterrows():
         
+        print('a') #flags pour monitorer visuellement le temps d'exécution de chaque étape (en fonction des jeux de données c'est pas au même endroit que ça plante)
+        n_comp = 10 #nombre de composantes à calculer, fixé de manière à ce que leur somme soit au moins supérieure à 35  (a passer en paramètres)
+        print('b')
+        df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T  
+        X = df.values
+        
+        
+        #Load Modele ###
+        pca = joblib.load(modelePath+"/Modele"+"/"+layer+'_pca_model.joblib', mmap_mode=None)
+        pc, pca = do_PCA(X,pca)
+        
+       
+        print("sauvegarde des restulats")
+        os.makedirs(pathData, exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+        pc.to_csv(pathData+"/"+"pca_values_"+layer+".csv")
+        
+        
+        #timer pour l'ACP de chaque couche
+        print('############################################################################')
+        toc = time.perf_counter()
+        print(f"time: {toc - tic:0.4f} seconds")
+        print('############################################################################')
+
+        getVarienceRatio(pca,bdd, layer, pathData)
 
 
 
-def do_PCA(X):        
+def acp_layers_featureMap_oadModele(dict_metrics, pc, bdd, layer, pathData = "../../", modelePath=""):
+    
+    '''
+    A PCA with activations of each layer as features
+    '''
+    
+    #conversion d'un dictionnaire avec chaque image en clé et un vecteur de toutes leurs activations en valeur, en pandas dataframe
+    df_metrics = pandas.DataFrame.from_dict(dict_metrics)
+
+    tic = time.perf_counter()
+
+    for index, row in df_metrics.iterrows():
+        coordFeature = np.empty([0,row.shape[0]])
+        for n, _ in enumerate(row.values[0]):
+            #print('a') #flags pour monitorer visuellement le temps d'exécution de chaque étape (en fonction des jeux de données c'est pas au même endroit que ça plante)
+            n_comp = 10 #nombre de composantes à calculer, fixé de manière à ce que leur somme soit au moins supérieure à 35  (a passer en paramètres)
+            
+            reshape = np.array(row.values.tolist())
+            featureMap = reshape[:,n]
+            df = pandas.DataFrame.from_dict(dict(zip(row.index,featureMap))).T  
+            X = df.values
+
+            #Load Modele ###
+            pca = joblib.load(modelePath+"/Modele"+"/"+layer+'_'+n +'_pca_model.joblib', mmap_mode=None)
+            pc, pca = do_PCA(X,pca)
+            
+
+
+                # Centrage et Réduction
+            std_scale = preprocessing.StandardScaler().fit(pc)       
+            coordinates_scaled = std_scale.transform(pc).T
+            
+            if n == 0:
+                coordFeature = coordinates_scaled
+            else:
+                coordFeature = np.append(coordFeature, coordinates_scaled, 0)
+        coordFeature = coordFeature.T
+
+        #Load Modele ###
+        pca = joblib.load(modelePath+"/Modele"+"/"+layer+'_pca_model.joblib', mmap_mode=None)
+        pc , pca= do_PCA(coordFeature, pca)
+
+        print(bdd," show the bdd" )
+        os.makedirs(pathData+"", exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+        pc.to_csv(pathData+"/"+"pca_values_"+layer+".csv")
+
+
+        #timer pour l'ACP de chaque couche
+        print('############################################################################')
+        toc = time.perf_counter()
+        print(f"time: {toc - tic:0.4f} seconds")
+        print('############################################################################')
+
+        getVarienceRatio(pca,bdd, layer, pathData)
+
+
+
+
+
+def do_PCA(X, modele= None):
+    '''! centre réduit puis effectue l'acp sur X
+
+    return: retourne le résultat sous forme de dataframe, et l'objet PCA
+    '''
     # Centrage et Réduction
     std_scale = preprocessing.StandardScaler().fit(X)       
     X_scaled = std_scale.transform(X)
             
+    if modele ==None:
     # Calcul des composantes principales        
-    pca = decomposition.PCA(n_components= 0.8)#, svd_solver = 'full')     
-    coordinates = pca.fit_transform(X_scaled)      
+        pca = decomposition.PCA(n_components= 0.8)#, svd_solver = 'full')
+        pca.fit(X_scaled)
+    else:
+        pca = modele
+        
+    coordinates = pca.transform(X_scaled)
         
     return pandas.DataFrame(coordinates),pca
 
@@ -454,7 +546,6 @@ def do_PCA(X):
 def getVarienceRatio(pca, bdd, layer, pathData = "../../"):
    
     variance = pca.explained_variance_ratio_ #calculate variance ratios
-
     var=np.cumsum(pca.explained_variance_ratio_) * 100
     print( var) #cumulative sum of variance explained with [n] features
     df = pandas.DataFrame(variance).transpose()
