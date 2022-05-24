@@ -67,7 +67,8 @@ for bdd in list_bdd:
             path = pathData+"/results"+"/"+bdd;
             #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
             pathModel = pathData+"/results/Fairface/pca_FeatureMap"
-            pathModel = ""
+            pathModel = pathData+"/results/Fairface_AF/average"
+            #pathModel = ""
             #x = metrics.readCsv(path)
            # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
             #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")

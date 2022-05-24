@@ -48,6 +48,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 list_bdd = ['MART','CFD','JEN']
 list_bdd = ['Fairface']
 list_bdd = ['CFD_AF']
+list_bdd = ['SMALLTEST']
 #list_bdd = ['SMALLTEST']
 #list_bdd = ['SMALLTEST','BIGTEST','CFD','MART','JEN','SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
@@ -77,7 +78,7 @@ for bdd in list_bdd:
             #k += 1
             computation='featureMap'
             #computation='flatten'
-            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k, computation)
+            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k, computation,saveModele = True)
             k += 1
 
     

@@ -381,7 +381,7 @@ def extract_metrics(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     today = str(today)
     df_metrics.to_json(path_or_buf = log_path+'_'+bdd+'_'+weight+'_'+metric+'_'+'_BRUTMETRICS'+'.csv')
 #####################################################################################
-def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten'):
+def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten',saveModele = False):
     '''
     something like a main, but in a function (with all previous function)
     ,also, load paths, models/weights parameters and write log file
@@ -443,9 +443,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         
 
         if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
-            comp = metrics.acp_layers(dict_activations, pc, bdd, layer, path)
+            comp = metrics.acp_layers(dict_activations, pc, bdd, layer, path,saveModele = True)
         elif computation == 'featureMap':
-            comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path)
+            comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path, saveModele = True)
         nbComp =  pandas.concat([nbComp,comp],axis = 1)
         #comp = pandas.DataFrame  (comp)
        # nbComp[layer] = comp
@@ -462,7 +462,7 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
 #def compute_pc_acp_average()
 
 
-def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1):
+def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1, saveModele = False):
     '''
     something like a main, but in a function (with all previous function)
     ,also, load paths, models/weights parameters and write log file
@@ -499,7 +499,7 @@ def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1)
             pc = []
             #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
             #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-            metrics.acp_layers(dict_activations, pc, bdd, block, True, computer)
+            metrics.acp_layers(dict_activations, pc, bdd, block, True, computer, saveModele = True)
     spm.parse_rates(labels_path, dict_labels)
     today = date.today()
     today = str(today)
@@ -589,7 +589,7 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
         for key, item in filt.items():
             if bdd == "Fairface":
                 bdd = bdd+"_"
-            bdd = bdd+item[0]
+            bdd = bdd+key#bdd+item[0]
     else:
         imglist = [f for f in os.listdir(images_path)]
     print("longueur imglist: ", len(imglist))
@@ -612,14 +612,16 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
 
 
     for count, batch in enumerate(list(chunked(imglist,100))):
-        
+        if count < 104:
+            continue
         print(count, batch)
         activations = getActivations_for_all_image(model,images_path,batch,computation, metric, freqmod)
 
 
         #layers = ['fc1','fc2','flatten']
         for layer in layers:
-        
+            if layer == "input_1":
+                continue
         
             print('##### current layer is: ', layer)
             #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
@@ -644,7 +646,7 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
         
     if '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' in path:
         path = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
-    spm.parse_rates(labels_path, dict_labels)
+
     
     today = date.today()
     today = str(today)
@@ -769,12 +771,14 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         csv_path = pathPCA + "/" + each
         x, _ = readCsv(csv_path) #recupère le CSV
         tabPC.append(x.shape[1])
-        #model, _ = readCsv(pathModel+ "/" + each)
-        model = x #getSousBDD(x, label)
+        if pathModel !="":
+            model, _ = readCsv(pathModel+ "/" + each, intervalle = [0,1000])
+        else:
+            model = x #getSousBDD(x, label)
 
-        lll = model.shape[0]//2
+        #lll = model.shape[0]//2
         #print('######', each,"     ", x.shape[1])
-        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp =min(12,model.shape[0]//2))
+        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 12) #min(12,model.shape[0]//2))
         print("gauss")
         #metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)
@@ -909,7 +913,7 @@ def each_compare_GMM_KDE(path, filesPC):
 
 
 
-def readCsv(path,noHeader = False,noNumerate = True):
+def readCsv(path,noHeader = False,noNumerate = True, intervalle = []):
     """
     lit un fichier .csv, convertit toutes les valeurs en float et retourne un numpyArray
     """
@@ -917,7 +921,12 @@ def readCsv(path,noHeader = False,noNumerate = True):
         with open(path, newline='') as csvfile:
             rows = list(csv.reader(csvfile,delimiter=','))
             #rows[0].pop(0)
+
+            if  intervalle:
+                rows = rows[intervalle[0]:intervalle[1]]
+           
             for row in rows[0:]:
+
                 for i in range(len(row)):
                     try:
                         row[i] = float(row[i])

@@ -51,7 +51,7 @@ from sklearn import preprocessing
 from sklearn.mixture import GaussianMixture
 from sklearn.mixture import BayesianGaussianMixture
 from sklearn import metrics
-#from joblib import dump, load
+from joblib import dump, load
 import csv
 
 
@@ -348,7 +348,7 @@ def acp_layers(dict_metrics, pc, bdd, layer, pathData = "../../", saveModele = F
         if saveModele:
             print("sauvegarde le modele")
             os.makedirs(pathData+"/Modele", exist_ok=True)
-            dump(pca_model, pathData+"/Modele"+"/"+layer+'_pca_model.joblib')
+            dump(pca, pathData+"/Modele"+"/"+layer+'_pca_model.joblib')
 
 
 
@@ -386,7 +386,7 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, pathData = "../../", sav
             if saveModele:
                 print("sauvegarde le modèle")
                 os.makedirs(pathData+"/Modele", exist_ok=True)
-                dump(pca_model, pathData+"/Modele"+"/"+layer+'_'+n +'_pca_model.joblib')
+                dump(pca, pathData+"/Modele"+"/"+layer+'_'+str(n) +'_pca_model.joblib')
 
 
                 # Centrage et Réduction
@@ -408,7 +408,7 @@ def acp_layers_featureMap(dict_metrics, pc, bdd, layer, pathData = "../../", sav
         if saveModele:
             print("sauvegarde le modèle")
             os.makedirs(pathData+"/Modele", exist_ok=True)
-            dump(pca_model, pathData+"/Modele"+"/"+layer+'_pca_model.joblib')
+            dump(pca, pathData+"/Modele"+"/"+layer+'_pca_model.joblib')
 
         #timer pour l'ACP de chaque couche
         print('############################################################################')
@@ -461,7 +461,7 @@ def acp_layers_loadModele(dict_metrics, pc, bdd, layer, pathData = "../../", mod
 
 
 
-def acp_layers_featureMap_oadModele(dict_metrics, pc, bdd, layer, pathData = "../../", modelePath=""):
+def acp_layers_featureMap_loadModele(dict_metrics, pc, bdd, layer, pathData = "../../", modelePath=""):
     
     '''
     A PCA with activations of each layer as features
@@ -484,7 +484,7 @@ def acp_layers_featureMap_oadModele(dict_metrics, pc, bdd, layer, pathData = "..
             X = df.values
 
             #Load Modele ###
-            pca = joblib.load(modelePath+"/Modele"+"/"+layer+'_'+n +'_pca_model.joblib', mmap_mode=None)
+            pca = joblib.load(modelePath+"/Modele"+"/"+layer+'_'+str(n) +'_pca_model.joblib', mmap_mode=None)
             pc, pca = do_PCA(X,pca)
             
 
