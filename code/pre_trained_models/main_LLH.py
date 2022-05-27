@@ -118,7 +118,7 @@ for bdd in list_bdd:
 
             path = "../../results"+"/"+bdd;
             #pathLLH = path+"/"+"LLH_bestRepetition"
-            pathLLH = path+"/"+"LLH"+method
+            pathLLH = path+"/"+"LLH"+method+"_model"
             #_, layers, _ = hl.configModel(model_name, weight)
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             

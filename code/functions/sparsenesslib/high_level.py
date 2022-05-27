@@ -757,7 +757,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     
 
     pathHist = path+"/"+"histo"
-    pathLLH = path+"/"+"LLH_"+method
+    pathLLH = path+"/"+"LLH_"+method+"_model"
 
     files = getAllFile(pathPCA, formatOrdre)
     if pathModel !="":
@@ -772,7 +772,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         x, _ = readCsv(csv_path) #recupère le CSV
         tabPC.append(x.shape[1])
         if pathModel !="":
-            model, _ = readCsv(pathModel+ "/" + each, intervalle = [0,1000])
+            model, _ = readCsv(pathModel+ "/" + each)#, intervalle = [0,700])
         else:
             model = x #getSousBDD(x, label)
 
