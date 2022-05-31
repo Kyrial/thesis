@@ -41,17 +41,19 @@ metric <- 'gini_flatten'
                        'block2_conv1','block2_conv2','block2_pool',
                        'block3_conv1','block3_conv2','block3_conv3','block3_pool',
                        'block4_conv1','block4_conv2','block4_conv3','block4_pool',
-                       'block5_conv1','block5_conv2','block5_conv3','block5_pool'
-                     #  ,'flatten','fc1', 'fc2'
+                       'block5_conv1','block5_conv2','block5_conv3','block5_pool',
+                       #'flatten',
+                     'fc1', 'fc2'
                      )
           
          
         #path d'enregistrement des résultats et chargement des données  
         
         labels_path = paste('../../data/redesigned/',bdd,'/labels_',bdd,'.csv', sep='')
-        #log_path =paste('../../results/',bdd,'/LLH_FeatureMap/LLH_',bdd,'_AllLLH.csv',sep = '')
+        log_path =paste('../../results/',bdd,'/LLH_FeatureMap/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH_max/LLH_',bdd,'_AllLLH.csv',sep = '')
-        log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
+        #log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
+        log_path =paste('../../results/',bdd,'/LLH_average_model/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="")
         
@@ -104,10 +106,10 @@ metric <- 'gini_flatten'
                                           'conv5_1' = 'block5_conv1',
                                           'conv5_2' = 'block5_conv2',
                                          'conv5_3' =  'block5_conv3',
-                                          'pool5' = 'block5_pool'
-                                       #   ,'flatten' = 'flatten',
-                                      #    'fc6_relu' = 'fc1',
-                                      #    'fc7_relu' = 'fc2'
+                                          'pool5' = 'block5_pool',
+                                    #      'flatten' = 'flatten',
+                                          'fc6_relu' = 'fc1',
+                                          'fc7_relu' = 'fc2'
                                          ))
           
         }
@@ -125,12 +127,22 @@ metric <- 'gini_flatten'
         # MODELE LINEAIRE
         #####################################################################################
         model = lm(rate ~ +conv1_1+conv1_2+conv2_1+conv2_2+conv3_1+conv3_2+conv3_3+conv4_1+conv4_2+conv4_3+conv5_1+conv5_2+conv5_3
-                   #+fc6_relu+fc7_relu
+                   +fc6_relu+fc7_relu
                    ,data = df_metrics)
         #ajouter les couches dense
        print(summary(model))
         
 
+       
+       
+       
+       
+       
+       
+       
+       
+       
+       
        index = sample(1:nrow(df_metrics), 0.7*nrow(df_metrics)) 
        
        train = df_metrics[index,] # Create the training data 

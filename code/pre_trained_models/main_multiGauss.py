@@ -34,7 +34,7 @@ import sparsenesslib.plots as plots
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = [ 'CFD_AF'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = [ 'CFD_F','CFD_AF','JEN'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 #list_bdd = ['MART']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
@@ -50,6 +50,7 @@ AllPC=[]
 #####################################################################################
 list_metrics = ['acp']
 method = "average"#_FeatureMap"
+#method = "FeatureMap"
 #method = "max"#_FeatureMap"
 #method = ""
 #method = "pca"
@@ -66,17 +67,19 @@ for bdd in list_bdd:
            # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
             path = pathData+"/results"+"/"+bdd;
             #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
-            pathModel = pathData+"/results/Fairface/pca_FeatureMap"
-            pathModel = pathData+"/results/Fairface_AF/average"
-            #pathModel = ""
+            #pathModel = pathData+"/results/Fairface/pca_FeatureMap"
+            #pathModel = pathData+"/results/Fairface_AF/average"
+            pathModel = ""
             #x = metrics.readCsv(path)
            # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
             #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
             
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
+            if method == 'FeatureMap':
+                AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method))
+            else:
+                AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method))
             
-            AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method))
-            #AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathLabel =pathLabel))
             k += 1
 #            path = "../../results"+"/"+bdd+"\histo"
 #            hl.eachFilePlot(path);

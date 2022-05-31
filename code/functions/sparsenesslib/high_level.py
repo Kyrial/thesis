@@ -74,7 +74,7 @@ def getPaths(bdd, pathData):
         if pathData == 'LINUX-ES03':
             pathData = '../../'
 
-        if bdd in ['CFD','JEN','SCUT-FBP','MART','CFD_1','CFD_AF']:
+        if bdd in ['CFD','JEN','SCUT-FBP','MART','CFD_1','CFD_AF','CFD_F']:
             labels_path =pathData+'data/redesigned/'+bdd+'/labels_'+bdd+'.csv'
             images_path =pathData+'data/redesigned/'+bdd+'/images'
             log_path =pathData+'results/'+bdd+'/log_'
@@ -408,7 +408,7 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     if computation == 'flatten':
         path= computer+"results"+"/"+bdd+"/pca"
     elif computation == 'featureMap':
-        path= computer+"results"+"/"+bdd+"/pca_FeatureMap"
+        path= computer+"results"+"/"+bdd+"/FeatureMap"
 
 
 
@@ -443,9 +443,9 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         
 
         if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
-            comp = metrics.acp_layers(dict_activations, pc, bdd, layer, path,saveModele = True)
+            comp = metrics.acp_layers(dict_activations, pc, bdd, layer, path,saveModele = saveModele)
         elif computation == 'featureMap':
-            comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path, saveModele = True)
+            comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path, saveModele = saveModele)
         nbComp =  pandas.concat([nbComp,comp],axis = 1)
         #comp = pandas.DataFrame  (comp)
        # nbComp[layer] = comp
@@ -499,7 +499,7 @@ def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1,
             pc = []
             #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
             #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-            metrics.acp_layers(dict_activations, pc, bdd, block, True, computer, saveModele = True)
+            metrics.acp_layers(dict_activations, pc, bdd, block, True, computer, saveModele = saveModele)
     spm.parse_rates(labels_path, dict_labels)
     today = date.today()
     today = str(today)
@@ -578,9 +578,6 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
     if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/': 
             computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
     
-
-
-
     
     if bdd == "Fairface":
         filt = {'ethnie' : "Asian", 'genre' : "Female"}
@@ -612,16 +609,15 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
 
 
     for count, batch in enumerate(list(chunked(imglist,100))):
-        if count < 104:
-            continue
+        #if count < 104:
+        #    continue
         print(count, batch)
         activations = getActivations_for_all_image(model,images_path,batch,computation, metric, freqmod)
 
 
         #layers = ['fc1','fc2','flatten']
         for layer in layers:
-            if layer == "input_1":
-                continue
+
         
             print('##### current layer is: ', layer)
             #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
@@ -757,15 +753,19 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     
 
     pathHist = path+"/"+"histo"
-    pathLLH = path+"/"+"LLH_"+method+"_model"
+    
 
     files = getAllFile(pathPCA, formatOrdre)
     if pathModel !="":
+        pathLLH = path+"/"+"LLH_"+method+"_model"
         filesModel = getAllFile(pathModel, formatOrdre)
+    else:
+        pathLLH = path+"/"+"LLH_"+method
     #label, _ = readCsv(pathLabel, True)
     #label = np.transpose(label)[0]
     arrayIntra = []
     arrayInter = []
+    #files =    ["average_values_fc1.csv","average_values_fc2.csv", "average_values_flatten.csv"]
     for each in files:
     #for each in ["average_values_fc1.csv","average_values_fc2.csv","average_values_flatten.csv"]:
         csv_path = pathPCA + "/" + each
