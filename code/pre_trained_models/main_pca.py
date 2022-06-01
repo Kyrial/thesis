@@ -49,7 +49,7 @@ list_bdd = ['MART','CFD','JEN']
 list_bdd = ['Fairface']
 #list_bdd = ['CFD_AF']
 #list_bdd = ['BIGTEST']
-#list_bdd = ['SMALLTEST']
+list_bdd = ['CFD_AF,CFD_F']
 #list_bdd = ['SMALLTEST','BIGTEST','CFD','MART','JEN','SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
@@ -77,9 +77,9 @@ for bdd in list_bdd:
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
             #hl.extract_pc_acp_block(bdd,weight,metric, model_name, pathData, freqmod,k)
             #k += 1
-            computation='featureMap'
-            #computation='flatten'
-            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k, computation,saveModele = True,loadModele = loadModele)
+            #computation='featureMap'
+            computation='flatten'
+            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k, computation,saveModele = False,loadModele = loadModele)
             k += 1
 
     
