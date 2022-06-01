@@ -48,8 +48,8 @@ from scipy import stats
 from sklearn import decomposition
 from sklearn.decomposition import IncrementalPCA
 from sklearn import preprocessing
-from sklearn.mixture import GaussianMixture
-from sklearn.mixture import BayesianGaussianMixture
+#from sklearn.mixture import GaussianMixture
+#from sklearn.mixture import BayesianGaussianMixture
 from sklearn import metrics
 from joblib import dump, load
 import csv
@@ -441,7 +441,7 @@ def acp_layers_loadModele(dict_metrics, pc, bdd, layer, pathData = "../../", mod
         
         
         #Load Modele ###
-        pca = joblib.load(modelePath+"/Modele"+"/"+layer+'_pca_model.joblib', mmap_mode=None)
+        pca = load(modelePath+"/Modele"+"/"+layer+'_pca_model.joblib', mmap_mode=None)
         pc, pca = do_PCA(X,pca)
         
        
@@ -484,7 +484,7 @@ def acp_layers_featureMap_loadModele(dict_metrics, pc, bdd, layer, pathData = ".
             X = df.values
 
             #Load Modele ###
-            pca = joblib.load(modelePath+"/Modele"+"/"+layer+'_'+str(n) +'_pca_model.joblib', mmap_mode=None)
+            pca = load(modelePath+"/Modele"+"/"+layer+'_'+str(n) +'_pca_model.joblib', mmap_mode=None)
             pc, pca = do_PCA(X,pca)
             
 
@@ -500,7 +500,7 @@ def acp_layers_featureMap_loadModele(dict_metrics, pc, bdd, layer, pathData = ".
         coordFeature = coordFeature.T
 
         #Load Modele ###
-        pca = joblib.load(modelePath+"/Modele"+"/"+layer+'_pca_model.joblib', mmap_mode=None)
+        pca = load(modelePath+"/Modele"+"/"+layer+'_pca_model.joblib', mmap_mode=None)
         pc , pca= do_PCA(coordFeature, pca)
 
         print(bdd," show the bdd" )

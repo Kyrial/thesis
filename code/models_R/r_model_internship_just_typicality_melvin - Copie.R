@@ -28,7 +28,7 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 #mettre ça pas en dur a terme mais en paramètres passé au script python (ou pas?)
 
 model_name <- 'VGG16'
-bdd <- 'CFD_AF'
+bdd <- 'MART'
 weight <- 'imagenet'
 metric <- 'gini_flatten'
 
@@ -52,8 +52,8 @@ metric <- 'gini_flatten'
         labels_path = paste('../../data/redesigned/',bdd,'/labels_',bdd,'.csv', sep='')
         log_path =paste('../../results/',bdd,'/LLH_FeatureMap/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH_max/LLH_',bdd,'_AllLLH.csv',sep = '')
-        #log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
-        log_path =paste('../../results/',bdd,'/LLH_average_model/LLH_',bdd,'_AllLLH.csv',sep = '')
+        log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
+        #log_path =paste('../../results/',bdd,'/LLH_average_model/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="")
         
@@ -65,7 +65,7 @@ metric <- 'gini_flatten'
         matrix_beauty <- do.call(cbind,read.csv(file=labels_path, header=FALSE))
         colnames(matrix_beauty) <- c("img","rate")
         df_beauty <-subset(matrix_beauty, select = c(rate))
-        
+    # df_beauty$rate <-as.numeric(df_beauty$rate)
         
         #on récupère les notes de beauté
       #  matrix_beauty <- do.call(cbind, fromJSON(file = paste(log_path_rate,'_',bdd,'_',weight,'_',metric,'_','_BRUTMETRICS','.csv',sep=""),simplify = FALSE))
@@ -131,8 +131,68 @@ metric <- 'gini_flatten'
                    ,data = df_metrics)
         #ajouter les couches dense
        print(summary(model))
-        
+      
 
+       
+       
+      
+       
+       
+       ##enlever les layer en trop et mettre rate en 1
+       df_metrics <-subset(df_metrics, select = c(rate, conv1_1, conv1_2, conv2_1, conv2_2, conv3_1, conv3_2, conv3_3,conv4_1,conv4_2,conv4_3,conv5_1,conv5_2,conv5_3
+                                                 ,fc6_relu, fc7_relu))
+    
+     #  df_metrics <- cbind((df_beauty),(df_metrics))
+    #   df_metrics <- as.data.frame(df_metrics)
+       #######Nico Ridge 2
+       k= nrow(df_metrics)
+       print(k)
+       matrix = as.matrix(df_metrics)
+       lambdas = c()
+       predictions = c()
+       
+       for (i in 1:k){
+         
+         print(i)
+         
+         train = matrix[-i,]
+         test = matrix[i,]
+         
+         x_train = train[,-1] ##df_beauty[-i,]
+         y_train = train[,1]
+         
+         #print(i)
+         cv_train <- cv.glmnet(x_train, y_train, alpha = 0) #alpha = 0 fait une ridge regression (1 si lasso)
+         #print(cv_train$lambda.min)
+         #plot(cv_train, xvar='lambda')
+         
+         model <- glmnet(x_train, y_train, alpha = 1 , lambda = cv_train$lambda.min)
+         
+         lambdas = c(lambdas, cv_train$lambda.min)
+         
+         #elastic net
+         
+         #model <- train(
+         #  rate ~., data = train, method = "glmnet",
+         #  trControl = trainControl("cv", number = 10),
+         #  tuneLength = 10
+         #)
+         
+         
+         
+         #predictions:
+         x_test = test[-1]
+         prediction <- model %>% predict(x_test) %>% as.vector()
+         
+         predictions = c(predictions, prediction)
+         
+         
+       } 
+       
+       matrix <- cbind(predictions ,matrix)
+       Rsquare = R2(matrix[,1], matrix[,2])
+       print(Rsquare)
+       
        
        
        
@@ -149,7 +209,7 @@ metric <- 'gini_flatten'
        test = df_metrics[-index,] # Create the test data
        
        cols_reg = c("rate", "conv1_1","conv1_2","conv2_1","conv2_2","conv3_1","conv3_2","conv3_3","conv4_1","conv4_2","conv4_3","conv5_1","conv5_2","conv5_3"
-                    #,"fc6_relu","fc7_relu"
+                  ,"fc6_relu","fc7_relu"
                     )
        
        dummies <- dummyVars(rate ~ ., data = df_metrics[,cols_reg])
@@ -204,9 +264,19 @@ metric <- 'gini_flatten'
        
        
        
+       
+       
+       
+       
+       
+       
+       
        #####################################################################################
        #5.4. LASSO
        #####################################################################################
+       
+       
+       
        
        lambdas <- 10^seq(2, -3, by = -.1)
        
@@ -259,3 +329,5 @@ metric <- 'gini_flatten'
        predictions_test <- predict(elastic_reg, x_test)
        eval_results(y_test, predictions_test, test)
        
+       
+      

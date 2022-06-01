@@ -177,7 +177,7 @@ def plotHist(AllLLH, name= "histogramme", max = 2):
     bin = np.linspace(AllLLH.min(), AllLLH.max(),200)
     for i, llh in enumerate(AllLLH):
         if  i <max:
-            spl = plt.subplot(1, 2, 1+i)
+            spl = plt.subplot(2, max//2, 1+i)
             hist = plt.hist(llh, bins=bin)
             plt.grid()
     plt.suptitle(name)

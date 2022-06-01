@@ -381,7 +381,7 @@ def extract_metrics(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     today = str(today)
     df_metrics.to_json(path_or_buf = log_path+'_'+bdd+'_'+weight+'_'+metric+'_'+'_BRUTMETRICS'+'.csv')
 #####################################################################################
-def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten',saveModele = False):
+def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten',saveModele = False,loadModele=""):
     '''
     something like a main, but in a function (with all previous function)
     ,also, load paths, models/weights parameters and write log file
@@ -403,7 +403,8 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     #sur le mesoLR, le chemin d'écriture et de lecture est différent
     if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/': 
             computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
-    
+    if loadModele !="":
+        loadModele = computer+loadModele
     #adapte le chemin suivant la methode            
     if computation == 'flatten':
         path= computer+"results"+"/"+bdd+"/pca"
@@ -415,15 +416,20 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
     dict_labels = {}
     print("path :", computer)
-    if bdd == "Fairface": #Fairface a une arborescence différente
-        #imglist = parserFairface(labels_path, ["Female","Asian"])
-        imglist = parserFairface(labels_path)
+    if bdd == "Fairface":
+        filt = {'ethnie' : "Asian", 'genre' : "Female"}
+        imglist = parserFairface(labels_path,filt)
+        #imglist = parserFairface(labels_path)
+        for key, item in filt.items():
+            if bdd == "Fairface":
+                bdd = bdd+"_"
+            bdd = bdd+item[0]
+        print("BDD: ", bdd,"\n\n")
     else:
         imglist = [f for f in os.listdir(images_path)]
     print("longueur imglist: ", len(imglist))
     activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
     
-
     
     nbComp = pandas.DataFrame()
     for layer in layers:
@@ -443,9 +449,15 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         
 
         if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
-            comp = metrics.acp_layers(dict_activations, pc, bdd, layer, path,saveModele = saveModele)
+            if loadModele!="":
+                comp = metrics.acp_layers_loadModele(dict_activations, pc, bdd, layer, path,modelePath = loadModele)
+            else:
+                comp = metrics.acp_layers(dict_activations, pc, bdd, layer, path,saveModele = saveModele)
         elif computation == 'featureMap':
-            comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path, saveModele = saveModele)
+            if loadModele!="":
+                comp = metrics.acp_layers_featureMap_loadModele(dict_activations, pc, bdd, layer, path,modelePath = loadModele)
+            else:
+                comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path, saveModele = saveModele)
         nbComp =  pandas.concat([nbComp,comp],axis = 1)
         #comp = pandas.DataFrame  (comp)
        # nbComp[layer] = comp
@@ -586,7 +598,7 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
         for key, item in filt.items():
             if bdd == "Fairface":
                 bdd = bdd+"_"
-            bdd = bdd+key#bdd+item[0]
+            bdd = bdd+item[0]
     else:
         imglist = [f for f in os.listdir(images_path)]
     print("longueur imglist: ", len(imglist))
@@ -761,6 +773,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         filesModel = getAllFile(pathModel, formatOrdre)
     else:
         pathLLH = path+"/"+"LLH_"+method
+
+    pathLLH= pathLLH+"_bgm"
     #label, _ = readCsv(pathLabel, True)
     #label = np.transpose(label)[0]
     arrayIntra = []
@@ -778,7 +792,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
 
         #lll = model.shape[0]//2
         #print('######', each,"     ", x.shape[1])
-        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 12) #min(12,model.shape[0]//2))
+        gm =metrics_melvin.getBayesianGaussian(model, nbMaxComp = 15)
+        #gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 12) #min(12,model.shape[0]//2))
         print("gauss")
         #metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)
@@ -797,7 +812,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         #CompareAndDoMedian(allLLH,allLLH2)
         
 
-        #metrics_melvin.doHist(allLLH, plot = False, name = "distributions des LLH pour GMM")
+        metrics_melvin.doHist(allLLH, plot = True, name = "distributions des LLH pour GMM")
+        plots.plot_correlation(allLLH, name = "correlation entre BGM", nameXaxis="BGM",nameYaxis="BGM")
         allLLH = np.array([np.median(allLLH, axis=0)])
         #plots.plotHist(np.array([LLH_KDE,LLH_GMM[0]]), name= "distribution des LLH\n KDE")
         #allLLH = metrics_melvin.chooseBestComposante(allLLH)

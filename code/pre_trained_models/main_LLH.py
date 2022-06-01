@@ -42,7 +42,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
 list_bdd = ['MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
-list_bdd = ['CFD_AF','CFD_F','JEN']
+list_bdd = ['CFD_AF','CFD_F']
 #list_bdd =['CFD','MART','JEN','SCUT-FBP']
 #list_bdd =['BIGTEST']
 
@@ -118,7 +118,7 @@ for bdd in list_bdd:
 
             path = pathData+"results"+"/"+bdd;
             #pathLLH = path+"/"+"LLH_bestRepetition"
-            pathLLH = path+"/"+"LLH"+method +"_model"
+            pathLLH = path+"/"+"LLH"+method# +"_model"
             #_, layers, _ = hl.configModel(model_name, weight)
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             

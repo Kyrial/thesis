@@ -23,6 +23,7 @@ from sklearn.decomposition import IncrementalPCA
 from sklearn import preprocessing
 from sklearn.mixture import GaussianMixture
 from sklearn.mixture import BayesianGaussianMixture
+
 from sklearn import metrics
 
 import csv
@@ -108,7 +109,9 @@ def BIC(X, verbose = False, plot = True, nbMaxComp = 20):
 
 #gm = BayesianGaussianMixture(n_components =10, n_init = 2, weight_concentration_prior_type ="dirichlet_process", weight_concentration_prior =0.0000000001).fit(X_scale)
 
-
+def getBayesianGaussian(X, plot = True, index = 1, nbMaxComp = 50):
+    bgm = BayesianGaussianMixture(n_components=nbMaxComp).fit(X)
+    return bgm
 
 def getMultigaussian(X, plot = True, name ="Gaussian Mixture", index = 1, nbMaxComp = 50):
     """! a partir d'un array, calcul le BIC, si plot, appelle MultiDimensionalScaling(X) afin d'obtenir un Array en 2D pour l'afficher
@@ -197,7 +200,7 @@ def doHist(AllLLH, plot = False, name = "histogramme"):
         allHist.append(np.transpose(hist)[0])
     
     if plot:
-        plots.plotHist(AllLLH, name, max = 2)
+        plots.plotHist(AllLLH, name, max = 8)
     #if len(AllLLH)>1:
     #    compareValue(AllLLH[0], AllLLH[1])
     #    CompareOrdre(AllLLH[0], AllLLH[1])
