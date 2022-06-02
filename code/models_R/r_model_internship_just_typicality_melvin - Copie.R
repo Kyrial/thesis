@@ -28,7 +28,7 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 #mettre ça pas en dur a terme mais en paramètres passé au script python (ou pas?)
 
 model_name <- 'VGG16'
-bdd <- 'MART'
+bdd <- 'CFD_AF'
 weight <- 'imagenet'
 metric <- 'gini_flatten'
 
@@ -151,6 +151,10 @@ metric <- 'gini_flatten'
        lambdas = c()
        predictions = c()
        
+       cv_train <- cv.glmnet(matrix[,-1], matrix[,1], alpha = 0) #alpha = 0 fait une ridge regression (1 si lasso)
+       print(cv_train$lambda.min)
+       plot(cv_train, xvar='lambda')
+       
        for (i in 1:k){
          
          print(i)
@@ -162,11 +166,11 @@ metric <- 'gini_flatten'
          y_train = train[,1]
          
          #print(i)
-         cv_train <- cv.glmnet(x_train, y_train, alpha = 0) #alpha = 0 fait une ridge regression (1 si lasso)
-         #print(cv_train$lambda.min)
-         #plot(cv_train, xvar='lambda')
+     #    cv_train <- cv.glmnet(x_train, y_train, alpha = 0) #alpha = 0 fait une ridge regression (1 si lasso)
+    #     print(cv_train$lambda.min)
+    #     plot(cv_train, xvar='lambda')
          
-         model <- glmnet(x_train, y_train, alpha = 1 , lambda = cv_train$lambda.min)
+         model <- glmnet(x_train, y_train, alpha = 1 , lambda = 0.1780658 ) #cv_train$lambda.min)
          
          lambdas = c(lambdas, cv_train$lambda.min)
          
