@@ -405,10 +405,10 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
             computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
     if loadModele !="":
         loadModele = computer+loadModele
-    #adapte le chemin suivant la methode            
+    #adapte le chemin suivant la methode 
     if computation == 'flatten':
         path= computer+"results"+"/"+bdd+"/pca"
-    elif computation == 'featureMap':
+    elif computation == 'featureMap': 
         path= computer+"results"+"/"+bdd+"/FeatureMap"
 
 
@@ -637,7 +637,7 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
             dict_activations = {}
             get_activation_by_layer(activations,batch,dict_activations,computation, metric, k, layer)
         
-            df_metrics = pandas.DataFrame.from_dict(dict_activations)    
+            df_metrics = pandas.DataFrame.from_dict(dict_activations)
             for index, row in df_metrics.iterrows():
 
                 df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T
@@ -774,7 +774,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     else:
         pathLLH = path+"/"+"LLH_"+method
 
-    pathLLH= pathLLH+"_bgm"
+    #pathLLH= pathLLH+"_bgm"
     #label, _ = readCsv(pathLabel, True)
     #label = np.transpose(label)[0]
     arrayIntra = []
@@ -792,8 +792,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
 
         #lll = model.shape[0]//2
         #print('######', each,"     ", x.shape[1])
-        gm =metrics_melvin.getBayesianGaussian(model, nbMaxComp = 15)
-        #gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 12) #min(12,model.shape[0]//2))
+        #gm =metrics_melvin.getBayesianGaussian(model, nbMaxComp = 15)
+        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 12) #min(12,model.shape[0]//2))
         print("gauss")
         #metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)
@@ -812,8 +812,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         #CompareAndDoMedian(allLLH,allLLH2)
         
 
-        metrics_melvin.doHist(allLLH, plot = True, name = "distributions des LLH pour GMM")
-        plots.plot_correlation(allLLH, name = "correlation entre BGM", nameXaxis="BGM",nameYaxis="BGM")
+        #metrics_melvin.doHist(allLLH, plot = True, name = "distributions des LLH pour GMM")
+        #plots.plot_correlation(allLLH, name = "correlation entre BGM", nameXaxis="BGM",nameYaxis="BGM")
         allLLH = np.array([np.median(allLLH, axis=0)])
         #plots.plotHist(np.array([LLH_KDE,LLH_GMM[0]]), name= "distribution des LLH\n KDE")
         #allLLH = metrics_melvin.chooseBestComposante(allLLH)

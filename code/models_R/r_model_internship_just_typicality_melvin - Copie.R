@@ -28,7 +28,7 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 #mettre ça pas en dur a terme mais en paramètres passé au script python (ou pas?)
 
 model_name <- 'VGG16'
-bdd <- 'CFD_AF'
+bdd <- 'CFD_F'
 weight <- 'imagenet'
 metric <- 'gini_flatten'
 
@@ -52,9 +52,10 @@ metric <- 'gini_flatten'
         labels_path = paste('../../data/redesigned/',bdd,'/labels_',bdd,'.csv', sep='')
         log_path =paste('../../results/',bdd,'/LLH_FeatureMap/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH_max/LLH_',bdd,'_AllLLH.csv',sep = '')
-        log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
+        #log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH_average_model/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
+        log_path =paste('../../results/',bdd,'/LLH_pca/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="")
         
         
@@ -148,19 +149,25 @@ metric <- 'gini_flatten'
        k= nrow(df_metrics)
        print(k)
        matrix = as.matrix(df_metrics)
+       
        lambdas = c()
        predictions = c()
-       
-       cv_train <- cv.glmnet(matrix[,-1], matrix[,1], alpha = 0) #alpha = 0 fait une ridge regression (1 si lasso)
-       print(cv_train$lambda.min)
-       plot(cv_train, xvar='lambda')
+       lambdaMin = c()
+       for (j in 1:100){
+        cv_train <- cv.glmnet(matrix[,-1], matrix[,1], alpha = 0) #alpha = 0 fait une ridge regression (1 si lasso)
+        #print(cv_train$lambda.min)
+        #plot(cv_train, xvar='lambda')
+        lambdaMin <-c(lambdaMin,cv_train$lambda.min)
+       }
+       hist(lambdaMin,20)
+       la <- median(lambdaMin)
        
        for (i in 1:k){
          
          print(i)
          
          train = matrix[-i,]
-         test = matrix[i,]
+        test = matrix[i,]
          
          x_train = train[,-1] ##df_beauty[-i,]
          y_train = train[,1]
@@ -170,8 +177,8 @@ metric <- 'gini_flatten'
     #     print(cv_train$lambda.min)
     #     plot(cv_train, xvar='lambda')
          
-         model <- glmnet(x_train, y_train, alpha = 1 , lambda = 0.1780658 ) #cv_train$lambda.min)
-         
+         model <- glmnet(x_train, y_train, alpha = 0 , lambda = la ) #cv_train$lambda.min)
+         #model <- lm( y_train~x_train)
          lambdas = c(lambdas, cv_train$lambda.min)
          
          #elastic net
@@ -193,8 +200,8 @@ metric <- 'gini_flatten'
          
        } 
        
-       matrix <- cbind(predictions ,matrix)
-       Rsquare = R2(matrix[,1], matrix[,2])
+       matrix2 <- cbind(predictions ,matrix)
+       Rsquare = R2(matrix2[,1], matrix2[,2])
        print(Rsquare)
        
        
@@ -202,7 +209,9 @@ metric <- 'gini_flatten'
        
        
        
-       
+       ###########################################################
+       ###########################################################
+       ###########################################################
        
        
        

@@ -64,7 +64,7 @@ l = len(list_bdd)*len(list_weights)*len(list_metrics)
 #method = "_FeatureMap"
 method = "_average"
 #method = "_max"
-#method = ""
+method = "_pca"
 
 
 
