@@ -38,7 +38,7 @@ list_bdd = ['JEN']
 #list_bdd = ['CFD']
 
 #list_bdd = ['CFD_F']
-#list_bdd = ['SMALLTEST']
+list_bdd = ['SCUT-FBP']
 #list_bdd = ['SMALLTEST','BIGTEST','CFD','MART','JEN','SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'

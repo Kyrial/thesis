@@ -792,8 +792,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
 
         #lll = model.shape[0]//2
         #print('######', each,"     ", x.shape[1])
-        #gm =metrics_melvin.getBayesianGaussian(model, nbMaxComp = 15)
-        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 12) #min(12,model.shape[0]//2))
+        gm =metrics_melvin.getBayesianGaussian(model, nbMaxComp = 15)
+        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 15) #min(12,model.shape[0]//2))
         print("gauss")
         #metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)

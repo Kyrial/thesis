@@ -34,8 +34,8 @@ import sparsenesslib.plots as plots
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
 #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = [ 'CFD_F','CFD_AF'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
-#list_bdd = ['MART']
+list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+list_bdd = ['SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
 list_weights = ['imagenet'] #['vggface','imagenet','vggplace']
@@ -49,11 +49,11 @@ AllPC=[]
 #CODE
 #####################################################################################
 list_metrics = ['acp']
-#method = "average"#_FeatureMap"
-method = "FeatureMap"
+method = "average"#_FeatureMap"
+#method = "FeatureMap"
 #method = "max"#_FeatureMap"
 #method = ""
-method = "pca"
+#method = "pca"
 
 k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)

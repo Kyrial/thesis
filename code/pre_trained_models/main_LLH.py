@@ -44,7 +44,7 @@ PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 list_bdd = ['MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
 list_bdd = ['CFD_AF','CFD_F']
 #list_bdd =['CFD','MART','JEN','SCUT-FBP']
-#list_bdd =['BIGTEST']
+list_bdd =['SCUT-FBP']
 
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
@@ -64,7 +64,7 @@ l = len(list_bdd)*len(list_weights)*len(list_metrics)
 #method = "_FeatureMap"
 method = "_average"
 #method = "_max"
-method = "_pca"
+#method = "_pca"
 
 
 

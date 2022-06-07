@@ -28,7 +28,7 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 #mettre ça pas en dur a terme mais en paramètres passé au script python (ou pas?)
 
 model_name <- 'VGG16'
-bdd <- 'CFD_F'
+bdd <- 'CFD_AF'
 weight <- 'imagenet'
 metric <- 'gini_flatten'
 
@@ -55,7 +55,7 @@ metric <- 'gini_flatten'
         #log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH_average_model/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
-        log_path =paste('../../results/',bdd,'/LLH_pca/LLH_',bdd,'_AllLLH.csv',sep = '')
+        #log_path =paste('../../results/',bdd,'/LLH_pca/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="")
         
         
@@ -133,7 +133,7 @@ metric <- 'gini_flatten'
         #ajouter les couches dense
        print(summary(model))
       
-
+plot(model)
        
        
       
