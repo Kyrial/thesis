@@ -74,7 +74,7 @@ def getPaths(bdd, pathData):
         if pathData == 'LINUX-ES03':
             pathData = '../../'
 
-        if bdd in ['CFD','JEN','SCUT-FBP','MART','CFD_1','CFD_AF','CFD_F']:
+        if bdd in ['CFD','JEN','SCUT-FBP','MART','CFD_1','CFD_AF','CFD_F','CFD_WM']:
             labels_path =pathData+'data/redesigned/'+bdd+'/labels_'+bdd+'.csv'
             images_path =pathData+'data/redesigned/'+bdd+'/images'
             log_path =pathData+'results/'+bdd+'/log_'

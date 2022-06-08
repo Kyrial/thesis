@@ -11,7 +11,6 @@ import PIL
 import sys
 #personnal librairies
 sys.path.insert(1,'../../code/functions')
-
 pathData = '../../'
 if len(sys.argv) >1:
     if sys.argv[1]== 'mesoLR':
@@ -37,7 +36,7 @@ list_bdd = ['Fairface']
 #list_bdd = ['JEN']
 #list_bdd = ['CFD']
 
-#list_bdd = ['CFD_F']
+list_bdd = ['CFD_WM']
 #list_bdd = ['SCUT-FBP']
 #list_bdd = ['SMALLTEST','BIGTEST','CFD','MART','JEN','SCUT-FBP']
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
