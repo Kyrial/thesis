@@ -417,7 +417,8 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     dict_labels = {}
     print("path :", computer)
     if bdd == "Fairface":
-        filt = {'ethnie' : "Asian", 'genre' : "Female"}
+        #filt = {'ethnie' : "Asian", 'genre' : "Female"}
+        filt = {'ethnie' : "White", 'genre' : "Male"}
         imglist = parserFairface(labels_path,filt)
         #imglist = parserFairface(labels_path)
         for key, item in filt.items():
@@ -592,7 +593,8 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
     
     
     if bdd == "Fairface":
-        filt = {'ethnie' : "Asian", 'genre' : "Female"}
+        #filt = {'ethnie' : "Asian", 'genre' : "Female"}
+        filt = {'ethnie' : "White", 'genre' : "Male"}
         imglist = parserFairface(labels_path,filt)
         #imglist = parserFairface(labels_path)
         for key, item in filt.items():
