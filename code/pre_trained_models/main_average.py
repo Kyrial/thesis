@@ -42,7 +42,7 @@ AllPC=[]
 list_bdd = ""
 method = ""
 if len(sys.argv) >3:
-    list_bdd = sys.argv[1].split(",")
+    list_bdd = sys.argv[2].split(",")
     method = sys.argv[3]
 else:
     #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
