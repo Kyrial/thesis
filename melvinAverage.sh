@@ -7,5 +7,12 @@
 #SBATCH --partition=muse-visu
 
 echo "Running Average Melvin"
-python3 /home/tieos/work_swp-gpu/melvin/thesis/code/pre_trained_models/main_average.py mesoLR
-echo "grosminet a mange titi :( "
+if [ $# -lt 2 ]
+  then
+    
+    echo "No arguments supplied"
+    python3 /home/tieos/work_swp-gpu/melvin/thesis/code/pre_trained_models//main_average.py mesoLR
+  else
+   echo "arguments: $1 , $2"
+   python3 /home/tieos/work_swp-gpu/melvin/thesis/code/pre_trained_models//main_average.py mesoLR $1 $2
+fi

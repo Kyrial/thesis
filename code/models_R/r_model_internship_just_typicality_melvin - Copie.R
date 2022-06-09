@@ -55,7 +55,7 @@ metric <- 'gini_flatten'
         #log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH_average_model/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
-        #log_path =paste('../../results/',bdd,'/LLH_pca/LLH_',bdd,'_AllLLH.csv',sep = '')
+        log_path =paste('../../results/',bdd,'/LLH_pca/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="")
         
         

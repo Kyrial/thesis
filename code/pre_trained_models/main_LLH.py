@@ -40,18 +40,32 @@ import sparsenesslib.plots as plots
 #####################################################################################
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
-#'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = ['MART'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
-#list_bdd = ['CFD_AF','CFD_F']
-#list_bdd =['CFD','MART','JEN','SCUT-FBP']
-#list_bdd =['SCUT-FBP']
-list_bdd = ['CFD_WM']
+
+computer = 'LINUX-ES03' #no need to change that unless it's sonia's pc, that infamous thing; in which case, put 'sonia' in parameter.
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
 list_weights = ['imagenet'] #['vggface','imagenet','vggplace']
-computer = 'LINUX-ES03' #no need to change that unless it's sonia's pc, that infamous thing; in which case, put 'sonia' in parameter.
+#computer = 'LINUX-ES03' #no need to change that unless it's sonia's pc, that infamous thing; in which case, put 'sonia' in parameter.
 freqmod = 100 #frequency of prints, if 5: print for 1/5 images
+AllPC=[]
 
+
+list_bdd = ""
+method = ""
+if len(sys.argv) <3:
+    list_bdd = sys.argv[1].split(",")
+    method = sys.argv[3]
+else:
+    #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
+    list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+    list_bdd = ['MART']
+    list_bdd = ['CFD_WM']
+
+    method = "average"#_FeatureMap"
+    #method = "FeatureMap"
+    #method = "max"#_FeatureMap"
+
+    method = "pca"
 
 #####################################################################################
 #CODE
@@ -64,7 +78,7 @@ l = len(list_bdd)*len(list_weights)*len(list_metrics)
 #method = "_FeatureMap"
 method = "_average"
 #method = "_max"
-#method = "_pca"
+method = "_pca"
 
 
 
@@ -81,10 +95,10 @@ def do_correlation_LLH(LLH1, LLH2, hist =True):
 
 
 def each2LLH(path1, path2):
-    layers = [#'input_1',
-        'block1_conv1','block1_conv2','block1_pool','block2_conv1', 'block2_conv2','block2_pool',
-            'block3_conv1','block3_conv2','block3_conv3','block3_pool','block4_conv1','block4_conv2','block4_conv3',
-            'block4_pool', 'block5_conv1','block5_conv2','block5_conv3','block5_pool']
+    #layers = [#'input_1',
+     #   'block1_conv1','block1_conv2','block1_pool','block2_conv1', 'block2_conv2','block2_pool',
+      #      'block3_conv1','block3_conv2','block3_conv3','block3_pool','block4_conv1','block4_conv2','block4_conv3',
+       #     'block4_pool', 'block5_conv1','block5_conv2','block5_conv3','block5_pool']
     AllSpearman = []
     AllPearson = []
     filesLLH = hl.getAllFile("", ["LLH__",layers,".csv"])
@@ -99,7 +113,7 @@ def each2LLH(path1, path2):
             AllSpearman.append(s )
             AllPearson.append(p )
       
-    plots.plotPC([np.array(AllSpearman),np.array(AllPearson)], ["Spearman","Pearson"], layers, "Correlation pour CFD_AF entre max et Average")
+    plots.plotPC([np.array(AllSpearman),np.array(AllPearson)], ["Spearman","Pearson"], layers, "Correlation pour MART entre Average et ACP_Global")
 
 
 
@@ -112,10 +126,10 @@ for bdd in list_bdd:
 
 
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
-            path1 = "../../results"+"/"+bdd+"/"+"LLH"+"_max"
+            path1 = "../../results"+"/"+bdd+"/"+"LLH"+"_pca"
             path2 = "../../results"+"/"+bdd+"/"+"LLH"+method
             #each2LLH(path1, path2)
-
+            
             path = pathData+"results"+"/"+bdd;
             #pathLLH = path+"/"+"LLH_bestRepetition"
             pathLLH = path+"/"+"LLH"+method# +"_model"

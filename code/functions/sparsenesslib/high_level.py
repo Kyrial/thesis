@@ -781,7 +781,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     #label = np.transpose(label)[0]
     arrayIntra = []
     arrayInter = []
-    #files =    ["average_values_fc1.csv","average_values_fc2.csv", "average_values_flatten.csv"]
+    files =    ["average_values_fc1.csv","average_values_fc2.csv", "average_values_flatten.csv"]
     for each in files:
     #for each in ["average_values_fc1.csv","average_values_fc2.csv","average_values_flatten.csv"]:
         csv_path = pathPCA + "/" + each
