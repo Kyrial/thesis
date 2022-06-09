@@ -44,7 +44,7 @@ AllPC=[]
 
 list_bdd = ""
 method = ""
-if len(sys.argv) <3:
+if len(sys.argv) >3:
     list_bdd = sys.argv[1].split(",")
     method = sys.argv[3]
 else:
@@ -56,7 +56,6 @@ else:
     method = "average"#_FeatureMap"
     #method = "FeatureMap"
     #method = "max"#_FeatureMap"
-
     method = "pca"
 
 
@@ -97,4 +96,4 @@ for bdd in list_bdd:
            
         #plots.plotPC(AllPC, list_bdd, layers)
 #####################################################################################
-import main_LLH
+import main_LLH 
