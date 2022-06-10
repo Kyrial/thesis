@@ -18,6 +18,13 @@ if [ $# -lt 2 ]
     echo "No arguments supplied"
     python3 /home/tieos/work_cefe_swp-smp/melvin/thesis/code/pre_trained_models/main_multiGauss.py mesoLR-3T
   else
-   echo "arguments: $1 , $2"
-   python3 /home/tieos/work_cefe_swp-smp/melvin/thesis/code/pre_trained_models/main_multiGauss.py mesoLR-3T $1 $2
+	if [ $# -lt 3 ]
+	  echo "arguments: $1 , $2"
+      python3 /home/tieos/work_cefe_swp-smp/melvin/thesis/code/pre_trained_models/main_multiGauss.py mesoLR-3T $1 $2
+	else
+	  echo "arguments: $1 , $2, $3"
+      python3 /home/tieos/work_cefe_swp-smp/melvin/thesis/code/pre_trained_models/main_multiGauss.py mesoLR-3T $1 $2 $3
+	fi
 fi
+
+echo "finis !!"

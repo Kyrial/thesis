@@ -41,7 +41,7 @@ list_weights = ['imagenet'] #['vggface','imagenet','vggplace']
 freqmod = 100 #frequency of prints, if 5: print for 1/5 images
 AllPC=[]
 
-
+pathModel = ""
 list_bdd = ""
 method = ""
 if len(sys.argv) >3:
@@ -57,8 +57,8 @@ else:
     #method = "FeatureMap"
     #method = "max"#_FeatureMap"
     method = "pca"
-
-
+if len(sys.argv) >4:
+    pathModel = sys.argv[4]
 #####################################################################################
 #CODE
 #####################################################################################
@@ -79,7 +79,7 @@ for bdd in list_bdd:
             #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
             #pathModel = pathData+"/results/Fairface/pca_FeatureMap"
             #pathModel = pathData+"/results/Fairface_AF/average"
-            pathModel = ""
+            
             #x = metrics.readCsv(path)
            # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
             #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
