@@ -750,7 +750,7 @@ def eachFile(path, formatOrdre = []):
     return tabcsv
 
 
-def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method = "pca"):
+def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method = "pca", pathLLH = ""):
     """! parcours tout les chifier du repertoire path, fait: mixureGaussian, LLH, tableau des nbe de PC par couche
     
     @param path chemin des CSV a traiter
@@ -768,9 +768,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
 
     pathHist = path+"/"+"histo"
         #sur le mesoLR, le chemin d'écriture et de lecture est différent
-    if pathLLH == '/home/tieos/work_cefe_swp-smp/melvin/thesis/': 
-            pathLLH = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
-    else:
+    if pathLLH == "": 
         pathLLH = path
 
     files = getAllFile(pathPCA, formatOrdre)
