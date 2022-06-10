@@ -799,7 +799,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         print("gauss")
         #metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)
-#        metrics_melvin.doVarianceOfGMM(allLLH, plot = True)
+#       metrics_melvin.doVarianceOfGMM(allLLH, plot = True)
         
         allVar = np.var(allLLH, axis=0) # récup la variance intraImage
         varExtra = np.var(allLLH, axis=1) # variance interImage
