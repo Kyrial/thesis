@@ -767,14 +767,18 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     
 
     pathHist = path+"/"+"histo"
-    
+        #sur le mesoLR, le chemin d'écriture et de lecture est différent
+    if pathLLH == '/home/tieos/work_cefe_swp-smp/melvin/thesis/': 
+            pathLLH = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
+    else:
+        pathLLH = path
 
     files = getAllFile(pathPCA, formatOrdre)
     if pathModel !="":
-        pathLLH = path+"/"+"LLH_"+method+"_model"
+        pathLLH = pathLLH+"/"+"LLH_"+method+"_model"
         filesModel = getAllFile(pathModel, formatOrdre)
     else:
-        pathLLH = path+"/"+"LLH_"+method
+        pathLLH = pathLLH+"/"+"LLH_"+method
 
     #pathLLH= pathLLH+"_bgm"
     #label, _ = readCsv(pathLabel, True)
@@ -822,7 +826,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         #allLLH =metrics.removeOutliers(allLLH)
         #allHist, legend = metrics_melvin.FdoHist(allLLH, false, "distributions des LLH pour GMM")
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
-        
+            #sur le mesoLR, le chemin d'écriture et de lecture est différent
+
         if writeLLH:
             import re
             #regex = re.search("((?:pca_values){1})(.*\.csv$)",each)

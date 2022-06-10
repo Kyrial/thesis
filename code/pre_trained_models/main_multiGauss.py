@@ -18,6 +18,9 @@ import sys
 
 sys.path.insert(1,'../../code/functions')
 pathData = '../../'
+
+pathLLH = ""
+
 if len(sys.argv) >1:
     if sys.argv[1]== 'mesoLR':
         sys.path.insert(1,'/home/tieos/work_swp-gpu/melvin/thesis/code/functions')
@@ -25,6 +28,7 @@ if len(sys.argv) >1:
     if sys.argv[1]== 'mesoLR-3T':
         sys.path.insert(1,'/home/tieos/work_cefe_swp-smp/melvin/thesis/code/functions')
         pathData = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
+        pathLLH = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
     elif sys.argv[1] == 'sonia':
         pathData =  '/media/sonia/DATA/data_nico/'
 
@@ -79,6 +83,8 @@ for bdd in list_bdd:
             #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
            # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
             path = pathData+"/results"+"/"+bdd;
+            if pathLLH !="":
+                pathLLH =pathLLH+"/results"+"/"+bdd;
             #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
             #pathModel = pathData+"/results/Fairface/pca_FeatureMap"
             #pathModel = pathData+"/results/Fairface_AF/average"
@@ -89,9 +95,9 @@ for bdd in list_bdd:
             
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             if method == 'FeatureMap':
-                AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method))
+                AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
             else:
-                AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method))
+                AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method,  pathLLH = pathLLH))
             
             k += 1
 #            path = "../../results"+"/"+bdd+"\histo"
