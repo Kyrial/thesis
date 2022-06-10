@@ -22,6 +22,9 @@ if len(sys.argv) >1:
     if sys.argv[1]== 'mesoLR':
         sys.path.insert(1,'/home/tieos/work_swp-gpu/melvin/thesis/code/functions')
         pathData = '/home/tieos/work_swp-gpu/melvin/thesis/'
+    if sys.argv[1]== 'mesoLR-3T':
+        sys.path.insert(1,'/home/tieos/work_cefe_swp-smp/melvin/thesis/code/functions')
+        pathData = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
     elif sys.argv[1] == 'sonia':
         pathData =  '/media/sonia/DATA/data_nico/'
 
