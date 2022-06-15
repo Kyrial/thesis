@@ -60,10 +60,11 @@ else:
     list_bdd = ['MART']
     list_bdd = ['CFD_WM']
 
-    method = "average"#_FeatureMap"
+    
     #method = "FeatureMap"
     #method = "max"#_FeatureMap"
     method = "pca"
+    method = "average"#_FeatureMap"
 if len(sys.argv) >4:
     pathModel = sys.argv[4]
 #####################################################################################

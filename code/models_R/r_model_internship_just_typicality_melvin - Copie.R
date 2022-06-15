@@ -17,8 +17,8 @@ library("dplyr")
 
 library(caret)
 library(glmnet)
-
 setwd("/home/renoult/Bureau/thesis/code/functions")
+setwd("/Users/koala/source/repos/thesis/code/functions")
 #####################################################################################
 # 3. PARAMETRES: def analyse_metrics(model_name, bdd, weight, metric,k):
 #####################################################################################
@@ -29,6 +29,8 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 
 model_name <- 'VGG16'
 bdd <- 'CFD_WM'
+bdd <- 'CFD_AF'
+bdd <- 'SCUT-FBP'
 weight <- 'imagenet'
 metric <- 'gini_flatten'
 
@@ -50,12 +52,12 @@ metric <- 'gini_flatten'
         #path d'enregistrement des résultats et chargement des données  
         
         labels_path = paste('../../data/redesigned/',bdd,'/labels_',bdd,'.csv', sep='')
-        log_path =paste('../../results/',bdd,'/LLH_FeatureMap/LLH_',bdd,'_AllLLH.csv',sep = '')
+        #log_path =paste('../../results/',bdd,'/LLH_FeatureMap/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH_max/LLH_',bdd,'_AllLLH.csv',sep = '')
-        #log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
+        log_path =paste('../../results/',bdd,'/LLH_average/LLH_',bdd,'_AllLLH.csv',sep = '')
         #log_path =paste('../../results/',bdd,'/LLH_average_model/LLH_',bdd,'_AllLLH.csv',sep = '')
-        #log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
-        log_path =paste('../../results/',bdd,'/LLH_pca/LLH_',bdd,'_AllLLH.csv',sep = '')
+        log_path =paste('../../results/',bdd,'/LLH/LLH_',bdd,'_AllLLH.csv',sep = '')
+        #log_path =paste('../../results/',bdd,'/LLH_pca/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="")
         
         
@@ -133,6 +135,8 @@ metric <- 'gini_flatten'
         #ajouter les couches dense
        print(summary(model))
       
+       
+       
 plot(model)
        
        

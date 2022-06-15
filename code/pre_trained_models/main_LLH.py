@@ -60,7 +60,7 @@ else:
     list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
     list_bdd = ['MART']
     list_bdd = ['CFD_WM']
-
+    list_bdd = ['SCUT-FBP']
     method = "average"#_FeatureMap"
     #method = "FeatureMap"
     #method = "max"#_FeatureMap"
@@ -78,7 +78,7 @@ l = len(list_bdd)*len(list_weights)*len(list_metrics)
 #method = "_FeatureMap"
 method = "_average"
 #method = "_max"
-method = "_pca"
+#method = "_pca"
 
 
 
