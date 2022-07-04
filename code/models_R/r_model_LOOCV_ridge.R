@@ -11,7 +11,6 @@ library("tidyr")
 library("tibble")
 library("plyr")
 library("corrplot")
-library("FactoMineR")
 library("dplyr")
 library("caret")
 library("jtools")
@@ -22,7 +21,7 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 # 3. PARAMETERS:
 #####################################################################################
 model_name <- 'VGG16'
-bdd <- c('SCUT-FBP')
+bdd <- c('MART')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 subset_db1 = 700
@@ -82,9 +81,9 @@ df<- as.data.frame(df, optional = TRUE)
 df <- plyr::rename(df, c("V1" = "rate"))
 
 #shuffle for subsets
-rows <- sample(nrow(df))
-df = df[rows,]
-df = df[1:subset_db1,]
+#rows <- sample(nrow(df))
+#df = df[rows,]
+#df = df[1:subset_db1,]
 
 
 #####################################################################################
