@@ -1,7 +1,9 @@
 /data
 /home/renoult/Bureau/internship_cefe_2021/code/pre_trained_models/vggplaces
 /results/SCUT-FBP/pca
-
+/results/Fairface
+*/modele/
+/results/JEN/average/average_values_flatten.csv
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
 # User-specific files

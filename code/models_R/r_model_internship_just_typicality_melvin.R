@@ -14,6 +14,9 @@ library("plyr")
 library("corrplot")
 library("FactoMineR")
 library("dplyr")
+
+library(glmnet)
+
 setwd("/home/renoult/Bureau/thesis/code/functions")
 #####################################################################################
 # 3. PARAMETRES: def analyse_metrics(model_name, bdd, weight, metric,k):
@@ -44,7 +47,7 @@ metric <- 'gini_flatten'
         #path d'enregistrement des résultats et chargement des données  
         
         labels_path = paste('../../data/redesigned/',bdd,'/labels_',bdd,'.csv', sep='')
-        log_path =paste('../../results/',bdd,'/LLH_1/LLH_',bdd,'_AllLLH.csv',sep = '')
+        log_path =paste('../../results/',bdd,'/LLH_FeatureMap/LLH_',bdd,'_AllLLH.csv',sep = '')
         log_path_rate =paste('../../results/',bdd,'/log_', sep="")
         
         

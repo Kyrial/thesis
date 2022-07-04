@@ -23,6 +23,7 @@ from sklearn.decomposition import IncrementalPCA
 from sklearn import preprocessing
 from sklearn.mixture import GaussianMixture
 from sklearn.mixture import BayesianGaussianMixture
+
 from sklearn import metrics
 
 import csv
@@ -108,9 +109,11 @@ def BIC(X, verbose = False, plot = True, nbMaxComp = 20):
 
 #gm = BayesianGaussianMixture(n_components =10, n_init = 2, weight_concentration_prior_type ="dirichlet_process", weight_concentration_prior =0.0000000001).fit(X_scale)
 
+def getBayesianGaussian(X, plot = True, index = 1, nbMaxComp = 50):
+    bgm = BayesianGaussianMixture(n_components=nbMaxComp).fit(X)
+    return bgm
 
-
-def getMultigaussian(X, plot= [True,True], name ="Gaussian Mixture", index = 1, nbMaxComp = 50):
+def getMultigaussian(X, plot = True, name ="Gaussian Mixture", index = 1, nbMaxComp = 50):
     """! a partir d'un array, calcul le BIC, si plot, appelle MultiDimensionalScaling(X) afin d'obtenir un Array en 2D pour l'afficher
     @param X array de dimension N
     @param [facultatif] plot Boolean, affiche ou nom le graphique
@@ -128,12 +131,13 @@ def getMultigaussian(X, plot= [True,True], name ="Gaussian Mixture", index = 1, 
              #   random_state = 1
       #      )
     #gm.fit(X) 
-    gm = BIC(X, verbose = False, plot = plot[0], nbMaxComp = nbMaxComp)
-    plt.show()
+    gm = BIC(X, verbose = False, plot = plot, nbMaxComp = nbMaxComp)
+    if plot:
+        plt.show()
 
-    if plot[1]:
-        X_MDS = MultiDimensionalScaling(X) 
-        plots.plot_MultiGaussian(llh, index, name, X_MDS)
+    #if plot[1]:
+    #    X_MDS = MultiDimensionalScaling(X) 
+    #    plots.plot_MultiGaussian(llh, index, name, X_MDS)
     return gm
 
 
@@ -158,11 +162,11 @@ def DoMultipleLLH(gmm_kde, X_model, nbe, X_train):
     for i in range(nbe):
         gmm_kde.fit(X_model)
         LLH = gmm_kde.score_samples(X_train); #récupère LLH
-        AllLLH.append(np.transpose(LLH))
-        #LLH_tr = np.transpose([LLH]) #transpose
-        #std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
-        #LLH_tr = std_scale.transform(LLH_tr)
-        #AllLLH.append(np.transpose(LLH_tr)[0])
+        #AllLLH.append(np.transpose(LLH))
+        LLH_tr = np.transpose([LLH]) #transpose
+        std_scale = preprocessing.StandardScaler().fit(LLH_tr) #centrer reduit
+        LLH_tr = std_scale.transform(LLH_tr)
+        AllLLH.append(np.transpose(LLH_tr)[0])
 
 #    AllLLH = np.array(AllLLH)
 #    plots.plot_correlation(AllLLH
@@ -196,7 +200,7 @@ def doHist(AllLLH, plot = False, name = "histogramme"):
         allHist.append(np.transpose(hist)[0])
     
     if plot:
-        plots.plotHist(AllLLH, name, max = 2)
+        plots.plotHist(AllLLH, name, max = 8)
     #if len(AllLLH)>1:
     #    compareValue(AllLLH[0], AllLLH[1])
     #    CompareOrdre(AllLLH[0], AllLLH[1])

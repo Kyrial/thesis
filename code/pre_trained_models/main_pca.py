@@ -44,14 +44,31 @@ import sparsenesslib.high_level as hl
 #####################################################################################
 PIL.Image.MAX_IMAGE_PIXELS = 30001515195151997
 478940                             
-#'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
-list_bdd = ['CFD_1']
-#list_bdd = ['SMALLTEST','BIGTEST','CFD','MART','JEN','SCUT-FBP']
+
 model_name = 'VGG16'  # 'vgg16, resnet (...)'
 #weights = 'vggface' #'imagenet','vggface'
 list_weights = ['imagenet'] #['vggface','imagenet','vggplace']
 #computer = 'LINUX-ES03' #no need to change that unless it's sonia's pc, that infamous thing; in which case, put 'sonia' in parameter.
 freqmod = 100 #frequency of prints, if 5: print for 1/5 images
+AllPC=[]
+
+list_bdd = ""
+method = ""
+if len(sys.argv) >3:
+    list_bdd = sys.argv[2].split(",")
+    method = sys.argv[3]
+else:
+    #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
+    list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
+    list_bdd = ['MART']
+    list_bdd = ['CFD_WM']
+
+    method = "average"#_FeatureMap"
+    #method = "FeatureMap"
+    #method = "max"#_FeatureMap"
+    method = "pca"
+
+
 #####################################################################################
 #CODE
 #####################################################################################
@@ -66,10 +83,16 @@ l = len(list_bdd)*len(list_weights)*len(list_metrics)
 for bdd in list_bdd:
     for weight in list_weights:
         for metric in list_metrics:
+            loadModele = ""
+            #loadModele = "results/SMALLTEST/FeatureMap"
+
+
             print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
             #hl.extract_pc_acp_block(bdd,weight,metric, model_name, pathData, freqmod,k)
             #k += 1
-            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k)
+            #computation='featureMap'
+            computation='flatten'
+            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k, computation,saveModele = False,loadModele = loadModele)
             k += 1
 
     
