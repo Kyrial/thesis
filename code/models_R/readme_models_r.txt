@@ -49,7 +49,10 @@
 	- r_model_10fold_ridge_ACP:
 	modèles 10-fold sur les ACP sur les composantes de chaque couche pour 80% de variance, output: BIC AIC R2 pour toutes les couches
 	
-	- r_model_10fold_ridge_gini: CHANGER NOM
+	-r_model_10fold_ridge_ACP_SCUT:
+	idem mais sans boucle, spécialement pour scut car sinon ça marche pas
+	
+	- r_model_10fold_ridge_acp_several_variance_treshold
 	modèles 10-fold sur les ACP sur les composantes de chaque couche pour des seuils de 20 à 80% de variance expliquée, output: graphes d'AIC/BIC min, R2max (parmis chaque couche) pour chaque % de 	variance
 
 	- r_model_LOOCV_ridge_ACP:
