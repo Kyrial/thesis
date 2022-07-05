@@ -58,13 +58,13 @@ else:
     #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
     list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
     list_bdd = ['MART']
-    list_bdd = ['CFD_WM']
+    list_bdd = ['SCUT-FBP']
 
     
-    #method = "FeatureMap"
+    method = "FeatureMap"
     #method = "max"#_FeatureMap"
-    method = "pca"
-    method = "average"#_FeatureMap"
+    #method = "pca"
+    #method = "average"#_FeatureMap"
 if len(sys.argv) >4:
     pathModel = sys.argv[4]
 #####################################################################################
@@ -98,7 +98,7 @@ for bdd in list_bdd:
             if method == 'FeatureMap':
                 AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
             else:
-                AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method,  pathLLH = pathLLH))
+                AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
             
             k += 1
 #            path = "../../results"+"/"+bdd+"\histo"

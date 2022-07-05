@@ -60,12 +60,12 @@ else:
     list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
     list_bdd = ['MART']
     list_bdd = ['CFD_WM']
-    list_bdd = ['SCUT-FBP']
+    #list_bdd = ['SCUT-FBP']
     method = "average"#_FeatureMap"
     #method = "FeatureMap"
     #method = "max"#_FeatureMap"
 
-    method = "pca"
+    #method = "pca"
 
 #####################################################################################
 #CODE

@@ -592,6 +592,9 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
             computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
     
     
+    #if bdd == "CFD":
+    #    getAllGenreEthnieCFD(labels_path, exception= {'ethnie' : "M"})
+
     if bdd == "Fairface":
         #filt = {'ethnie' : "Asian", 'genre' : "Female"}
         filt = {'ethnie' : "White", 'genre' : "Male"}
@@ -777,13 +780,17 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         filesModel = getAllFile(pathModel, formatOrdre)
     else:
         pathLLH = pathLLH+"/"+"LLH_"+method
+     
+    bgm = True
+    if bgm == True:
+        pathLLH=pathLLH+"_bgm"
 
     #pathLLH= pathLLH+"_bgm"
     #label, _ = readCsv(pathLabel, True)
     #label = np.transpose(label)[0]
     arrayIntra = []
     arrayInter = []
-    files =    ["average_values_fc1.csv","average_values_fc2.csv", "average_values_flatten.csv"]
+    #files =    ["average_values_fc1.csv","average_values_fc2.csv", "average_values_flatten.csv"]
     for each in files:
     #for each in ["average_values_fc1.csv","average_values_fc2.csv","average_values_flatten.csv"]:
         csv_path = pathPCA + "/" + each
@@ -796,8 +803,12 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
 
         #lll = model.shape[0]//2
         #print('######', each,"     ", x.shape[1])
-        #gm =metrics_melvin.getBayesianGaussian(model, nbMaxComp = 15)
-        gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 15) #min(12,model.shape[0]//2))
+       
+        if bgm == True:
+           
+            gm =metrics_melvin.getBayesianGaussian(model, nbMaxComp = 15)
+        else:
+            gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 15) #min(12,model.shape[0]//2))
         print("gauss")
         #metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)
@@ -994,7 +1005,37 @@ def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
     filtered = np.array(list(filter(lambda val:(
        (filt.get('genre','') in val or len(filt.get('genre','')) == 0) #soit match soit list vide
        and 
-       (filt.get('ethnie','') in val[3] or len(filt.get('ethnie','')) == 0))
+       (filt.get('ethnie','') in val[3] or len(filt.get('ethnie','')) == 0)
+       and
+       ( val[1] in ["more than 70","10 - 19", "3 - 9"])  #à tester
+       )
+                                    , x)))
+    #filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
+#    filtered = np.array(list(filter(lambda val:True, x)))
+    # and print(filt[1]," et ", val)
+    print(filtered[-1])
+    return filtered[:,0]
+
+
+
+def getAllGenreEthnieCFD(path, exception= {'ethnie' : "M"}):
+    x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
+    CategoryCFD = {"ethnie" : [], "genre" : []}
+    for a in x:
+        if not x[0][4] in CategoryCFD["ethnie"] and not x[0][4] in exception["ethnie"]:
+            CategoryCFD["ethnie"].append(x[0][4])
+        if not  x[0][5] in CategoryCFD["genre"]:
+            CategoryCFD["genre"].append(x[0][5])
+def parserCFD(path, filt = {'genre' : "F", 'ethnie' : "A"}):
+    x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
+    #si filtre pas empty:
+    filtered = np.array(list(filter(lambda val:(
+        (filt.get('genre','') in val or len(filt.get('genre','')) == 0) #soit match soit list vide
+        and 
+        (filt.get('ethnie','') in val[3] or len(filt.get('ethnie','')) == 0)
+        and
+        ( val[1] in ["more than 70","10 - 19", "3 - 9"])  #à tester
+        )
                                     , x)))
     #filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
 #    filtered = np.array(list(filter(lambda val:True, x)))
