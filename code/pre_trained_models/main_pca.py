@@ -61,10 +61,11 @@ else:
     #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
     list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
     list_bdd = ['MART']
-    list_bdd = ['CFD_WM']
+    list_bdd = ['CFD_ALL']
+    #list_bdd = ['SMALLTEST']
 
-    method = "average"#_FeatureMap"
-    #method = "FeatureMap"
+    #method = "average"#_FeatureMap"
+    method = "FeatureMap"
     #method = "max"#_FeatureMap"
     method = "pca"
 
@@ -92,7 +93,7 @@ for bdd in list_bdd:
             #k += 1
             #computation='featureMap'
             computation='flatten'
-            hl.extract_pc_acp(bdd,weight,metric, model_name, pathData, freqmod,k, computation,saveModele = False,loadModele = loadModele)
+            hl.preprocess_ACP(bdd,weight,metric, model_name, pathData, freqmod,k, computation,saveModele = False,loadModele = loadModele)
             k += 1
 
     

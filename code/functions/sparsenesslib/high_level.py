@@ -78,6 +78,10 @@ def getPaths(bdd, pathData):
             labels_path =pathData+'data/redesigned/'+bdd+'/labels_'+bdd+'.csv'
             images_path =pathData+'data/redesigned/'+bdd+'/images'
             log_path =pathData+'results/'+bdd+'/log_'
+        elif bdd in ['CFD_ALL']:
+            labels_path =pathData+'data/redesigned/CFD/labels_CFD.csv'
+            images_path =pathData+'data/redesigned/CFD/images'
+            log_path =pathData+'results/CFD/log_'
         elif bdd == 'SMALLTEST':
             labels_path =pathData+'data/redesigned/small_test/labels_test.csv'
             images_path =pathData+'data/redesigned/small_test/images'
@@ -381,7 +385,11 @@ def extract_metrics(bdd,weight,metric, model_name, computer, freqmod,k = 1):
     today = str(today)
     df_metrics.to_json(path_or_buf = log_path+'_'+bdd+'_'+weight+'_'+metric+'_'+'_BRUTMETRICS'+'.csv')
 #####################################################################################
-def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten',saveModele = False,loadModele=""):
+
+
+
+
+def extract_pc_acp(bdd, layers, computation, freqmod, model, images_path,imglist, k, loadModele, metric, path, saveModele):
     '''
     something like a main, but in a function (with all previous function)
     ,also, load paths, models/weights parameters and write log file
@@ -390,51 +398,14 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
 
     Version for compute pca (loop on layers before loop on pictures)    
     '''
-
-    t0 = time.time()
-
-    if computer == 'LINUX-ES03':
-        computer = '../../'
-
-
-    labels_path, images_path, log_path = getPaths(bdd, computer)
-    model, layers, flatten_layers =configModel(model_name, weight)
     
-    #sur le mesoLR, le chemin d'écriture et de lecture est différent
-    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/': 
-            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
-    if loadModele !="":
-        loadModele = computer+loadModele
-    #adapte le chemin suivant la methode 
-    if computation == 'flatten':
-        path= computer+"results"+"/"+bdd+"/pca"
-    elif computation == 'featureMap': 
-        path= computer+"results"+"/"+bdd+"/FeatureMap"
-
-
-
-    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
-    dict_labels = {}
-    print("path :", computer)
-    if bdd == "Fairface":
-        #filt = {'ethnie' : "Asian", 'genre' : "Female"}
-        filt = {'ethnie' : "White", 'genre' : "Male"}
-        imglist = parserFairface(labels_path,filt)
-        #imglist = parserFairface(labels_path)
-        for key, item in filt.items():
-            if bdd == "Fairface":
-                bdd = bdd+"_"
-            bdd = bdd+item[0]
-        print("BDD: ", bdd,"\n\n")
-    else:
-        imglist = [f for f in os.listdir(images_path)]
     print("longueur imglist: ", len(imglist))
     activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
     
     
-    nbComp = pandas.DataFrame()
+    #nbComp = pandas.DataFrame()
     for layer in layers:
-
+    
         
         print('##### current layer is: ', layer)
         #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
@@ -448,7 +419,7 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
         #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
         #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
         
-
+    
         if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
             if loadModele!="":
                 comp = metrics.acp_layers_loadModele(dict_activations, pc, bdd, layer, path,modelePath = loadModele)
@@ -459,14 +430,80 @@ def extract_pc_acp(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
                 comp = metrics.acp_layers_featureMap_loadModele(dict_activations, pc, bdd, layer, path,modelePath = loadModele)
             else:
                 comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path, saveModele = saveModele)
-        nbComp =  pandas.concat([nbComp,comp],axis = 1)
-        #comp = pandas.DataFrame  (comp)
-       # nbComp[layer] = comp
-    #nbComp.columns = [layers]
-    nbComp.to_csv(path+"/"+"compPC.csv")
+
+
+
+def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten',saveModele = False,loadModele=""):
+    '''
+    met en place les composant pour l'execution de l'ACP
+
+    '''
+    allCFD = False
+    if bdd == "CFD_ALL":
+        allCFD = True
+        bdd = "CFD"
+
+    t0 = time.time()
+
+    if computer == 'LINUX-ES03':
+        computer = '../../'
+
+    labels_path, images_path, log_path = getPaths(bdd, computer)
+    model, layers, flatten_layers =configModel(model_name, weight)
+    
+    #sur le mesoLR, le chemin d'écriture et de lecture est différent
+    if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':  #lecture
+            computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' #ecriture
+    if loadModele !="":
+        loadModele = computer+loadModele
+    #adapte le chemin suivant la methode 
+    if computation == 'flatten':
+        path= computer+"results"+"/"+bdd+"/pca"
+    elif computation == 'featureMap': 
+        path= computer+"results"+"/"+bdd+"/FeatureMap"
+
+
+    #dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
+    #dict_labels = {}
+    print("path :", computer)
+
+   ##########
+    if allCFD == True:
+        combinaison = getAllGenreEthnieCFD(labels_path, exception= {'ethnie' : ["M","I"]})
+
+        for key in combinaison.keys():
+            if key == "":
+                bdd = "CFD"
+            else:
+                bdd = "CFD_"+key
+            imglist = combinaison[key]
+            #adapte le chemin suivant la methode 
+            if computation == 'flatten':
+                path= computer+"results"+"/"+bdd+"/pca"
+            elif computation == 'featureMap': 
+                path= computer+"results"+"/"+bdd+"/FeatureMap"
+            extract_pc_acp(bdd,layers, computation, freqmod,  model,images_path, imglist, k, loadModele, metric, path, saveModele)
+    ############   
+    else:
+        if bdd == "Fairface":
+            #filt = {'ethnie' : "Asian", 'genre' : "Female"}
+            filt = {'ethnie' : "White", 'genre' : "Male"}
+            imglist = parserFairface(labels_path,filt)
+            #imglist = parserFairface(labels_path)
+            for key, item in filt.items():
+                if bdd == "Fairface":
+                    bdd = bdd+"_"
+                bdd = bdd+item[0]
+            print("BDD: ", bdd,"\n\n")
+        else:
+            imglist = [f for f in os.listdir(images_path)]
+    
+
+        extract_pc_acp(bdd, layers, computation, freqmod,  model,images_path,imglist, k, loadModele, metric, path, saveModele)
         
     if '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' in path:
         path = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
+    
     spm.parse_rates(labels_path, dict_labels)
     
     today = date.today()
@@ -566,7 +603,7 @@ def extract_pc_acp_filter(bdd,weight,metric, model_name, computer, freqmod,k = 1
         #dict_compute_pc[layer] = pc
         
     
-    spm.parse_rates(labels_path, dict_labels)
+    #spm.parse_rates(labels_path, dict_labels)
     
     today = date.today()
     today = str(today)
@@ -592,8 +629,8 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
             computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
     
     
-    #if bdd == "CFD":
-    #    getAllGenreEthnieCFD(labels_path, exception= {'ethnie' : "M"})
+    if bdd == "CFD":
+        getAllGenreEthnieCFD(labels_path, exception= {'ethnie' : "M"})
 
     if bdd == "Fairface":
         #filt = {'ethnie' : "Asian", 'genre' : "Female"}
@@ -989,16 +1026,7 @@ def getSousBDD(acp, label, min = 0, max=100):
     filterLabel = np.where((label >min) & (label < max), True, False)
     model = acp[filterLabel]
     return model
-'''
-    def parserFairface(path, filt = ["Female","Asian"]):
-        x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
-        filtered = np.array(list(filter(lambda val:( filt[0] in val and filt[1] in val[3] ), x)))
-        #filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
-    #    filtered = np.array(list(filter(lambda val:True, x)))
-        # and print(filt[1]," et ", val)
-        print(filtered[-1])
-        return filtered[:,0]
-'''
+
 
 def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
@@ -1018,23 +1046,36 @@ def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
 
 
 
-def getAllGenreEthnieCFD(path, exception= {'ethnie' : "M"}):
+def getAllGenreEthnieCFD(path, exception= {'ethnie' : ["M","I"]}):
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
-    CategoryCFD = {"ethnie" : [], "genre" : []}
-    for a in x:
-        if not x[0][4] in CategoryCFD["ethnie"] and not x[0][4] in exception["ethnie"]:
-            CategoryCFD["ethnie"].append(x[0][4])
-        if not  x[0][5] in CategoryCFD["genre"]:
-            CategoryCFD["genre"].append(x[0][5])
+    CategoryCFD = {"ethnie" : [""], "genre" : [""]}
+    #CategoryCFD = {}
+    for row in x:
+        if not row[0][4] in CategoryCFD["ethnie"] and not row[0][4] in exception["ethnie"]:
+            CategoryCFD["ethnie"].append(row[0][4])
+        if not  row[0][5] in CategoryCFD["genre"]:
+            CategoryCFD["genre"].append(row[0][5])
+   
+    combinaison = {}
+
+    for i in reversed(CategoryCFD["ethnie"]):
+        for j in reversed(CategoryCFD["genre"]):
+            #combinaison.append(i+j)
+            combinaison[i+j] = parserCFD(path, filt = {'genre' : j, 'ethnie' : i})
+            #parserCFD(path, filt = {'genre' : j, 'ethnie' : i})
+    print("ma")
+    return combinaison
+    
+
+
+
 def parserCFD(path, filt = {'genre' : "F", 'ethnie' : "A"}):
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
     #si filtre pas empty:
     filtered = np.array(list(filter(lambda val:(
-        (filt.get('genre','') in val or len(filt.get('genre','')) == 0) #soit match soit list vide
+        (filt.get('genre','') in val[0][5] or len(filt.get('genre','')) == 0) #soit match soit list vide
         and 
-        (filt.get('ethnie','') in val[3] or len(filt.get('ethnie','')) == 0)
-        and
-        ( val[1] in ["more than 70","10 - 19", "3 - 9"])  #à tester
+        (filt.get('ethnie','') in val[0][4] or len(filt.get('ethnie','')) == 0)
         )
                                     , x)))
     #filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
