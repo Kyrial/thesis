@@ -58,8 +58,8 @@ else:
     #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
     list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
     list_bdd = ['MART']
-    list_bdd = ['SCUT-FBP']
-
+    #list_bdd = ['SCUT-FBP']
+    list_bdd = ['CFD_ALL']
     
     method = "FeatureMap"
     #method = "max"#_FeatureMap"
@@ -75,6 +75,14 @@ list_metrics = ['acp']
 
 k = 1
 l = len(list_bdd)*len(list_weights)*len(list_metrics)
+
+if "CFD_ALL" in list_bdd:
+    list_bdd.remove("CFD_ALL")
+    for f in reversed(os.listdir(pathData+"/results"+"/")):
+        if "CFD" == f or "CFD_" in f:
+            list_bdd.append(f)
+
+
 for bdd in list_bdd:
     for weight in list_weights:
         _, layers, _ = hl.configModel(model_name, weight)
@@ -86,6 +94,7 @@ for bdd in list_bdd:
             path = pathData+"/results"+"/"+bdd;
             if pathLLH !="":
                 pathLLH =pathLLH+"/results"+"/"+bdd;
+
             #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
             #pathModel = pathData+"/results/Fairface/pca_FeatureMap"
             #pathModel = pathData+"/results/Fairface_AF/average"

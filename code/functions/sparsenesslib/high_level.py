@@ -609,13 +609,52 @@ def extract_pc_acp_filter(bdd,weight,metric, model_name, computer, freqmod,k = 1
     today = str(today)
 
     
-def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'featureMap'):
+def preprocess_average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'featureMap'):
     """!
     @param 
 
     @return 
     """
+    def average():
+        for count, batch in enumerate(list(chunked(imglist,100))):
+            #if count < 104:
+            #    continue
+            print(count, batch)
+            activations = getActivations_for_all_image(model,images_path,batch,computation, metric, freqmod)
+        
+        
+            #layers = ['fc1','fc2','flatten']
+            for layer in layers:
+        
+            
+                print('##### current layer is: ', layer)
+                #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
+                #elle retourne l'array des activations à la couche choisie
+                dict_activations = {}
+                get_activation_by_layer(activations,batch,dict_activations,computation, metric, k, layer)
+            
+                df_metrics = pandas.DataFrame.from_dict(dict_activations)
+                for index, row in df_metrics.iterrows():
+        
+                    df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T
+        
+        
+                    os.makedirs(path+"", exist_ok=True)
+                    #l'enregistrer dans results, en précisant la layer dans le nom
+                    if count == 0:
+                        df.to_csv(path+"/"+namefile+"_values_"+layer+".csv")
+                    else:
+                        df.to_csv(path+"/"+namefile+"_values_"+layer+".csv",mode='a', header=False)
+
+
+
     t0 = time.time()
+
+    allCFD = False
+    if bdd == "CFD_ALL":
+        allCFD = True
+        bdd = "CFD"
+
 
     if computer == 'LINUX-ES03':
         computer = '../../'
@@ -628,22 +667,7 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
     if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/': 
             computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/'
     
-    
-    if bdd == "CFD":
-        getAllGenreEthnieCFD(labels_path, exception= {'ethnie' : "M"})
-
-    if bdd == "Fairface":
-        #filt = {'ethnie' : "Asian", 'genre' : "Female"}
-        filt = {'ethnie' : "White", 'genre' : "Male"}
-        imglist = parserFairface(labels_path,filt)
-        #imglist = parserFairface(labels_path)
-        for key, item in filt.items():
-            if bdd == "Fairface":
-                bdd = bdd+"_"
-            bdd = bdd+item[0]
-    else:
-        imglist = [f for f in os.listdir(images_path)]
-    print("longueur imglist: ", len(imglist))
+   
 
         # adapte le chemin suivant la methode 
     # 
@@ -657,41 +681,47 @@ def average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation =
     #if computation == 'featureMap' and metric = 'acp':
     #    path= path+"_FeatureMap"
     
-    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
-    dict_labels = {}
+    #dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
+    #dict_labels = {}
+       ##########
+
+    if allCFD == True:
+        combinaison = getAllGenreEthnieCFD(labels_path, exception= {'ethnie' : ["M","I"]})
+
+        for key in combinaison.keys():
+            if key == "":
+                bdd = "CFD"
+            else:
+                bdd = "CFD_"+key
+            imglist = combinaison[key]
+            #adapte le chemin suivant la methode 
+            if metric == 'mean':
+                path= computer+"results"+"/"+bdd+"/average"
+                namefile =  "average"
+            elif metric == 'max':
+                path= computer+"results"+"/"+bdd+"/max"
+                namefile =  "max"
+            print("path :", computer)
+            average()
+    else:
+        if bdd == "Fairface":
+            #filt = {'ethnie' : "Asian", 'genre' : "Female"}
+            filt = {'ethnie' : "White", 'genre' : "Male"}
+            imglist = parserFairface(labels_path,filt)
+            #imglist = parserFairface(labels_path)
+            for key, item in filt.items():
+                if bdd == "Fairface":
+                    bdd = bdd+"_"
+                bdd = bdd+item[0]
+        else:
+            imglist = [f for f in os.listdir(images_path)]
+        print("longueur imglist: ", len(imglist))
+
+        average()
 
 
-
-    for count, batch in enumerate(list(chunked(imglist,100))):
-        #if count < 104:
-        #    continue
-        print(count, batch)
-        activations = getActivations_for_all_image(model,images_path,batch,computation, metric, freqmod)
-
-
-        #layers = ['fc1','fc2','flatten']
-        for layer in layers:
-
-        
-            print('##### current layer is: ', layer)
-            #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
-            #elle retourne l'array des activations à la couche choisie
-            dict_activations = {}
-            get_activation_by_layer(activations,batch,dict_activations,computation, metric, k, layer)
-        
-            df_metrics = pandas.DataFrame.from_dict(dict_activations)
-            for index, row in df_metrics.iterrows():
-
-                df = pandas.DataFrame.from_dict(dict(zip(row.index, row.values))).T
-
-
-                os.makedirs(path+"", exist_ok=True)
-                #l'enregistrer dans results, en précisant la layer dans le nom
-                if count == 0:
-                    df.to_csv(path+"/"+namefile+"_values_"+layer+".csv")
-                else:
-                    df.to_csv(path+"/"+namefile+"_values_"+layer+".csv",mode='a', header=False)
-            #gc.collect(generation = 2)
+    
+    
 
         
     if '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' in path:
@@ -818,7 +848,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     else:
         pathLLH = pathLLH+"/"+"LLH_"+method
      
-    bgm = True
+    bgm = False
     if bgm == True:
         pathLLH=pathLLH+"_bgm"
 
