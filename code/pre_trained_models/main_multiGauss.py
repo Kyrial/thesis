@@ -64,7 +64,7 @@ else:
     method = "FeatureMap"
     #method = "max"#_FeatureMap"
     #method = "pca"
-    #method = "average"#_FeatureMap"
+    method = "average"#_FeatureMap"
 if len(sys.argv) >4:
     pathModel = sys.argv[4]
 #####################################################################################
@@ -104,7 +104,7 @@ for bdd in list_bdd:
             #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
             
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
-            if method == 'FeatureMap':
+            if method == 'featureMap':
                 AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
             else:
                 AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
