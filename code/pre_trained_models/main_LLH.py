@@ -59,13 +59,13 @@ else:
     #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
     list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
     list_bdd = ['MART']
-    list_bdd = ['CFD_WM']
+    list_bdd = ['CFD_ALL']
     #list_bdd = ['SCUT-FBP']
     method = "average"#_FeatureMap"
-    #method = "FeatureMap"
+    method = "featureMap"
     #method = "max"#_FeatureMap"
 
-    #method = "pca"
+    method = "pca"
 
 #####################################################################################
 #CODE
@@ -76,7 +76,7 @@ l = len(list_bdd)*len(list_weights)*len(list_metrics)
 
 
 #method = "_FeatureMap"
-method = "_average"
+#method = "_average"
 #method = "_max"
 #method = "_pca"
 
@@ -116,6 +116,11 @@ def each2LLH(path1, path2):
     plots.plotPC([np.array(AllSpearman),np.array(AllPearson)], ["Spearman","Pearson"], layers, "Correlation pour MART entre Average et ACP_Global")
 
 
+if "CFD_ALL" in list_bdd:
+    list_bdd.remove("CFD_ALL")
+    for f in reversed(os.listdir(pathData+"/results"+"/")):
+        if "CFD" == f or "CFD_" in f:
+            list_bdd.append(f)
 
 
 for bdd in list_bdd:
@@ -132,7 +137,7 @@ for bdd in list_bdd:
             
             path = pathData+"results"+"/"+bdd;
             #pathLLH = path+"/"+"LLH_bestRepetition"
-            pathLLH = path+"/"+"LLH"+method# +"_model"
+            pathLLH = path+"/"+"LLH_"+method# +"_model"
             #_, layers, _ = hl.configModel(model_name, weight)
             #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
             

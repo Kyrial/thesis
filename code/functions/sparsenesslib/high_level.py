@@ -434,16 +434,22 @@ def extract_pc_acp(bdd, layers, computation, freqmod, model, images_path,imglist
 
 
 def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten',saveModele = False,loadModele=""):
+    '''!Met en place les composants pour l'execution de l'ACP.   
+        adapte les chemins d'entrée et sortie.
+        prétraite certaines bases de donnée (CFD_ALL, fairface)
     '''
-    met en place les composant pour l'execution de l'ACP
 
-    '''
+
+    ####### Passe le booleen a True pour CFD_ALL
+         ## CFD_ALL pour découper tout en sous ensemble CFD
     allCFD = False
     if bdd == "CFD_ALL":
         allCFD = True
         bdd = "CFD"
+    #######
 
     t0 = time.time()
+
 
     if computer == 'LINUX-ES03':
         computer = '../../'
@@ -454,6 +460,8 @@ def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     #sur le mesoLR, le chemin d'écriture et de lecture est différent
     if computer == '/home/tieos/work_cefe_swp-smp/melvin/thesis/':  #lecture
             computer = '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' #ecriture
+    
+    ## indique le chemin a charger si on charge le modèle        
     if loadModele !="":
         loadModele = computer+loadModele
     #adapte le chemin suivant la methode 
@@ -467,7 +475,7 @@ def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     #dict_labels = {}
     print("path :", computer)
 
-   ##########
+   ####### lance l'ACP sur chaque sous ensemble de CFD
     if allCFD == True:
         combinaison = getAllGenreEthnieCFD(labels_path, exception= {'ethnie' : ["M","I"]})
 
@@ -483,7 +491,7 @@ def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
             elif computation == 'featureMap': 
                 path= computer+"results"+"/"+bdd+"/FeatureMap"
             extract_pc_acp(bdd,layers, computation, freqmod,  model,images_path, imglist, k, loadModele, metric, path, saveModele)
-    ############   
+    #######   
     else:
         if bdd == "Fairface":
             #filt = {'ethnie' : "Asian", 'genre' : "Female"}
@@ -508,52 +516,6 @@ def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
     
     today = date.today()
     today = str(today)
-
-#def compute_pc_acp_average()
-
-
-def extract_pc_acp_block(bdd,weight,metric, model_name, computer, freqmod,k = 1, saveModele = False):
-    '''
-    something like a main, but in a function (with all previous function)
-    ,also, load paths, models/weights parameters and write log file
-
-    *k:index of the loop, default is 1*
-
-    Version for compute pca (loop on layers before loop on pictures) 
-    '''
-
-    t0 = time.time()
-    labels_path, images_path, log_path = getPaths(bdd, computer)
-    model, layers, flatten_layers =configModel(model_name, weight)
-
-    dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
-    dict_labels = {}
-
-    lastBlock = ""
-    for layer in layers:   
-        block =""
-        x = re.search("block\d*",layer)
-        if( x==None ):
-            block = layer
-        else:
-            block = x.group()
-        if lastBlock != block:
-            lastBlock = block
-            print('##### current block is: ', block)
-            #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
-            #elle retourne l'array des activations à la couche choisie
-            dict_activations = {}
-        
-            parse_activations_by_layer(model,images_path,dict_activations, block, 'flatten', metric, freqmod, k)
-
-            pc = []
-            #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
-            #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-            metrics.acp_layers(dict_activations, pc, bdd, block, True, computer, saveModele = saveModele)
-    spm.parse_rates(labels_path, dict_labels)
-    today = date.today()
-    today = str(today)
-
 
 
 
@@ -848,7 +810,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     else:
         pathLLH = pathLLH+"/"+"LLH_"+method
      
-    bgm = False
+    bgm = True
     if bgm == True:
         pathLLH=pathLLH+"_bgm"
 
@@ -915,36 +877,13 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     
     #plots.plotPC([arrayIntra, arrayInter], ["intra", "inter"], files, title = "moyenne des variance intra et inter image par couche");        
     return tabPC
-        
-def eachFileCSV_Centroid(path, formatOrdre = []):
-    """!
-    
-    @param path[] repertoire des CSV a traiter avec repertoire variance
-    @param formatOrdre permet de parcourir dans un ordre précis:
-        syntaxe: formatOrdre[  prefixe[], TabName[], sufixe]
 
-    """
-    #getAllFile(path[0], [formatOrdre[0][0], formatOrdre[1],formatOrdre[2]] )
 
-    if len(formatOrdre)==0: #ordre de parcours alphabétique
-        filesCP = [f for f in os.listdir(path[0])]    
-        filesVar = [f for f in os.listdir(path[1])]    
-    else: #parcours les fichier qui match avec formatOrdre
-        filesCP = [formatOrdre[0][0]+f+formatOrdre[2] for f in formatOrdre[1]]
-        filesVar = [formatOrdre[0][1]+f+formatOrdre[2] for f in formatOrdre[1]]  
-   
-    for eachCP,eachVar in zip(filesCP, filesVar):
-        csv_pathCP = path[0] + "/" + eachCP
-        csv_pathVar = path[1] + "/" + eachVar
-        cp, _ = readCsv(csv_pathCP) #recupère le CSV
-        var, _ = readCsv(csv_pathVar) #recupère le CSV
-        
 
-        print('######', eachCP,"  ",eachVar,"   ", cp.shape[1])
-        metrics_melvin.distToCentroid(cp, var, eachCP+"\n distance du Centroïd")
-
+#Melvin [Obsolete]
 def eachFileCSV_Kernel(path, filesPC):
-    """!
+    """! effectue l'opération KDE pour chaque couche de la bdd indiqué dans path, des fichier filesPC
+    
     """
     #tabPC = []
     pathPCA = path+"/"+"pca"
@@ -962,8 +901,11 @@ def eachFileCSV_Kernel(path, filesPC):
         metrics_melvin.doHist(AllLLH, plot = True, name = "distributions des LLH pour KDE")
 
 
+
+#Melvin [Obsolete]
 def each_compare_GMM_KDE(path, filesPC):
-    """!
+    """! KDE abandonné, obsolete
+    Fonction mère effectuant toute la pipeline de test entre la méthode GMM et KDE
     """
 
     pathPCA = path+"/"+"pca"
@@ -1011,10 +953,14 @@ def each_compare_GMM_KDE(path, filesPC):
 
 
 
-
+#Melvin
 def readCsv(path,noHeader = False,noNumerate = True, intervalle = []):
-    """
-    lit un fichier .csv, convertit toutes les valeurs en float et retourne un numpyArray
+    """! Lit un fichier .csv, convertit toutes les valeurs en float et retourne un numpyArray
+    @param path         chemin du csv
+    @param noHeader [optionnel]     boolean, ignore la premiere ligne si True
+    @param noNumerate [optionnel]  boolean, ignore la premiere colonne si True
+    @param interavelle [optionnel] tableau de 2 nombres, extrait les donnée du csv entre les ligne intervalle[0] et intervalle[1]
+    @return tableau numpy, list       retourne le tableau des donnée, et la liste de header du csv 
     """
     try:
         with open(path, newline='') as csvfile:
@@ -1045,20 +991,34 @@ def readCsv(path,noHeader = False,noNumerate = True, intervalle = []):
         print("an error has occurred ")
         return None, None
 
+
+#Melvin
 def CompareAndDoMedian(ArrayA,ArrayB):
+    """! Compare la moyenne de deux tableaux et affiche la correlation
+
+    """
     mA = np.median(ArrayA,axis=0)
     mB = np.median(ArrayB,axis=0)
     plots.plot_correlation([mA,mB])
 
-def getSousBDD(acp, label, min = 0, max=100):
-    if min==0 and max ==100:
-        min = np.quantile(label, .50)
-    filterLabel = np.where((label >min) & (label < max), True, False)
-    model = acp[filterLabel]
-    return model
+
+#obsolete, verifier avant d'enlever
+#def getSousBDD(acp, label, min = 0, max=100):
+#    if min==0 and max ==100:
+#        min = np.quantile(label, .50)
+#    filterLabel = np.where((label >min) & (label < max), True, False)
+#    model = acp[filterLabel]
+#    return model
 
 
+
+#Melvin
 def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
+    """! filtre Fairface par rapport a l'ethnie et au genre
+    @param path     chemin de fairface
+    @param filt     dictionnaire, extrait les images par etnie et par genre indiqué dans le dictionnaire
+    @return         retourne la liste des images filtrer par ethnie et genre
+    """
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
     filtered = np.array(list(filter(lambda val:(
        (filt.get('genre','') in val or len(filt.get('genre','')) == 0) #soit match soit list vide
@@ -1076,7 +1036,14 @@ def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
 
 
 
+#Melvin
 def getAllGenreEthnieCFD(path, exception= {'ethnie' : ["M","I"]}):
+    """! Extrait chaque éthnie et genre de CFD et retourne un dictionnaire {sous ensemble, liste images}
+    @param path     chemin de CFD
+    @param [facultatif] exception       Dictionnaire, ignore les ethnie du dictionnaire
+    @return         retourne un dictionnaire {sous ensemble : list images}
+    """
+
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
     CategoryCFD = {"ethnie" : [""], "genre" : [""]}
     #CategoryCFD = {}
@@ -1098,8 +1065,13 @@ def getAllGenreEthnieCFD(path, exception= {'ethnie' : ["M","I"]}):
     
 
 
-
+#Melvin
 def parserCFD(path, filt = {'genre' : "F", 'ethnie' : "A"}):
+    """! filtre CFD par rapport a l'ethnie et au genre
+    @param path     chemin de CFD
+    @param filt     dictionnaire, extrait les images par etnie et par genre indiqué dans le dictionnaire
+    @return         retourne la liste des images filtrer par ethnie et genre
+    """
     x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
     #si filtre pas empty:
     filtered = np.array(list(filter(lambda val:(
@@ -1112,4 +1084,16 @@ def parserCFD(path, filt = {'genre' : "F", 'ethnie' : "A"}):
 #    filtered = np.array(list(filter(lambda val:True, x)))
     # and print(filt[1]," et ", val)
     print(filtered[-1])
+
+    writeLabelCFD(path, filtered,filt["ethnie"]+filt["genre"])
+
     return filtered[:,0]
+
+def writeLabelCFD(path, label_Filtered,name):
+    #'../../data/redesigned/CFD/labels_CFD.csv'
+    df = pandas.DataFrame(label_Filtered)
+    #df = df.transpose()
+    dirPath = path.rsplit("/", 1)[0]+"_ALL"       
+    os.makedirs(dirPath, exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+    df.to_csv(dirPath+"/"+"labels_CFD_"+name+".csv")
