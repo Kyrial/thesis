@@ -1091,9 +1091,10 @@ def parserCFD(path, filt = {'genre' : "F", 'ethnie' : "A"}):
 
 def writeLabelCFD(path, label_Filtered,name):
     #'../../data/redesigned/CFD/labels_CFD.csv'
-    df = pandas.DataFrame(label_Filtered)
-    #df = df.transpose()
+    df = pandas.DataFrame(label_Filtered,)
+    
+
     dirPath = path.rsplit("/", 1)[0]+"_ALL"       
     os.makedirs(dirPath, exist_ok=True)
         #l'enregistrer dans results, en précisant la layer dans le nom
-    df.to_csv(dirPath+"/"+"labels_CFD_"+name+".csv")
+    df.to_csv(dirPath+"/"+"labels_CFD_"+name+".csv",header=False, index= False)
