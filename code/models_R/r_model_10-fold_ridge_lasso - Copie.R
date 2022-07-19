@@ -16,12 +16,15 @@ library("caret")
 library("jtools")
 library("broom.mixed")
 library("glmnet")
+library("readr")
 setwd("/home/renoult/Bureau/thesis/code/functions")
 #####################################################################################
 # 3. PARAMETERS:
 #####################################################################################
 model_name <- 'VGG16'
 bdds <- c('CFD','CFD_A','CFD_AF','CFD_AM','CFD_B','CFD_BF','CFD_BM','CFD_F','CFD_L','CFD_LF','CFD_LM','CFD_M','CFD_W','CFD_WF','CFD_WM')
+bdds <- c('CFD','CFD_AM','CFD_B','CFD_BF','CFD_BM','CFD_L','CFD_LF','CFD_LM','CFD_M','CFD_W','CFD_WF','CFD_WM')
+
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 regularization = 'ridge'
@@ -29,9 +32,9 @@ regularization = 'ridge'
 
 print(bdds)
 #method <- c('FeatureMap')
-#method <- c('featureMap')
+method <- c('featureMap')
 method <- c('pca')
-#method <- c('average')
+method <- c('average')
 
 subset_db1 = 700
 

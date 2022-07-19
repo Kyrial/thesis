@@ -477,7 +477,7 @@ def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
 
    ####### lance l'ACP sur chaque sous ensemble de CFD
     if allCFD == True:
-        combinaison = getAllGenreEthnieCFD(labels_path, exception= {'ethnie' : ["M","I"]})
+        combinaison = getAllGenreEthnieCFD(labels_path)#, exception= {'ethnie' : ["M","I"]})
 
         for key in combinaison.keys():
             if key == "":
@@ -648,7 +648,7 @@ def preprocess_average(bdd,weight,metric, model_name, computer, freqmod,k = 1,co
        ##########
 
     if allCFD == True:
-        combinaison = getAllGenreEthnieCFD(labels_path, exception= {'ethnie' : ["M","I"]})
+        combinaison = getAllGenreEthnieCFD(labels_path)#, exception= {'ethnie' : ["M","I"]})
 
         for key in combinaison.keys():
             if key == "":
@@ -878,8 +878,27 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     #plots.plotPC([arrayIntra, arrayInter], ["intra", "inter"], files, title = "moyenne des variance intra et inter image par couche");        
     return tabPC
 
+def countPC(path, formatOrdre = [],writeLLH = False, pathModel = "", method = "pca", pathLLH = ""):
+    tabPC = []
+    pathPCA = path+"/"+method
+  #  pathPCA = path+"/"+"pca_FeatureMap"
+    #pathModel = path+"/"+"average_FeatureMap"
+    
+
+    
+
+    files = getAllFile(pathPCA, formatOrdre)
+   
 
 
+
+    #files =    ["average_values_fc1.csv","average_values_fc2.csv", "average_values_flatten.csv"]
+    for each in files:
+    #for each in ["average_values_fc1.csv","average_values_fc2.csv","average_values_flatten.csv"]:
+        csv_path = pathPCA + "/" + each
+        x, _ = readCsv(csv_path) #recupère le CSV
+        tabPC.append(x.shape[1])
+    return tabPC
 #Melvin [Obsolete]
 def eachFileCSV_Kernel(path, filesPC):
     """! effectue l'opération KDE pour chaque couche de la bdd indiqué dans path, des fichier filesPC
@@ -1034,10 +1053,11 @@ def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
     print(filtered[-1])
     return filtered[:,0]
 
-
+#exception= {'ethnie' : ["M","I", 'B', 'L', 'W'], "genre" : ["M"]}
+#exception= {'ethnie' : ["M","I"], "genre" : ["none"]}
 
 #Melvin
-def getAllGenreEthnieCFD(path, exception= {'ethnie' : ["M","I"]}):
+def getAllGenreEthnieCFD(path, exception= {'ethnie' : ["M","I", 'B', 'L', 'W'], "genre" : ["M"]}):
     """! Extrait chaque éthnie et genre de CFD et retourne un dictionnaire {sous ensemble, liste images}
     @param path     chemin de CFD
     @param [facultatif] exception       Dictionnaire, ignore les ethnie du dictionnaire
@@ -1050,7 +1070,7 @@ def getAllGenreEthnieCFD(path, exception= {'ethnie' : ["M","I"]}):
     for row in x:
         if not row[0][4] in CategoryCFD["ethnie"] and not row[0][4] in exception["ethnie"]:
             CategoryCFD["ethnie"].append(row[0][4])
-        if not  row[0][5] in CategoryCFD["genre"]:
+        if not  row[0][5] in CategoryCFD["genre"] and not row[0][5] in exception["genre"]:
             CategoryCFD["genre"].append(row[0][5])
    
     combinaison = {}
@@ -1072,7 +1092,7 @@ def parserCFD(path, filt = {'genre' : "F", 'ethnie' : "A"}):
     @param filt     dictionnaire, extrait les images par etnie et par genre indiqué dans le dictionnaire
     @return         retourne la liste des images filtrer par ethnie et genre
     """
-    x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
+    x, head = readCsv(path,noHeader = True,noNumerate = False)  #recupère le CSV
     #si filtre pas empty:
     filtered = np.array(list(filter(lambda val:(
         (filt.get('genre','') in val[0][5] or len(filt.get('genre','')) == 0) #soit match soit list vide
@@ -1094,7 +1114,7 @@ def writeLabelCFD(path, label_Filtered,name):
     df = pandas.DataFrame(label_Filtered,)
     
 
-    dirPath = path.rsplit("/", 1)[0]+"_ALL"       
+    dirPath = path.rsplit("/", 1)[0]+"_ALL" 
     os.makedirs(dirPath, exist_ok=True)
         #l'enregistrer dans results, en précisant la layer dans le nom
     df.to_csv(dirPath+"/"+"labels_CFD_"+name+".csv",header=False, index= False)

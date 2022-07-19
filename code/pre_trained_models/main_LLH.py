@@ -62,13 +62,13 @@ else:
     list_bdd = ['CFD_ALL']
     #list_bdd = ['SCUT-FBP']
     method = "average"#_FeatureMap"
-    method = "featureMap"
+    #method = "featureMap"
     #method = "max"#_FeatureMap"
 
-    method = "pca"
+    #method = "pca"
 
-    method = "featureMap_bgm"
-    method = "pca_bgm"
+    #method = "featureMap_bgm"
+    #method = "pca_bgm"
 #####################################################################################
 #CODE
 #####################################################################################

@@ -61,9 +61,9 @@ else:
     #list_bdd = ['SCUT-FBP']
     list_bdd = ['CFD_ALL']
     
-    #method = "featureMap"
+    method = "featureMap"
     #method = "max"#_FeatureMap"
-    method = "pca"
+    #method = "pca"
     #method = "average"#_FeatureMap"
 if len(sys.argv) >4:
     pathModel = sys.argv[4]
