@@ -30,7 +30,7 @@ setwd("/Users/koala/source/repos/thesis/code/functions")
 model_name <- 'VGG16'
 bdd <- 'CFD_WM'
 bdd <- 'CFD_AF'
-bdd <- 'SCUT-FBP'
+bdd <- 'MART'
 weight <- 'imagenet'
 metric <- 'gini_flatten'
 

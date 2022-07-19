@@ -61,10 +61,10 @@ else:
     #list_bdd = ['SCUT-FBP']
     list_bdd = ['CFD_ALL']
     
-    method = "FeatureMap"
+    #method = "featureMap"
     #method = "max"#_FeatureMap"
-    #method = "pca"
-    method = "average"#_FeatureMap"
+    method = "pca"
+    #method = "average"#_FeatureMap"
 if len(sys.argv) >4:
     pathModel = sys.argv[4]
 #####################################################################################
@@ -115,4 +115,4 @@ for bdd in list_bdd:
            
         #plots.plotPC(AllPC, list_bdd, layers)
 #####################################################################################
-import main_LLH 
+#import main_LLH 
