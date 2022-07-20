@@ -48,8 +48,8 @@ else:
     #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
     list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
     list_bdd = ['MART']
-    list_bdd = ['CFD_WM']
-    list_bdd = ['CFD_ALL']
+    list_bdd = ['Fairface']
+    #list_bdd = ['CFD_ALL']
     #method = "average"#_FeatureMap"
     #method = "FeatureMap"
     #method = "max"#_FeatureMap"

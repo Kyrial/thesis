@@ -667,6 +667,7 @@ def preprocess_average(bdd,weight,metric, model_name, computer, freqmod,k = 1,co
             average()
     else:
         if bdd == "Fairface":
+            getAllGenreEthnieFairFace(labels_path)
             #filt = {'ethnie' : "Asian", 'genre' : "Female"}
             filt = {'ethnie' : "White", 'genre' : "Male"}
             imglist = parserFairface(labels_path,filt)
@@ -810,7 +811,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     else:
         pathLLH = pathLLH+"/"+"LLH_"+method
      
-    bgm = True
+    #bgm = True
     if bgm == True:
         pathLLH=pathLLH+"_bgm"
 
@@ -1031,6 +1032,40 @@ def CompareAndDoMedian(ArrayA,ArrayB):
 
 
 
+
+#Melvin
+def getAllGenreEthnieFairFace(path, exception= {'ethnie' : ['Middle Eastern',"Indian"], "genre" : ["none"]}):
+    """! Extrait chaque éthnie et genre de CFD et retourne un dictionnaire {sous ensemble, liste images}
+    @param path     chemin de CFD
+    @param [facultatif] exception       Dictionnaire, ignore les ethnie du dictionnaire
+    @return         retourne un dictionnaire {sous ensemble : list images}
+    """
+
+    x, head = readCsv(path,noHeader = False,noNumerate = False)  #recupère le CSV
+    CategoryFairface = {"ethnie" : [""], "genre" : [""]}
+    #CategoryCFD = {}
+    for row in x:
+        #0: imageName, 1: age, 2: genre, 3: ethnie  
+        if "Asian" in row[3] :
+            row[3] = "Asian"
+        if not row[3] in CategoryFairface["ethnie"] and not row[3] in exception["ethnie"]:
+            CategoryFairface["ethnie"].append(row[3])
+        if not  row[2] in CategoryFairface["genre"] and not row[2] in exception["genre"]:
+            CategoryFairface["genre"].append(row[2])
+   
+    combinaison = {}
+
+    for i in reversed(CategoryFairface["ethnie"]):
+        for j in reversed(CategoryFairface["genre"]):
+            #combinaison.append(i+j)
+            combinaison[i[0]+j[0]] = parserFairface(path, filt = {'genre' : j, 'ethnie' : i})
+            #parserCFD(path, filt = {'genre' : j, 'ethnie' : i})
+    print("ma")
+    return combinaison
+    
+
+
+
 #Melvin
 def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
     """! filtre Fairface par rapport a l'ethnie et au genre
@@ -1044,7 +1079,7 @@ def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
        and 
        (filt.get('ethnie','') in val[3] or len(filt.get('ethnie','')) == 0)
        and
-       ( val[1] in ["more than 70","10 - 19", "3 - 9"])  #à tester
+       (not val[1] in ["more than 70","10-19", "3-9","0-2"])  #à tester
        )
                                     , x)))
     #filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
@@ -1083,6 +1118,7 @@ def getAllGenreEthnieCFD(path, exception= {'ethnie' : ["M","I", 'B', 'L', 'W'], 
     print("ma")
     return combinaison
     
+
 
 
 #Melvin

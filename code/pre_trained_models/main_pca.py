@@ -92,7 +92,8 @@ for bdd in list_bdd:
             #hl.extract_pc_acp_block(bdd,weight,metric, model_name, pathData, freqmod,k)
             #k += 1
             #computation='featureMap'
-            #computation='flatten'
+            if computation == "pca":
+                computation='flatten'
             hl.preprocess_ACP(bdd,weight,metric, model_name, pathData, freqmod,k, method,saveModele = False,loadModele = loadModele)
             k += 1
 
