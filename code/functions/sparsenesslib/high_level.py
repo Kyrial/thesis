@@ -811,7 +811,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     else:
         pathLLH = pathLLH+"/"+"LLH_"+method
      
-    #bgm = True
+    bgm = False
     if bgm == True:
         pathLLH=pathLLH+"_bgm"
 
