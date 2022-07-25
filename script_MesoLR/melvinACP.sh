@@ -5,6 +5,7 @@
 #SBATCH --ntasks-per-node=1
 #SBATCH --time=999:00:00
 #SBATCH --partition=muse-visu
+#SBATCH --account=swp-gpu
 
 
 echo "Running Average Melvin"

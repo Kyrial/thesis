@@ -8,7 +8,7 @@
 #SBATCH --account=cefe_swp-smp
 
 
-echo "Running Average Melvin"
+echo "Running ACP 3T Melvin"
 if [ $# -lt 2 ]
   then
     
