@@ -21,13 +21,14 @@ Account (nom du groupe) : swp-gpu
 Partition(s) : muse-visu
 
 commande connexion ssh:
+
 ```ssh tieos@muse-login.hpc-lr.univ-montp2.fr```
 
 ## Arborescence
 Racine:
 
 `/home`
-
+----
 Emplacement des scripts d'execution afin de faire tourner les programmes:
 
 `/home/scratch`
