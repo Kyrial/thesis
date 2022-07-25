@@ -39,7 +39,7 @@ Emplacement des programmes et données (en lecture et écriture)
 
 ----
 
-### Noeud Visu (3 Terra ram)
+### Noeud (3 Terra ram)
 
 Emplacement programmes et données ( ACCES EN LECTURE UNIQUEMENT )
 
