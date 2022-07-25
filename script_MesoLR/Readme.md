@@ -28,7 +28,9 @@ commande connexion ssh:
 Racine:
 
 `/home`
+
 ----
+
 Emplacement des scripts d'execution afin de faire tourner les programmes:
 
 `/home/scratch`
