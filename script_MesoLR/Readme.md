@@ -31,13 +31,15 @@ Emplacement des scripts d'execution et des output afin de faire tourner les prog
 `/home/scratch`
 
 
-#### Noeud Visu (128 Ga ram)
+### Noeud Visu (128 Ga ram)
 
 Emplacement des programmes et données (en lecture et écriture)
 
 `/home/work_swp-gpu`
 
-#### Noeud Visu (3 Terra ram)
+----
+
+### Noeud Visu (3 Terra ram)
 
 Emplacement programmes et données ( ACCES EN LECTURE UNIQUEMENT )
 
@@ -52,6 +54,9 @@ Emplacement des données (ACCES EN ECRITURE UNIQUEMENT)
 donc, si tieos est user:
 
 ```/lustre/tieos/work_cefe_swp-smp/```
+
+----
+
 ## commande mesoLR
 
 Execution de scripts
@@ -86,8 +91,6 @@ ensuite spécifier le groupe :
 
 ----
 
-
-
 # Transfert de fichier par SFTP
 
 permet de transferer entre la machine local et le MesoLR tout type de dossiers et fichiers
@@ -110,15 +113,19 @@ afficher le chemin du repertoire courant de la machine local
 
 `lpwd`
 
+----
+
 ### Envoie de données au MesoLR
 
-##### envoie d'un fichier
+#### envoie d'un fichier
 
 `put path_file`
 
 path_file = chemin relatif par rapport au répertoire courant de la machine local
 
-##### envoie d'un dossier:
+----
+
+#### envoie d'un dossier:
 
 le dossier doit etre créer préalablement,
 
@@ -128,15 +135,17 @@ création d'un dossier:
 
 name = nom du dossier
 
-#####
+----
 
-envoie d'une arborescence de fichier 
+#### envoie d'une arborescence de fichier 
 
 `put -r path_file`
 
 ajout de -r pour forcer la récurcivité dans l'arborescence.
 
-#### recuperer des données du MesoLR 
+----
+
+### recuperer des données du MesoLR 
 
 `get path_file`
 
