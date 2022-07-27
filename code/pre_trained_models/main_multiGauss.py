@@ -112,7 +112,7 @@ for bdd in list_bdd:
             pathLLH =pathLLH+"/results"+"/"+bdd;
 
         if len(listModel)>0:
-            if bdd in dict.keys():
+            if bdd in listModel.keys():
                 pathModel = listModel[bdd]
             else:
                 continue
