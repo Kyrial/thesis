@@ -125,6 +125,7 @@ for bdd in list_bdd:
         #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
             
         #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
+        
         if method == 'featureMap':
             AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
         else:

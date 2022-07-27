@@ -843,6 +843,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         tabPC.append(x.shape[1])
         if pathModel !="":
             model, _ = readCsv(pathModel+ "/" + each)#, intervalle = [0,700])
+            if model is None:
+               break;
         else:
             model = x #getSousBDD(x, label)
 
