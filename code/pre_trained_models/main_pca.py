@@ -62,7 +62,7 @@ else:
     list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"
     list_bdd = ['MART']
     list_bdd = ['CFD_ALL']
-    #list_bdd = ['SMALLTEST']
+    list_bdd = ['SMALLTEST']
 
     #method = "average"#_FeatureMap"
     method = "FeatureMap"

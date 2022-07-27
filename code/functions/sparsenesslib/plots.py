@@ -9,6 +9,8 @@ import math as math
 import pandas
 
 def getCovariances(gmm):
+    """! permet de récuperer la covariance d'une GMM 
+    """
     #covar = np.array();
     if gmm.covariance_type == "full":
         covariances = gmm.covariances_#[:][:2, :2]
@@ -25,7 +27,11 @@ def getCovariances(gmm):
        # covariances = np.eye(gmm.means_.shape[1]) * gmm.covariances_[:]
     return covariances
 
+
+#obsolete
 def plot_MultiGaussian(X, gm, index, title, X_MDS = None):
+    """permet d'avoir visuellement la répartition des élément par rapport au gaussienne
+    """
     Y_ = gm.predict(X)
     means= gm.means_
     #covariances = gm.covariances_
@@ -83,6 +89,10 @@ def plot_MultiGaussian(X, gm, index, title, X_MDS = None):
 
 
 def plotBIC(tabBIC, best_gmm, cv_types = ["spherical", "tied", "diag", "full"], n_components_range =7):
+    """! affiche l'histograme correspondant au score de BIC pour chaque type de matrice de covariance
+
+    
+    """
     bic = np.array(tabBIC)
     color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange",  "darkviolet", "olive"])
 
@@ -116,6 +126,12 @@ def plotBIC(tabBIC, best_gmm, cv_types = ["spherical", "tied", "diag", "full"], 
     #plt.show()
 
 def plotPC(listPC, listBDD, layersName, title = "nombre PC par BDD par couche"):
+    """!Affiche un histogramme avec plusieurs types de données
+    #param listPC numpy de array, chaque array correspond a un type de données
+    #param listBDD, chaque type de données
+    #param layersName list des nom des graduation en X
+    #param title titre du plot
+    """
     pc = np.array(listPC)
     color_iter = itertools.cycle(["navy", "turquoise", "cornflowerblue", "darkorange",  "darkviolet", "olive"])
     bars = []
@@ -172,8 +188,13 @@ def plotPC(listPC, listBDD, layersName, title = "nombre PC par BDD par couche"):
         plt.show()
 """
 
-
+#Melvin
 def plotHist(AllLLH, name= "histogramme", max = 2):
+    """! calcul et affiche les histogramme de AllLLH
+    #param AllLLH contient les llh pour chaque répétition
+    #name nom afficher sur le plot
+    #max le nombre max de plot a afficher en meme temps
+    """
     bin = np.linspace(AllLLH.min(), AllLLH.max(),200)
     for i, llh in enumerate(AllLLH):
         if  i <max:
@@ -183,7 +204,11 @@ def plotHist(AllLLH, name= "histogramme", max = 2):
     plt.suptitle(name)
     plt.show()
 
+#Melvin
 def plotHist_fromFiles(AllHist, bin, name = "histo"):
+    """!affiche l'histogramme extrait d'un fichier
+    #param AllLLH contient les llh pour chaque répétition
+    """
     for i, hist in enumerate(AllHist):
         
         
@@ -195,7 +220,12 @@ def plotHist_fromFiles(AllHist, bin, name = "histo"):
     plt.xticks(list(map(lambda val: round(val,1),bin[::50])))
     plt.show()
 
+#Melvin
 def plot_correlation(AllLLH, name = "", nameXaxis= "", nameYaxis=""):
+    """! Affiche le diagramme de correlation entre les deux premier tableau de AllLLH
+    (correlation de spearman, personne et nuages de point)
+    #param AllLLH contient les llh pour chaque répétition
+    """
     if len(AllLLH)>1:
         
         df = pandas.DataFrame(AllLLH)
@@ -226,8 +256,12 @@ def plot_correlation(AllLLH, name = "", nameXaxis= "", nameYaxis=""):
         plt.show()
 
 
-       
+#melvin
+#[obsolete]    
 def plot_Grid_KDE(grid,bandwidths):
+    """! affiche la courbe correspondant aux scores pour chaque largeur de bandes
+
+    """
     scores = [val for val in grid.cv_results_["mean_test_score"]]
     plt.semilogx(bandwidths, scores)
     plt.xlabel('bandwidth')

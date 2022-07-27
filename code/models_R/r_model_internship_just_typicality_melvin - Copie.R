@@ -66,6 +66,7 @@ metric <- 'gini_flatten'
         
        
         matrix_beauty <- do.call(cbind,read.csv(file=labels_path, header=FALSE))
+        matrix_beauty <- matrix_beauty[-c(1),]
         colnames(matrix_beauty) <- c("img","rate")
         df_beauty <-subset(matrix_beauty, select = c(rate))
     # df_beauty$rate <-as.numeric(df_beauty$rate)

@@ -389,55 +389,60 @@ def extract_metrics(bdd,weight,metric, model_name, computer, freqmod,k = 1):
 
 
 
-def extract_pc_acp(bdd, layers, computation, freqmod, model, images_path,imglist, k, loadModele, metric, path, saveModele):
-    '''
-    something like a main, but in a function (with all previous function)
-    ,also, load paths, models/weights parameters and write log file
-
-    *k:index of the loop, default is 1*
-
-    Version for compute pca (loop on layers before loop on pictures)    
-    '''
-    
-    print("longueur imglist: ", len(imglist))
-    activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
-    
-    
-    #nbComp = pandas.DataFrame()
-    for layer in layers:
-    
-        
-        print('##### current layer is: ', layer)
-        #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
-        #elle retourne l'array des activations à la couche choisie
-        dict_activations = {}
-        get_activation_by_layer(activations,imglist,dict_activations,computation, metric, k, layer)
-        
-        #parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
-        
-        pc = []
-        #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
-        #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
-        
-    
-        if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
-            if loadModele!="":
-                comp = metrics.acp_layers_loadModele(dict_activations, pc, bdd, layer, path,modelePath = loadModele)
-            else:
-                comp = metrics.acp_layers(dict_activations, pc, bdd, layer, path,saveModele = saveModele)
-        elif computation == 'featureMap':
-            if loadModele!="":
-                comp = metrics.acp_layers_featureMap_loadModele(dict_activations, pc, bdd, layer, path,modelePath = loadModele)
-            else:
-                comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path, saveModele = saveModele)
-
-
-
 def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'flatten',saveModele = False,loadModele=""):
     '''!Met en place les composants pour l'execution de l'ACP.   
         adapte les chemins d'entrée et sortie.
         prétraite certaines bases de donnée (CFD_ALL, fairface)
     '''
+
+    def extract_pc_acp():#bdd, layers, computation, freqmod, model, images_path,imglist, k, loadModele, metric, path, saveModele):
+        '''
+        something like a main, but in a function (with all previous function)
+        ,also, load paths, models/weights parameters and write log file
+
+        *k:index of the loop, default is 1*
+
+        Version for compute pca (loop on layers before loop on pictures)    
+        '''
+    
+        print("longueur imglist: ", len(imglist))
+        activations = getActivations_for_all_image(model,images_path,imglist,computation, metric, freqmod)
+    
+    
+        #nbComp = pandas.DataFrame()
+        for layer in layers:
+    
+        
+            print('##### current layer is: ', layer)
+            #une fonction qui pour la couche et seulement la couche, stocke les activations de toutes les images
+            #elle retourne l'array des activations à la couche choisie
+            dict_activations = {}
+            get_activation_by_layer(activations,imglist,dict_activations,computation, metric, k, layer)
+        
+            #parse_activations_by_layer(model,images_path,dict_activations, layer, 'flatten', metric, freqmod, k)
+        
+            pc = []
+            #une fonction qui fait une acp la dessus, qui prends en entrée la liste pc vide et l'array des activations,
+            #et enregistre les coordonnées des individus pour chaque composante dans un csv dans results/bdd/pca
+        
+    
+            if computation == 'flatten' or layer in ['fc1','fc2','flatten']:
+                if loadModele!="":
+                    comp = metrics.acp_layers_loadModele(dict_activations, pc, bdd, layer, path,modelePath = loadModele)
+                else:
+                    comp = metrics.acp_layers(dict_activations, pc, bdd, layer, path,saveModele = saveModele)
+            elif computation == 'featureMap':
+                if loadModele!="":
+                    comp = metrics.acp_layers_featureMap_loadModele(dict_activations, pc, bdd, layer, path,modelePath = loadModele)
+                else:
+                    comp = metrics.acp_layers_featureMap(dict_activations, pc, bdd, layer, path, saveModele = saveModele)
+    ###########
+    ## FIN extract_pc_acp
+    ###########
+
+
+
+
 
 
     ####### Passe le booleen a True pour CFD_ALL
@@ -472,7 +477,7 @@ def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
 
 
     #dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
-    #dict_labels = {}
+    dict_labels = {}
     print("path :", computer)
 
    ####### lance l'ACP sur chaque sous ensemble de CFD
@@ -490,7 +495,7 @@ def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
                 path= computer+"results"+"/"+bdd+"/pca"
             elif computation == 'featureMap': 
                 path= computer+"results"+"/"+bdd+"/FeatureMap"
-            extract_pc_acp(bdd,layers, computation, freqmod,  model,images_path, imglist, k, loadModele, metric, path, saveModele)
+            extract_pc_acp()#bdd,layers, computation, freqmod,  model,images_path, imglist, k, loadModele, metric, path, saveModele)
     #######   
     else:
         if bdd == "Fairface":
@@ -507,7 +512,7 @@ def preprocess_ACP(bdd,weight,metric, model_name, computer, freqmod,k = 1,comput
             imglist = [f for f in os.listdir(images_path)]
     
 
-        extract_pc_acp(bdd, layers, computation, freqmod,  model,images_path,imglist, k, loadModele, metric, path, saveModele)
+        extract_pc_acp()#bdd, layers, computation, freqmod,  model,images_path,imglist, k, loadModele, metric, path, saveModele)
         
     if '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' in path:
         path = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
@@ -607,8 +612,9 @@ def preprocess_average(bdd,weight,metric, model_name, computer, freqmod,k = 1,co
                         df.to_csv(path+"/"+namefile+"_values_"+layer+".csv")
                     else:
                         df.to_csv(path+"/"+namefile+"_values_"+layer+".csv",mode='a', header=False)
-
-
+    ###########
+    ## FIN AVERAGE
+    ###########
 
     t0 = time.time()
 
@@ -644,7 +650,7 @@ def preprocess_average(bdd,weight,metric, model_name, computer, freqmod,k = 1,co
     #    path= path+"_FeatureMap"
     
     #dict_compute_pc = {}   #un dictionnaire qui par couche, a ses composantes principales (et les coorodnnées de chaque image pour chaque composante)
-    #dict_labels = {}
+    dict_labels = {}
        ##########
 
     if allCFD == True:
@@ -667,26 +673,35 @@ def preprocess_average(bdd,weight,metric, model_name, computer, freqmod,k = 1,co
             average()
     else:
         if bdd == "Fairface":
-            getAllGenreEthnieFairFace(labels_path)
-            #filt = {'ethnie' : "Asian", 'genre' : "Female"}
-            filt = {'ethnie' : "White", 'genre' : "Male"}
-            imglist = parserFairface(labels_path,filt)
-            #imglist = parserFairface(labels_path)
-            for key, item in filt.items():
-                if bdd == "Fairface":
-                    bdd = bdd+"_"
-                bdd = bdd+item[0]
+            exception = {'ethnie' : ['Middle Eastern',"Indian","Latino_Hispanic"], "genre" : ["none"]}
+            combinaison = getAllGenreEthnieFairFace(labels_path, exception= exception)
+            for key in combinaison.keys():
+                if key == "":
+                    bdd = "Fairface"
+                else:
+                    bdd = "Fairface_"+key
+                imglist = combinaison[key]
+            
+                path= computer+"results"+"/"+bdd+"/average"
+                namefile =  "average"
+                #filt = {'ethnie' : "Asian", 'genre' : "Female"}
+                #filt = {'ethnie' : "White", 'genre' : "Male"}
+                #imglist = parserFairface(labels_path,filt)
+                #imglist = parserFairface(labels_path)
+                #for key, item in filt.items():
+                #    if bdd == "Fairface":
+                #        bdd = bdd+"_"
+                #    bdd = bdd+item[0]
+                print("longueur imglist: ", len(imglist))
+                average()
+
         else:
             imglist = [f for f in os.listdir(images_path)]
-        print("longueur imglist: ", len(imglist))
+            print("longueur imglist: ", len(imglist))
 
-        average()
+            average()
 
 
-    
-    
-
-        
     if '/lustre/tieos/work_cefe_swp-smp/melvin/thesis/' in path:
         path = '/home/tieos/work_cefe_swp-smp/melvin/thesis/'
 
@@ -885,13 +900,8 @@ def countPC(path, formatOrdre = [],writeLLH = False, pathModel = "", method = "p
   #  pathPCA = path+"/"+"pca_FeatureMap"
     #pathModel = path+"/"+"average_FeatureMap"
     
-
-    
-
     files = getAllFile(pathPCA, formatOrdre)
    
-
-
 
     #files =    ["average_values_fc1.csv","average_values_fc2.csv", "average_values_flatten.csv"]
     for each in files:
@@ -900,6 +910,7 @@ def countPC(path, formatOrdre = [],writeLLH = False, pathModel = "", method = "p
         x, _ = readCsv(csv_path) #recupère le CSV
         tabPC.append(x.shape[1])
     return tabPC
+
 #Melvin [Obsolete]
 def eachFileCSV_Kernel(path, filesPC):
     """! effectue l'opération KDE pour chaque couche de la bdd indiqué dans path, des fichier filesPC
@@ -922,7 +933,8 @@ def eachFileCSV_Kernel(path, filesPC):
 
 
 
-#Melvin [Obsolete]
+#Melvin 
+#[Obsolete]
 def each_compare_GMM_KDE(path, filesPC):
     """! KDE abandonné, obsolete
     Fonction mère effectuant toute la pipeline de test entre la méthode GMM et KDE
@@ -1058,7 +1070,10 @@ def getAllGenreEthnieFairFace(path, exception= {'ethnie' : ['Middle Eastern',"In
     for i in reversed(CategoryFairface["ethnie"]):
         for j in reversed(CategoryFairface["genre"]):
             #combinaison.append(i+j)
-            combinaison[i[0]+j[0]] = parserFairface(path, filt = {'genre' : j, 'ethnie' : i})
+            iBis = i if len(i)==0 else i[0]
+            jBis = j if len(j)==0 else j[0]
+            combinaison[iBis+jBis] = parserFairface(path, filt = {'genre' : j, 'ethnie' : i})
+            print("sous espace: ",iBis+jBis,"  nbe image: ",len(combinaison[iBis+jBis]))
             #parserCFD(path, filt = {'genre' : j, 'ethnie' : i})
     print("ma")
     return combinaison
@@ -1085,7 +1100,7 @@ def parserFairface(path, filt = {'genre' : "Female", 'ethnie' : "Asian"}):
     #filtered = np.array(list(filter(lambda val:( filt[1] in val[3] ), x)))
 #    filtered = np.array(list(filter(lambda val:True, x)))
     # and print(filt[1]," et ", val)
-    print(filtered[-1])
+    #print(filtered[-1])
     return filtered[:,0]
 
 #exception= {'ethnie' : ["M","I", 'B', 'L', 'W'], "genre" : ["M"]}
@@ -1114,6 +1129,7 @@ def getAllGenreEthnieCFD(path, exception= {'ethnie' : ["M","I", 'B', 'L', 'W'], 
         for j in reversed(CategoryCFD["genre"]):
             #combinaison.append(i+j)
             combinaison[i+j] = parserCFD(path, filt = {'genre' : j, 'ethnie' : i})
+           
             #parserCFD(path, filt = {'genre' : j, 'ethnie' : i})
     print("ma")
     return combinaison
@@ -1154,3 +1170,28 @@ def writeLabelCFD(path, label_Filtered,name):
     os.makedirs(dirPath, exist_ok=True)
         #l'enregistrer dans results, en précisant la layer dans le nom
     df.to_csv(dirPath+"/"+"labels_CFD_"+name+".csv",header=False, index= False)
+
+def Script_concatCSV_Fairface(PathResult):
+    layers = ['input_1',
+        'block1_conv1','block1_conv2','block1_pool','block2_conv1', 'block2_conv2','block2_pool',
+            'block3_conv1','block3_conv2','block3_conv3','block3_pool','block4_conv1','block4_conv2','block4_conv3',
+            'block4_pool', 'block5_conv1','block5_conv2','block5_conv3','block5_pool', 'fc1','fc2','flatten']
+
+    liste = ["F",""]
+
+    #pathOutput = PathResult+"/Fairface_F/average/average_values_"+layer
+    
+    for layer in layers:
+        print(layer)
+        if layer == "input":
+            layer = "input_1"
+        df = pandas.DataFrame()
+
+        for f in reversed(os.listdir(PathResult)):
+            if "Fairface" in f and f[-1] =="F" and f != "Fairface_F":
+                x, head = readCsv(PathResult+"/"+f+"/average/average_values_"+layer+".csv",noHeader = False,noNumerate = False)  #recupère le CSV
+                df2 = pandas.DataFrame(x,columns = head)
+                df = df.append(df2)
+        os.makedirs(PathResult+"/Fairface_F/average/", exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+        df.to_csv(PathResult+"/Fairface_F/average/average_values_"+layer+".csv",header=False, index= False)

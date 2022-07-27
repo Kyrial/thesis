@@ -14,6 +14,7 @@ os.environ['TF_XLA_FLAGS'] = '--tf_xla_enable_xla_devices'
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import PIL
 import sys
+import re
 #personnal librairies
 
 sys.path.insert(1,'../../code/functions')
@@ -49,6 +50,8 @@ freqmod = 100 #frequency of prints, if 5: print for 1/5 images
 AllPC=[]
 
 pathModel = ""
+pathModel = "modele_Fairface"
+
 list_bdd = ""
 method = ""
 if len(sys.argv) >3:
@@ -63,8 +66,8 @@ else:
     
     method = "featureMap"
     #method = "max"#_FeatureMap"
-    #method = "pca"
-    #method = "average"#_FeatureMap"
+    method = "pca"
+    method = "average"
 if len(sys.argv) >4:
     pathModel = sys.argv[4]
 #####################################################################################
@@ -74,45 +77,63 @@ list_metrics = ['acp']
 
 
 k = 1
-l = len(list_bdd)*len(list_weights)*len(list_metrics)
+
 
 if "CFD_ALL" in list_bdd:
     list_bdd.remove("CFD_ALL")
     for f in reversed(os.listdir(pathData+"/results"+"/")):
         if "CFD" == f or "CFD_" in f:
             list_bdd.append(f)
+    list_bdd.remove("CFD_F")
+    list_bdd.remove("CFD")
+
+listModel = {}
+if pathModel == "modele_Fairface":
+    for f in reversed(os.listdir(pathData+"/results"+"/")):
+        if "CFD" == f or "CFD_" in f:
+            name = re.sub("CFD","",f)
+            listModel[f] = pathData+"/results/Fairface"+name+"/"+method
+
+      
+            
+
+#hl.Script_concatCSV_Fairface(pathData+"/results")
 
 
 for bdd in list_bdd:
-    for weight in list_weights:
-        _, layers, _ = hl.configModel(model_name, weight)
-        for metric in list_metrics:
-            print('###########################--COMPUTATION--#################################_STEP: ',k,'/',l,'  ',bdd,', ',weight,', ',metric)
-            print(pathData)
-            #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
-           # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
-            path = pathData+"/results"+"/"+bdd;
-            if pathLLH !="":
-                pathLLH =pathLLH+"/results"+"/"+bdd;
+    _, layers, _ = hl.configModel(model_name, weight)
+    for metric in list_metrics:
+        print('###########################--COMPUTATION--#################################_STEP: ',k,'/','  ',bdd,', ',weight,', ',metric)
+        print(pathData)
+        #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
+        # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";
+        path = pathData+"/results"+"/"+bdd;
+        if pathLLH !="":
+            pathLLH =pathLLH+"/results"+"/"+bdd;
 
-            #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
-            #pathModel = pathData+"/results/Fairface/pca_FeatureMap"
-            #pathModel = pathData+"/results/Fairface_AF/average"
-            
-            #x = metrics.readCsv(path)
-           # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
-            #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
-            
-            #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
-            if method == 'featureMap':
-                AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
+        if len(listModel)>0:
+            if bdd in dict.keys():
+                pathModel = listModel[bdd]
             else:
-                AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
+                continue
+        #pathLabel = "../../data/redesigned/"+bdd+"/labels_"+bdd+".csv"
+        #pathModel = pathData+"/results/Fairface/pca_FeatureMap"
+        #pathModel = pathData+"/results/Fairface_AF/average"
             
-            k += 1
+        #x = metrics.readCsv(path)
+        # metrics.getMultigaussian(x,name =  bdd+" "+"pcaBlock"+" "+"block1")
+        #metrics.getMultigaussian(x, name = bdd+" "+"pcaBlock"+" "+"block1_conv1")
+            
+        #hl.eachFileCSV(path,["pca_values_",layers,".csv"], [pathData,bdd,'_'])
+        if method == 'featureMap':
+            AllPC.append(hl.eachFileCSV(path,["pca_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
+        else:
+            AllPC.append(hl.eachFileCSV(path,[method+"_values_",layers,".csv"], writeLLH = True, pathModel =pathModel, method= method, pathLLH = pathLLH))
+            
+        k += 1
 #            path = "../../results"+"/"+bdd+"\histo"
 #            hl.eachFilePlot(path);
            
-        #plots.plotPC(AllPC, list_bdd, layers)
+    #plots.plotPC(AllPC, list_bdd, layers)
 #####################################################################################
 #import main_LLH 

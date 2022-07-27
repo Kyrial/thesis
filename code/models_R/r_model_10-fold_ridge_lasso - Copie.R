@@ -23,8 +23,9 @@ setwd("/home/renoult/Bureau/thesis/code/functions")
 #####################################################################################
 model_name <- 'VGG16'
 bdds <- c('CFD','CFD_A','CFD_AF','CFD_AM','CFD_B','CFD_BF','CFD_BM','CFD_F','CFD_L','CFD_LF','CFD_LM','CFD_M','CFD_W','CFD_WF','CFD_WM')
-bdds <- c('CFD','CFD_AM','CFD_B','CFD_BF','CFD_BM','CFD_L','CFD_LF','CFD_LM','CFD_M','CFD_W','CFD_WF','CFD_WM')
-
+bdds <- c('CFD_AM','CFD_B','CFD_BF','CFD_BM','CFD_L','CFD_LF','CFD_LM','CFD_M','CFD_W','CFD_WF','CFD_WM')
+#bdds <- c('CFD_F','CFD_A','CFD_AF','CFD')
+#bdds <- c('CFD_AF')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 regularization = 'ridge'
@@ -32,14 +33,18 @@ regularization = 'ridge'
 
 print(bdds)
 #method <- c('FeatureMap')
-method <- c('featureMap')
-method <- c('pca')
-method <- c('average')
+#method <- c('featureMap')
+#method <- c('pca')
+#method <- c('average')
+#method <- c('average_model')
+method <- c('pca_bgm')
+method <- c('featureMap_bgm')
+
 
 subset_db1 = 700
 
 for(bdd in bdds){ 
-  #bdd <- c('CFD')
+  #bdd <- c('CFD_A')
   #####################################################################################
   # 4. DATA MANAGEMENT
   #####################################################################################
@@ -57,6 +62,7 @@ for(bdd in bdds){
   colnames(matrix_metrics)[2] <- 'input_1'
   matrix_metrics <- matrix_metrics[,-1]
   matrix_beauty <- do.call(cbind,read.csv(file=labels_path, header=FALSE))
+  #matrix_beauty <- matrix_beauty[-c(1),]
   colnames(matrix_beauty) <- c("img","rate")
   df_beauty <-subset(matrix_beauty, select = c(rate))
   
@@ -118,6 +124,7 @@ for(bdd in bdds){
   print(bdd)
   print(method)
   print(r_squared)
+ # print(summary(model$results))
 }
 
 

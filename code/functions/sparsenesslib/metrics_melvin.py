@@ -69,7 +69,7 @@ def SilouhetteCoef(X, showGraphe=False, verbose = False):
         plt.ylabel("Score")
         plt.show()
 
-
+#obsolete
 def MultiDimensionalScaling(X):  
     """! Calculs la MDS
     @param X array de dimension N
