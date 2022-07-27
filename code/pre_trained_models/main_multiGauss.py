@@ -74,7 +74,7 @@ if len(sys.argv) >4:
 #CODE
 #####################################################################################
 list_metrics = ['acp']
-
+list_weights = ['imagenet']
 
 k = 1
 
@@ -101,9 +101,9 @@ if pathModel == "modele_Fairface":
 
 
 for bdd in list_bdd:
-    _, layers, _ = hl.configModel(model_name, weight)
+    _, layers, _ = hl.configModel(model_name, list_weights[0])
     for metric in list_metrics:
-        print('###########################--COMPUTATION--#################################_STEP: ',k,'/','  ',bdd,', ',weight,', ',metric)
+        print('###########################--COMPUTATION--#################################_STEP: ',k,'/','  ',bdd,', ',', ',metric)
         print(pathData)
         #path = "../../results"+"/"+bdd+"/"+"pcaBlock"+"/"+"pca_values_"+"block1"+".csv";
         # path = "../../results"+"/"+bdd+"/"+"pca"+"/"+"pca_values_"+"block1_conv1"+".csv";

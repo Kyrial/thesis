@@ -6,6 +6,7 @@
 */modele/
 /results/JEN/average/average_values_flatten.csv
 
+*.bak
 
 ## Get latest from https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
 
