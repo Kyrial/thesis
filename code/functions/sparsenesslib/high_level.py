@@ -578,11 +578,19 @@ def extract_pc_acp_filter(bdd,weight,metric, model_name, computer, freqmod,k = 1
     
 def preprocess_average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'featureMap'):
     """!
-     
+        Met en place les composants pour l'execution de Average.   
+        adapte les chemins d'entrée et sortie.
+        prétraite certaines bases de donnée (CFD_ALL, fairface)
+
+    
 
     @return 
     """
     def average():
+        """!execute average pour chaque image, (en préchargeant 100 image par 100 image afin de limiter les couts en mémoire)
+
+
+        """
         for count, batch in enumerate(list(chunked(imglist,100))):
             #if count < 104:
             #    continue
