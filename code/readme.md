@@ -11,14 +11,14 @@ prototype permettant, a partir des activation extraite, de générer les LLH
 
 `main_multiGauss.py mesoLR CFD_ALL average modele_Fairface`
 
-###Argument 1: [utile uniquement pour le mesoLR],
+### Argument 1: [utile uniquement pour le mesoLR],
 
     "`mesoLR`" indique que le noeud standard est utilisé
     "`mesoLR-3T`" indique que le noeud de 3To est utilisé
  
 ----
     
-###Argument 2: "BDD"
+### Argument 2: "BDD"
 
     les données doivent etre dans le repertoire results/
 
@@ -27,13 +27,13 @@ prototype permettant, a partir des activation extraite, de générer les LLH
     calcule les llh pour tout les sous ensemble de CFD (ceux ci doivent tous etre stoqué dans result/ ) 
 ---- 
 
-###Argument 3 "Method" 
+### Argument 3 "Method" 
 
     indique la méthode a utilisé : `pca`, `average`, `featureMap` etc.
 
 ----
 
-###Argument 4 "model"
+### Argument 4 "model"
     indique le nom de la bdd a utilisé comme modèle de reference
 
     macro: "`modele_Fairface`":
