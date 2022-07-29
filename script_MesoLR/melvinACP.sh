@@ -8,7 +8,7 @@
 #SBATCH --account=swp-gpu
 
 
-echo "Running Average Melvin"
+echo "Running ACP Melvin"
 if [ $# -lt 2 ]
   then
     

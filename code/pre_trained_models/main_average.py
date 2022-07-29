@@ -1,4 +1,23 @@
+#extrait et effectue la moyenne des activation par featuremap
+"""Mode d'emploi:
+executions avec parametre:
+###Argument 1: [utile uniquement pour le mesoLR],
+    "mesoLR" indique que le noeud standard est utilisé
+    "mesoLR-3T" indique que le noeud de 3To est utilisé
+ 
+----
+    
+###Argument 2: "BDD"
+    les données doivent etre dans le repertoire data/redesigned
 
+    macro: "CFD_ALL":
+    découpe CFD et effectue les calculs sur chacun des sous ensembles de CFD 
+
+    macro: "Fairface":
+    decoupe Fairface et effectue les calculs sur chacun des sous ensembles de CFD 
+---- 
+
+"""
 
 #####################################################################################
 # LIBRAIRIES:
@@ -41,9 +60,9 @@ AllPC=[]
 
 list_bdd = ""
 method = ""
-if len(sys.argv) >3:
+if len(sys.argv) >2:
     list_bdd = sys.argv[2].split(",")
-    method = sys.argv[3]
+   
 else:
     #'CFD','SCUT-FBP','MART','JEN','SMALLTEST','BIGTEST'
     list_bdd = [ 'CFD_AF','CFD_F'] #"['CFD','MART','JEN','SCUT-FBP','SMALLTEST','BIGTEST']"

@@ -157,6 +157,8 @@ def writeLikelihood(LLH,pathLLH, layer):
 
 
 
+
+
 def DoMultipleLLH(gmm_kde, X_model, nbe, X_train):
     AllLLH = []
     for i in range(nbe):

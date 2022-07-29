@@ -52,9 +52,6 @@
     <Compile Include="code\pre_trained_models\main_multiGauss.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="code\pre_trained_models\main_centroid.py">
-      <SubType>Code</SubType>
-    </Compile>
     <Compile Include="code\pre_trained_models\main_Kernel.py">
       <SubType>Code</SubType>
     </Compile>

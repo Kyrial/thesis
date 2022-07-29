@@ -2,9 +2,35 @@
 #####################################################################################
 # DESCRIPTION:
 #####################################################################################
-#[EN] fichier dans le cadre du stage de Melvin
-#[FR]
+#[FR] fichier dans le cadre du stage de Melvin
+# prototype permettant, a partir des activation extraite, de générer les LLH
+#
+"""Mode d'emploi:
+#executions avec parametre:
+###Argument 1: [utile uniquement pour le mesoLR],
+    "mesoLR" indique que le noeud standard est utilisé
+    "mesoLR-3T" indique que le noeud de 3To est utilisé
+ 
+----
+    
+###Argument 2: "BDD"
+    les données doivent etre dans le repertoire results/
 
+    macro: "CFD_ALL":
+    calcule les llh pour tout les sous ensemble de CFD (ceux ci doivent tous etre stoqué dans result/ ) 
+---- 
+
+###Argument 3 "Method" 
+    indique la méthode a utilisé : pca, average, featureMap etc.
+
+----
+
+###Argument 4 "model"
+    indique le nom de la bdd a utilisé comme modèle de reference
+
+    macro: "modele_Fairface":
+    associe le modèle correspondant a chaque sous ensemble de CFD
+"""
 #####################################################################################
 # LIBRAIRIES:
 #####################################################################################
@@ -50,7 +76,7 @@ freqmod = 100 #frequency of prints, if 5: print for 1/5 images
 AllPC=[]
 
 pathModel = ""
-pathModel = "modele_Fairface"
+#pathModel = "modele_Fairface"
 
 list_bdd = ""
 method = ""
@@ -66,8 +92,8 @@ else:
     
     method = "featureMap"
     #method = "max"#_FeatureMap"
-    method = "pca"
-    method = "average"
+    #method = "pca"
+    #method = "average"
 if len(sys.argv) >4:
     pathModel = sys.argv[4]
 #####################################################################################

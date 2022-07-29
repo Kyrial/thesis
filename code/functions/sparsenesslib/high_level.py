@@ -578,7 +578,7 @@ def extract_pc_acp_filter(bdd,weight,metric, model_name, computer, freqmod,k = 1
     
 def preprocess_average(bdd,weight,metric, model_name, computer, freqmod,k = 1,computation = 'featureMap'):
     """!
-    @param 
+     
 
     @return 
     """
@@ -835,6 +835,8 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
     #label = np.transpose(label)[0]
     arrayIntra = []
     arrayInter = []
+    listParametersGMM = []
+
     #files =    ["average_values_fc1.csv","average_values_fc2.csv", "average_values_flatten.csv"]
     for each in files:
     #for each in ["average_values_fc1.csv","average_values_fc2.csv","average_values_flatten.csv"]:
@@ -856,7 +858,10 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
             gm =metrics_melvin.getBayesianGaussian(model, nbMaxComp = 15)
         else:
             gm = metrics_melvin.getMultigaussian(model,name =  pathPCA+" "+each, plot = False, nbMaxComp = 15) #min(12,model.shape[0]//2))
+        
+        
         print("gauss")
+        listParametersGMM.append(gm.n_components)
         #metrics.doVarianceOfGMM(gm, x)
         allLLH =  metrics_melvin.DoMultipleLLH(gm, model,101,x)
 #       metrics_melvin.doVarianceOfGMM(allLLH, plot = True)
@@ -884,6 +889,7 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
         #metrics.writeHist(allHist, legend,pathHist,"_nbComp="+str(gm.n_components)+"_covarType="+gm.covariance_type+"_"+each)
             #sur le mesoLR, le chemin d'écriture et de lecture est différent
 
+
         if writeLLH:
             import re
             #regex = re.search("((?:pca_values){1})(.*\.csv$)",each)
@@ -892,7 +898,14 @@ def eachFileCSV(path, formatOrdre = [],writeLLH = False, pathModel = "", method 
 
             metrics_melvin.writeLikelihood(allLLH, pathLLH, layer)
        
-    
+    #GMM_Parameters
+    df = pandas.DataFrame(listParametersGMM)
+    df = df.transpose()    
+    df.columns = (formatOrdre[1])
+     
+    os.makedirs(pathLLH, exist_ok=True)
+        #l'enregistrer dans results, en précisant la layer dans le nom
+    df.to_csv(pathLLH+"/"+"GMM_Parameters.csv")
     #plots.plotPC([arrayIntra, arrayInter], ["intra", "inter"], files, title = "moyenne des variance intra et inter image par couche");        
     return tabPC
 

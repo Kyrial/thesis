@@ -13,6 +13,28 @@
 # Boucle sur les combinatoires des paramètres (bases de données, poids, modèle etc)
 # Choix de ces paramètres ci dessous. 
 
+"""Mode d'emploi:
+executions avec parametre:
+###Argument 1: [utile uniquement pour le mesoLR],
+    "mesoLR" indique que le noeud standard est utilisé
+    "mesoLR-3T" indique que le noeud de 3To est utilisé
+ 
+----
+    
+###Argument 2: "BDD"
+    les données doivent etre dans le repertoire data/redesigned
+
+    macro: "CFD_ALL":
+    découpe CFD et effectue les calculs sur chacun des sous ensembles de CFD 
+---- 
+
+###Argument 3 "Method" 
+    indique la méthode a utilisé : pca ou  featureMap
+
+"""
+
+
+
 #####################################################################################
 # LIBRAIRIES:
 #####################################################################################
