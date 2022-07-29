@@ -50,7 +50,7 @@ kfold_pca <- function(bdd, weight, metric, layer, regularization, print_number) 
     # 3.2.1 DATA MANAGEMENT
     ######################
     labels_path = paste('../../data/redesigned/',bdd,'/labels_',bdd,'.csv', sep="")
-    log_path =paste('../../results/',bdd,'/pca/', sep="")
+    log_path =paste('../../results/',bdd,'/pca_FeatureMap/', sep="")
     log_path_rate =paste('../../results/',bdd,'/log_', sep="")
     
     #chargement du fichier
@@ -64,6 +64,7 @@ kfold_pca <- function(bdd, weight, metric, layer, regularization, print_number) 
     df_metrics <- as.data.frame(df_metrics)
     df = cbind(df_metrics$rate, df_pc)
     df <- plyr::rename(df, c("df_metrics$rate" = "rate"))
+    df$sp = df_metrics[,layer] 
     
     ###############################
     # 3.2.2. MODEL: REGRESSION WITH REGULARIZATION (ridge, lasso or elasticnet)
@@ -76,20 +77,7 @@ kfold_pca <- function(bdd, weight, metric, layer, regularization, print_number) 
     lambda = model1$results$lambda[1]
     r_squared = model1$results$Rsquared[1]
     
-    matrix = as.matrix(df)
-    x = matrix[,-1]
-    y = matrix[,1]
-    if (regularization == 'glmnet'){
-      model2 = cv.glmnet(x, y, alpha = alpha)
-    } else if (regularization == 'lasso'){
-      model2 = cv.glmnet(x, y, alpha = 1)
-    } else { #cad regularization = ridge
-      model2 = cv.glmnet(x, y, alpha = 1)
-    }
-    
-    criterions =  glmnet_cv_aicc(model2)
-    
-    list = list('r_squared' = r_squared, 'AIC'= criterions$AICc, 'BIC'= criterions$BIC )
+    list = list('r_squared' = r_squared, 'AIC'= 1, 'BIC'= 1 )
     
     return(list)
 
@@ -97,7 +85,7 @@ kfold_pca <- function(bdd, weight, metric, layer, regularization, print_number) 
 #####################################################################################
 # 4. PARAMETERS:
 #####################################################################################
-bdd <- c('MART')
+bdd <- c('CFD')
 weight <- c('imagenet')
 metric <- c('gini_flatten')
 layers <-   c('block1_conv1','block1_conv2',
