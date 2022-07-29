@@ -1,4 +1,4 @@
-# Readme
+# Utilisation de réseau Convolutifs afin de modélisé le lien entre beauté et fluences Neuronal
 
 # Arborescence et fichiers
 
